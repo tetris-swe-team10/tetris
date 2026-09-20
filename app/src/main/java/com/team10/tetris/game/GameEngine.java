@@ -45,6 +45,19 @@ public boolean moveDown() {
 
     if (!board.canPlace(currentBlock)) {
         currentBlock.move(-1, 0);
+        board.lock(currentBlock);
+        board.clearLines();
+        return false;
+    }
+
+    return true;
+}
+
+public boolean rotateClockwise() {
+    currentBlock.rotateClockwise();
+
+    if (!board.canPlace(currentBlock)) {
+        currentBlock.rotateCounterClockwise();
         return false;
     }
 

@@ -79,4 +79,68 @@ void doesNotMoveDownWhenAnotherBlockIsBelow() {
     assertEquals(false, engine.moveDown());
     assertEquals(0, block.getRow());
 }
+
+@Test
+void rotatesBlockClockwise() {
+    Board board = new Board();
+    Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+    GameEngine engine = new GameEngine(board, block);
+
+    assertEquals(true, engine.rotateClockwise());
+    assertEquals(1, block.getRotation());
+}
+
+@Test
+void doesNotRotateWhenRotationCausesCollision() {
+    Board board = new Board();
+
+    // 회전된 T 블록과 겹치게 기존 블록 배치
+    board.setCell(2, 5, 1);
+
+    Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+    GameEngine engine = new GameEngine(board, block);
+
+    assertEquals(false, engine.rotateClockwise());
+
+    // 회전이 취소되어 원래 상태로 돌아왔는지 확인
+    assertEquals(0, block.getRotation());
+}
+
+@Test
+void locksBlockWhenItCannotMoveDown() {
+    Board board = new Board();
+    Tetromino block = new Tetromino(TetrominoType.T, 18, 4);
+    GameEngine engine = new GameEngine(board, block);
+
+    assertEquals(false, engine.moveDown());
+
+    assertEquals(1, board.getCell(18, 4));
+    assertEquals(1, board.getCell(18, 5));
+    assertEquals(1, board.getCell(18, 6));
+    assertEquals(1, board.getCell(19, 5));
+}
+
+@Test
+void clearsLineAfterBlockIsLocked() {
+    Board board = new Board();
+
+    // 맨 아래 줄의 4번 칸만 제외하고 모두 채움
+    for (int col = 0; col < Board.WIDTH; col++) {
+        if (col != 4) {
+            board.setCell(19, col, 1);
+        }
+    }
+
+    // I 블록을 세로로 세워 4번 칸을 채움
+    Tetromino block = new Tetromino(TetrominoType.I, 16, 4);
+    block.rotateClockwise();
+
+    GameEngine engine = new GameEngine(board, block);
+
+    assertEquals(false, engine.moveDown());
+
+    // 줄이 삭제됐는지 확인
+    assertEquals(0, board.getCell(19, 0));
+}
+
 }

@@ -65,4 +65,57 @@ void checksWhetherTetrominoCanBePlaced() {
     board.setCell(0, 4, 1);
     assertEquals(false, board.canPlace(block));
 }
+
+@Test
+void locksTetrominoOnBoard() {
+    Board board = new Board();
+    Tetromino block = new Tetromino(TetrominoType.T, 18, 4);
+
+    board.lock(block);
+
+    assertEquals(1, board.getCell(18, 4));
+    assertEquals(1, board.getCell(18, 5));
+    assertEquals(1, board.getCell(18, 6));
+    assertEquals(1, board.getCell(19, 5));
+}
+
+@Test
+void clearsFullLine() {
+    Board board = new Board();
+
+    // 맨 아래 줄을 전부 채움
+    for (int col = 0; col < Board.WIDTH; col++) {
+        board.setCell(19, col, 1);
+    }
+
+    int clearedLines = board.clearLines();
+
+    assertEquals(1, clearedLines);
+
+    // 삭제 후 맨 아래 줄이 비어 있어야 함
+    for (int col = 0; col < Board.WIDTH; col++) {
+        assertEquals(0, board.getCell(19, col));
+    }
+}
+
+@Test
+void clearsMultipleFullLines() {
+    Board board = new Board();
+
+    // 아래 두 줄을 전부 채움
+    for (int col = 0; col < Board.WIDTH; col++) {
+        board.setCell(18, col, 1);
+        board.setCell(19, col, 1);
+    }
+
+    int clearedLines = board.clearLines();
+
+    assertEquals(2, clearedLines);
+
+    for (int col = 0; col < Board.WIDTH; col++) {
+        assertEquals(0, board.getCell(18, col));
+        assertEquals(0, board.getCell(19, col));
+    }
+}
+
 }
