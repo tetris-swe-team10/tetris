@@ -48,4 +48,21 @@ void checksWhetherCellIsEmpty() {
 
     assertEquals(false, board.isEmpty(5, 3));
 }
+
+@Test
+void checksWhetherTetrominoCanBePlaced() {
+    Board board = new Board();
+
+    // 정상적인 위치
+    Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+    assertEquals(true, board.canPlace(block));
+
+    // 오른쪽 벽을 벗어나는 위치
+    Tetromino outsideBlock = new Tetromino(TetrominoType.T, 0, 9);
+    assertEquals(false, board.canPlace(outsideBlock));
+
+    // 이미 블록이 있는 위치
+    board.setCell(0, 4, 1);
+    assertEquals(false, board.canPlace(block));
+}
 }
