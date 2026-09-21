@@ -5,10 +5,15 @@ public class GameEngine {
     private final Board board;
     private Tetromino currentBlock;
     private boolean gameOver = false;
+    private Tetromino nextBlock;
+    private boolean paused = false;
+    private int dropIntervalMs = 1000;
+    private int totalClearedLines = 0;
 
     public GameEngine(Board board, Tetromino currentBlock) {
         this.board = board;
         this.currentBlock = currentBlock;
+        this.nextBlock = createRandomTetromino();
     }
 
     public Board getBoard() {
@@ -21,6 +26,22 @@ public class GameEngine {
 
     public boolean isGameOver() {
         return gameOver;
+    }
+
+    public Tetromino getNextBlock() {
+        return nextBlock;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public int getDropIntervalMs() {
+        return dropIntervalMs;
+    }
+
+    public int getTotalClearedLines() {
+        return totalClearedLines;
     }
 
     public boolean moveLeft() {
@@ -49,12 +70,25 @@ public class GameEngine {
         currentBlock.moveDown();
 
         if (!board.canPlace(currentBlock)) {
+            // 이동 실패 → 원래 위치로 복구
             currentBlock.move(-1, 0);
+
+            // 현재 위치에 블록 고정
             board.lock(currentBlock);
-            board.clearLines();
+
+            // 라인 삭제 및 누적
+            int clearedLines = board.clearLines();
+            totalClearedLines += clearedLines;
+
+            if (clearedLines > 0 && totalClearedLines % 5 == 0) {
+                increaseSpeed();
+            }
+
+            // 다음 블록 생성
             if (!spawnBlock()) {
                 gameOver = true;
             }
+
             return false;
         }
 
@@ -82,13 +116,15 @@ public class GameEngine {
     }
 
     public boolean spawnBlock() {
-        Tetromino newBlock = createRandomTetromino();
+        Tetromino newBlock = nextBlock;
 
         if (!board.canPlace(newBlock)) {
             return false;
         }
 
         currentBlock = newBlock;
+        nextBlock = createRandomTetromino();
+
         return true;
     }
 
@@ -99,11 +135,29 @@ public class GameEngine {
     }
 
     public void tick() {
-        if (gameOver) {
+        if (gameOver || paused) {
             return;
         }
 
         moveDown();
+    }
+
+    public void pause() {
+        paused = true;
+    }
+
+    public void resume() {
+        paused = false;
+    }
+
+    public void increaseSpeed() {
+        if (dropIntervalMs > 200) {
+            dropIntervalMs -= 100;
+        }
+    }
+
+    public void setCurrentBlock(Tetromino block) {
+        this.currentBlock = block;
     }
 
 }

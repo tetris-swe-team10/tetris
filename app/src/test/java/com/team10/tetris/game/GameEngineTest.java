@@ -228,4 +228,136 @@ class GameEngineTest {
         assertEquals(2, block.getRow());
     }
 
+    @Test
+    void updatesNextBlockAfterSpawn() {
+        Board board = new Board();
+        Tetromino initialBlock = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, initialBlock);
+
+        Tetromino nextBeforeSpawn = engine.getNextBlock();
+
+        assertEquals(true, engine.spawnBlock());
+
+        assertEquals(nextBeforeSpawn, engine.getCurrentBlock());
+    }
+
+    @Test
+    void createsNewNextBlockAfterSpawn() {
+        Board board = new Board();
+        Tetromino initialBlock = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, initialBlock);
+
+        Tetromino nextBeforeSpawn = engine.getNextBlock();
+
+        engine.spawnBlock();
+
+        Tetromino nextAfterSpawn = engine.getNextBlock();
+
+        assertEquals(false, nextBeforeSpawn == nextAfterSpawn);
+    }
+
+    @Test
+    void doesNotMoveWhilePaused() {
+        Board board = new Board();
+        Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, block);
+
+        engine.pause();
+        engine.tick();
+
+        assertEquals(true, engine.isPaused());
+        assertEquals(0, block.getRow());
+    }
+
+    @Test
+    void movesAgainAfterResume() {
+        Board board = new Board();
+        Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, block);
+
+        engine.pause();
+        engine.tick();
+
+        engine.resume();
+        engine.tick();
+
+        assertEquals(false, engine.isPaused());
+        assertEquals(1, block.getRow());
+    }
+
+    @Test
+    void increasesDropSpeed() {
+        Board board = new Board();
+        Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, block);
+
+        assertEquals(1000, engine.getDropIntervalMs());
+
+        engine.increaseSpeed();
+
+        assertEquals(900, engine.getDropIntervalMs());
+    }
+
+    @Test
+    void dropSpeedDoesNotGoBelowMinimum() {
+        Board board = new Board();
+        Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, block);
+
+        for (int i = 0; i < 20; i++) {
+            engine.increaseSpeed();
+        }
+
+        assertEquals(200, engine.getDropIntervalMs());
+    }
+
+    @Test
+    void countsClearedLines() {
+        Board board = new Board();
+
+        // 맨 아래 줄에서 4번 칸만 비워둠
+        for (int col = 0; col < Board.WIDTH; col++) {
+            if (col != 4) {
+                board.setCell(19, col, 1);
+            }
+        }
+
+        // 세로 I 블록으로 마지막 한 칸을 채움
+        Tetromino block = new Tetromino(TetrominoType.I, 16, 4);
+        block.rotateClockwise();
+
+        GameEngine engine = new GameEngine(board, block);
+
+        engine.moveDown();
+
+        assertEquals(1, engine.getTotalClearedLines());
+    }
+
+    @Test
+    void increasesSpeedAfterFiveClearedLines() {
+        Board board = new Board();
+        Tetromino initialBlock = new Tetromino(TetrominoType.I, 19, 3);
+        GameEngine engine = new GameEngine(board, initialBlock);
+
+        for (int i = 0; i < 5; i++) {
+
+            // 맨 아래 줄에서 I 블록이 들어갈 4칸만 비워둠
+            for (int col = 0; col < Board.WIDTH; col++) {
+                if (col < 3 || col > 6) {
+                    board.setCell(19, col, 1);
+                }
+            }
+
+            // 가로 I 블록으로 남은 4칸을 채움
+            Tetromino block = new Tetromino(TetrominoType.I, 19, 3);
+            engine.setCurrentBlock(block);
+
+            // 아래로 갈 수 없으므로 lock → 한 줄 삭제
+            engine.moveDown();
+        }
+
+        assertEquals(5, engine.getTotalClearedLines());
+        assertEquals(900, engine.getDropIntervalMs());
+    }
+
 }
