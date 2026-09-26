@@ -360,29 +360,6 @@ class GameEngineTest {
         assertEquals(900, engine.getDropIntervalMs());
     }
 
-    @Test
-void doesNotAllowControlsWhilePaused() {
-    Board board = new Board();
-    Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
-    GameEngine engine = new GameEngine(board, block);
-
-    engine.pause();
-
-    assertEquals(false, engine.moveLeft());
-    assertEquals(false, engine.moveRight());
-    assertEquals(false, engine.moveDown());
-    assertEquals(false, engine.rotateClockwise());
-
-    engine.hardDrop();
-
-    // 일시정지 중에는 블록의 위치와 회전 상태가 그대로여야 함
-    assertEquals(0, block.getRow());
-    assertEquals(4, block.getCol());
-    assertEquals(0, block.getRotation());
-
-    // 블록이 보드에 고정되지 않았는지도 확인
-    assertEquals(0, board.getCell(0, 4));
-}
 
 @Test
 void doesNotAllowControlsWhilePaused() {
