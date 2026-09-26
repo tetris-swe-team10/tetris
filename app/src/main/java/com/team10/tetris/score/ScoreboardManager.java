@@ -13,6 +13,13 @@ import java.util.List;
 
 public class ScoreboardManager {
 
+
+    /** 스코어보드에 유지하는 최대 기록 수. */
+    public static final int MAX_RECORDS = 10;
+
+    /** 순위에 들지 못했음을 나타내는 값. */
+    public static final int UNRANKED = -1;
+
     private final Path filePath;
 
     public ScoreboardManager() {
@@ -166,5 +173,85 @@ public class ScoreboardManager {
         }
 
         return records.get(0).score();
+    }
+
+    /** 점수가 스코어보드에 등록될 수 있는지 확인. 동점이면 기존 기록을 유지한다. */
+    public boolean isHighScore(int score) throws IOException {
+        if (score <= 0) {
+            return false;
+        }
+
+        List<GameRecord> records = getRecords();
+
+        // 아직 자리가 남아있으면 무조건 등록 가능
+        if (records.size() < MAX_RECORDS) {
+            return true;
+        }
+
+        // 가득 찬 경우 최하위 기록보다 높아야 등록 가능
+        return score > records.get(MAX_RECORDS - 1).score();
+    }
+
+    /** 기록을 저장하고 순위(1부터)를 반환. 등록되지 못하면 {@link #UNRANKED}. */
+    public int saveAndGetRank(GameRecord record) throws IOException {
+        save(record);
+        trim();
+
+        List<GameRecord> records = getRecords();
+
+        for (int index = 0; index < records.size(); index++) {
+            if (records.get(index).equals(record)) {
+                return index + 1;
+            }
+        }
+
+        // trim()에서 밀려난 경우
+        return UNRANKED;
+    }
+    /**
+     * 이름과 점수로 기록을 저장한 뒤 순위를 반환
+     * @see #saveAndGetRank(GameRecord)
+     */
+    public int saveAndGetRank(
+            String playerName,
+            int score,
+            int clearedLines
+    ) throws IOException {
+        return saveAndGetRank(
+                new GameRecord(
+                        playerName,
+                        score,
+                        clearedLines,
+                        LocalDateTime.now()
+                )
+        );
+    }
+    /**
+     * 저장된 모든 기록을 삭제
+     * 설정 화면의 "스코어 보드 기록 초기화" 기능에서 사용
+     */
+    public void clear() throws IOException {
+        Files.deleteIfExists(filePath);
+    }
+
+    /**
+     * 상위 {@link #MAX_RECORDS}개만 남기고 나머지 기록을 정리
+     */
+    private void trim() throws IOException {
+        List<GameRecord> records = getRecords();
+
+        if (records.size() <= MAX_RECORDS) {
+            return;
+        }
+
+        List<GameRecord> kept = List.copyOf(
+                records.subList(0, MAX_RECORDS)
+        );
+
+        Files.deleteIfExists(filePath);
+
+        for (GameRecord record : kept) {
+            save(record);
+        }
     }
 }

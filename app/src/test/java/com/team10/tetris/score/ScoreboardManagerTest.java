@@ -8,8 +8,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ScoreboardManagerTest {
 
@@ -20,6 +19,15 @@ class ScoreboardManagerTest {
         return new ScoreboardManager(
                 tempDir.resolve("scores.tsv")
         );
+    }
+
+    /** 스코어보드를 가득 채운다. 점수는 100, 200, ... 순으로 저장된다. */
+    private void fillScoreboard(ScoreboardManager manager)
+            throws IOException {
+
+        for (int index = 1; index <= ScoreboardManager.MAX_RECORDS; index++) {
+            manager.save("Player" + index, index * 100, index);
+        }
     }
 
     @Test
@@ -140,5 +148,185 @@ class ScoreboardManagerTest {
                 new ScoreboardManager(file);
 
         assertEquals(2500, second.getHighScore());
+    }
+    // ---------------------------------------------------------------
+    // isHighScore
+    // ---------------------------------------------------------------
+
+    @Test
+    void treatsAnyPositiveScoreAsHighScoreWhenBoardIsEmpty()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        assertTrue(manager.isHighScore(1));
+    }
+
+    @Test
+    void rejectsZeroScoreAsHighScore()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        assertFalse(manager.isHighScore(0));
+    }
+
+    @Test
+    void treatsLowScoreAsHighScoreWhenBoardIsNotFull()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        manager.save("A", 5000, 20);
+
+        assertTrue(manager.isHighScore(10));
+    }
+
+    @Test
+    void acceptsScoreAboveLowestRecordWhenBoardIsFull()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+        fillScoreboard(manager);
+
+        // 최하위 기록은 100점
+        assertTrue(manager.isHighScore(150));
+    }
+
+    @Test
+    void rejectsScoreBelowLowestRecordWhenBoardIsFull()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+        fillScoreboard(manager);
+
+        assertFalse(manager.isHighScore(50));
+    }
+
+    @Test
+    void rejectsScoreEqualToLowestRecordWhenBoardIsFull()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+        fillScoreboard(manager);
+
+        assertFalse(manager.isHighScore(100));
+    }
+
+    // ---------------------------------------------------------------
+    // saveAndGetRank
+    // ---------------------------------------------------------------
+
+    @Test
+    void returnsFirstRankForHighestScore()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        manager.save("A", 500, 2);
+        manager.save("B", 900, 4);
+
+        assertEquals(1, manager.saveAndGetRank("C", 1500, 7));
+    }
+
+    @Test
+    void returnsMatchingRankForMiddleScore()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        manager.save("A", 1500, 7);
+        manager.save("B", 500, 2);
+
+        assertEquals(2, manager.saveAndGetRank("C", 900, 4));
+    }
+
+    @Test
+    void returnsUnrankedWhenScoreDoesNotEnterScoreboard()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+        fillScoreboard(manager);
+
+        assertEquals(
+                ScoreboardManager.UNRANKED,
+                manager.saveAndGetRank("Late", 10, 0)
+        );
+    }
+
+    @Test
+    void keepsOnlyMaxRecordsAfterSaving()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+        fillScoreboard(manager);
+
+        manager.saveAndGetRank("Best", 99999, 50);
+
+        assertEquals(
+                ScoreboardManager.MAX_RECORDS,
+                manager.getRecords().size()
+        );
+        assertEquals(99999, manager.getHighScore());
+    }
+
+    @Test
+    void removesLowestRecordWhenScoreboardOverflows()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+        fillScoreboard(manager);
+
+        manager.saveAndGetRank("Best", 99999, 50);
+
+        List<GameRecord> records = manager.getRecords();
+        GameRecord lowest = records.get(records.size() - 1);
+
+        // 원래 최하위였던 100점 기록이 밀려나고 200점이 최하위가 된다
+        assertEquals(200, lowest.score());
+    }
+
+    // ---------------------------------------------------------------
+    // clear
+    // ---------------------------------------------------------------
+
+    @Test
+    void removesAllRecordsOnClear()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        manager.save("A", 500, 2);
+        manager.save("B", 900, 4);
+
+        manager.clear();
+
+        assertEquals(0, manager.getRecords().size());
+        assertEquals(0, manager.getHighScore());
+    }
+
+    @Test
+    void allowsSavingAfterClear()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        manager.save("A", 500, 2);
+        manager.clear();
+        manager.save("B", 300, 1);
+
+        assertEquals(1, manager.getRecords().size());
+        assertEquals(300, manager.getHighScore());
+    }
+
+    @Test
+    void doesNotFailWhenClearingEmptyScoreboard()
+            throws IOException {
+
+        ScoreboardManager manager = createManager();
+
+        manager.clear();
+
+        assertEquals(0, manager.getRecords().size());
     }
 }
