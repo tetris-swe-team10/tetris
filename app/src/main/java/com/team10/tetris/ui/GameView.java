@@ -43,14 +43,15 @@ public class GameView extends BorderPane {
     private boolean settingsOpenedWhilePaused = false;
     private boolean gameOverNotified = false;
 
-    private Runnable onSettingsRequested = () -> {};
-    private Runnable onGameOver = () -> {};
+    private Runnable onSettingsRequested = () -> {
+    };
+    private Runnable onGameOver = () -> {
+    };
 
     public GameView() {
         this(new GameEngine(
                 new Board(),
-                new Tetromino(TetrominoType.T, 0, 3)
-        ));
+                new Tetromino(TetrominoType.T, 0, 3)));
     }
 
     public GameView(GameEngine engine) {
@@ -58,8 +59,7 @@ public class GameView extends BorderPane {
 
         boardCanvas = new Canvas(
                 Board.WIDTH * CELL_SIZE,
-                Board.HEIGHT * CELL_SIZE
-        );
+                Board.HEIGHT * CELL_SIZE);
 
         nextCanvas = new Canvas(120, 120);
 
@@ -73,8 +73,7 @@ public class GameView extends BorderPane {
                 nextCanvas,
                 statusLabel,
                 pauseButton,
-                settingsButton
-        );
+                settingsButton);
 
         rightPanel.setAlignment(Pos.TOP_CENTER);
         rightPanel.setPadding(new Insets(20));
@@ -100,8 +99,8 @@ public class GameView extends BorderPane {
                 case DOWN -> engine.moveDown();
                 case UP -> engine.rotateClockwise();
                 case SPACE -> engine.hardDrop();
-                case P -> togglePause();
-                case ESCAPE -> requestSettings();
+
+                case ESCAPE -> togglePause();
 
                 default -> {
                     return;
@@ -116,9 +115,7 @@ public class GameView extends BorderPane {
         dropTimer = new Timeline(
                 new KeyFrame(
                         Duration.millis(TIMER_STEP_MS),
-                        event -> updateGame()
-                )
-        );
+                        event -> updateGame()));
 
         dropTimer.setCycleCount(Timeline.INDEFINITE);
 
@@ -135,8 +132,7 @@ public class GameView extends BorderPane {
 
                         Platform.runLater(this::requestFocus);
                     }
-                }
-        );
+                });
 
         setOnMouseClicked(event -> requestFocus());
 
@@ -160,13 +156,15 @@ public class GameView extends BorderPane {
     public void setOnSettingsRequested(Runnable callback) {
         onSettingsRequested = callback != null
                 ? callback
-                : () -> {};
+                : () -> {
+                };
     }
 
     public void setOnGameOver(Runnable callback) {
         onGameOver = callback != null
                 ? callback
-                : () -> {};
+                : () -> {
+                };
     }
 
     private void updateGame() {
@@ -246,8 +244,7 @@ public class GameView extends BorderPane {
 
         scoreLabel.setText(String.valueOf(score));
         linesLabel.setText(
-                String.valueOf(engine.getTotalClearedLines())
-        );
+                String.valueOf(engine.getTotalClearedLines()));
 
         if (engine.isGameOver()) {
             statusLabel.setText("GAME OVER");
@@ -271,8 +268,7 @@ public class GameView extends BorderPane {
                 0,
                 0,
                 boardCanvas.getWidth(),
-                boardCanvas.getHeight()
-        );
+                boardCanvas.getHeight());
 
         // 고정된 블록
         gc.setFill(Color.web("#527A83"));
@@ -298,8 +294,7 @@ public class GameView extends BorderPane {
                         drawCell(
                                 gc,
                                 block.getRow() + row,
-                                block.getCol() + col
-                        );
+                                block.getCol() + col);
                     }
                 }
             }
@@ -314,8 +309,7 @@ public class GameView extends BorderPane {
                         col * CELL_SIZE,
                         row * CELL_SIZE,
                         CELL_SIZE,
-                        CELL_SIZE
-                );
+                        CELL_SIZE);
             }
         }
     }
@@ -328,8 +322,7 @@ public class GameView extends BorderPane {
                 0,
                 0,
                 nextCanvas.getWidth(),
-                nextCanvas.getHeight()
-        );
+                nextCanvas.getHeight());
 
         int[][] shape = engine.getNextBlock().getShape();
 
@@ -337,15 +330,11 @@ public class GameView extends BorderPane {
 
         int previewCellSize = 24;
 
-        int startX = (
-                (int) nextCanvas.getWidth()
-                        - shape[0].length * previewCellSize
-        ) / 2;
+        int startX = ((int) nextCanvas.getWidth()
+                - shape[0].length * previewCellSize) / 2;
 
-        int startY = (
-                (int) nextCanvas.getHeight()
-                        - shape.length * previewCellSize
-        ) / 2;
+        int startY = ((int) nextCanvas.getHeight()
+                - shape.length * previewCellSize) / 2;
 
         for (int row = 0; row < shape.length; row++) {
             for (int col = 0; col < shape[row].length; col++) {
@@ -354,8 +343,7 @@ public class GameView extends BorderPane {
                             startX + col * previewCellSize,
                             startY + row * previewCellSize,
                             previewCellSize - 2,
-                            previewCellSize - 2
-                    );
+                            previewCellSize - 2);
                 }
             }
         }
@@ -364,13 +352,11 @@ public class GameView extends BorderPane {
     private void drawCell(
             GraphicsContext gc,
             int row,
-            int col
-    ) {
+            int col) {
         gc.fillRect(
                 col * CELL_SIZE + 1,
                 row * CELL_SIZE + 1,
                 CELL_SIZE - 2,
-                CELL_SIZE - 2
-        );
+                CELL_SIZE - 2);
     }
 }

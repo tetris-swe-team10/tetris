@@ -1,21 +1,24 @@
 package com.team10.tetris;
 
+import com.team10.tetris.ui.GameView;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        Label label = new Label("Tetris Team 10");
+        GameView gameView = new GameView();
 
-        Scene scene = new Scene(label, 800, 600);
+        Scene scene = new Scene(gameView, 540, 620);
 
-        stage.setTitle("Tetris");
+        stage.setTitle("Tetris Team 10");
         stage.setScene(scene);
         stage.show();
+
+        gameView.requestFocus();
     }
 
     public static void main(String[] args) {
