@@ -360,4 +360,99 @@ class GameEngineTest {
         assertEquals(900, engine.getDropIntervalMs());
     }
 
+    @Test
+    void doesNotAllowControlsWhilePaused() {
+        Board board = new Board();
+        Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, block);
+
+        engine.pause();
+
+        assertEquals(false, engine.moveLeft());
+        assertEquals(false, engine.moveRight());
+        assertEquals(false, engine.moveDown());
+        assertEquals(false, engine.rotateClockwise());
+        assertEquals(0, engine.hardDrop());
+
+        assertEquals(0, block.getRow());
+        assertEquals(4, block.getCol());
+        assertEquals(0, block.getRotation());
+
+        assertEquals(0, board.getCell(0, 4));
+    }
+
+    @Test
+    void resumesControlsAfterPause() {
+        Board board = new Board();
+        Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, block);
+
+        engine.pause();
+        engine.resume();
+
+        assertEquals(true, engine.moveLeft());
+        assertEquals(3, block.getCol());
+    }
+
+    @Test
+    void returnsHardDropDistance() {
+        Board board = new Board();
+        Tetromino block = new Tetromino(TetrominoType.T, 0, 4);
+        GameEngine engine = new GameEngine(board, block);
+
+        assertEquals(18, engine.hardDrop());
+
+        assertEquals(1, board.getCell(18, 4));
+        assertEquals(1, board.getCell(18, 5));
+        assertEquals(1, board.getCell(18, 6));
+        assertEquals(1, board.getCell(19, 5));
+    }
+
+    @Test
+    void storesLastClearedLines() {
+        Board board = new Board();
+
+        for (int col = 0; col < Board.WIDTH; col++) {
+            if (col < 3 || col > 6) {
+                board.setCell(19, col, 1);
+            }
+        }
+
+        Tetromino block = new Tetromino(
+                TetrominoType.I,
+                19,
+                3);
+
+        GameEngine engine = new GameEngine(board, block);
+
+        engine.moveDown();
+
+        assertEquals(1, engine.getLastClearedLines());
+        assertEquals(1, engine.getTotalClearedLines());
+    }
+
+    @Test
+    void doesNotAllowHardDropAfterGameOver() {
+        Board board = new Board();
+
+        for (int col = 3; col <= 6; col++) {
+            board.setCell(0, col, 1);
+            board.setCell(1, col, 1);
+        }
+
+        Tetromino block = new Tetromino(
+                TetrominoType.T,
+                18,
+                4);
+
+        GameEngine engine = new GameEngine(board, block);
+
+        engine.moveDown();
+
+        assertEquals(true, engine.isGameOver());
+        assertEquals(0, engine.hardDrop());
+        assertEquals(false, engine.moveLeft());
+        assertEquals(false, engine.rotateClockwise());
+    }
+
 }
