@@ -1,10 +1,15 @@
 package com.team10.tetris;
 
+import java.util.Map;
+
 import com.team10.tetris.game.Board;
 import com.team10.tetris.game.GameEngine;
 import com.team10.tetris.game.Tetromino;
 import com.team10.tetris.game.TetrominoType;
+import com.team10.tetris.input.MenuKeyBindings;
 import com.team10.tetris.score.ScoreboardManager;
+import com.team10.tetris.screen.StartMenuAction;
+import com.team10.tetris.screen.StartScreen;
 import com.team10.tetris.ui.GameOverView;
 import com.team10.tetris.ui.GameView;
 
@@ -14,69 +19,81 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- * 프로그램 진입점 및 화면 전환 담당.
- *
- * <p>시작 메뉴와 설정 화면은 아직 구현되지 않아 게임 화면에서 시작한다.
- */
+/** 프로그램 진입점 및 화면 전환 담당. */
 public class App extends Application {
 
-    private static final int WINDOW_WIDTH = 960;
-    private static final int WINDOW_HEIGHT = 640;
+        private static final int WINDOW_WIDTH = 960;
+        private static final int WINDOW_HEIGHT = 640;
 
-    private final ScoreboardManager scoreboardManager =
-            new ScoreboardManager();
+        private final ScoreboardManager scoreboardManager = new ScoreboardManager();
 
-    private Scene scene;
+        private Scene scene;
 
-    @Override
-    public void start(Stage stage) {
-        scene = new Scene(createGameView(), WINDOW_WIDTH, WINDOW_HEIGHT);
+        @Override
+        public void start(Stage stage) {
+                StartScreen startScreen = createStartScreen();
+                scene = new Scene(startScreen, WINDOW_WIDTH, WINDOW_HEIGHT);
+                scene.getStylesheets().add(
+                                App.class.getResource(
+                                                "/com/team10/tetris/start-screen.css").toExternalForm());
 
-        stage.setTitle("Tetris");
-        stage.setScene(scene);
-        stage.show();
-    }
+                stage.setTitle("Tetris");
+                stage.setMinWidth(800);
+                stage.setMinHeight(560);
+                stage.setScene(scene);
+                stage.show();
 
-    /** 화면을 교체한다. 시작 메뉴가 추가되면 이 메서드를 재사용할 수 있다. */
-    private void showScreen(Parent screen) {
-        scene.setRoot(screen);
-        screen.requestFocus();
-    }
+                startScreen.requestMenuFocus();
+        }
 
-    private GameView createGameView() {
-        GameEngine engine = new GameEngine(
-                new Board(),
-                new Tetromino(TetrominoType.T, 0, 3)
-        );
+        private StartScreen createStartScreen() {
+                return new StartScreen(
+                                Map.of(
+                                                StartMenuAction.START_GAME,
+                                                () -> showScreen(createGameView()),
+                                                StartMenuAction.EXIT,
+                                                Platform::exit),
+                                MenuKeyBindings.defaults());
+        }
 
-        GameView gameView = new GameView(engine);
+        private void showStartMenu() {
+                StartScreen startScreen = createStartScreen();
+                showScreen(startScreen);
+                startScreen.requestMenuFocus();
+        }
 
-        gameView.setOnGameOver(
-                () -> showGameOver(
-                        gameView.getScore(),
-                        engine.getTotalClearedLines()
-                )
-        );
+        private void showScreen(Parent screen) {
+                scene.setRoot(screen);
+                screen.requestFocus();
+        }
 
-        return gameView;
-    }
+        private GameView createGameView() {
+                GameEngine engine = new GameEngine(
+                                new Board(),
+                                new Tetromino(TetrominoType.T, 0, 3));
 
-    private void showGameOver(int score, int clearedLines) {
-        GameOverView gameOverView = new GameOverView(scoreboardManager);
+                GameView gameView = new GameView(engine);
+                gameView.setOnGameOver(
+                                () -> showGameOver(
+                                                gameView.getScore(),
+                                                engine.getTotalClearedLines()));
 
-        gameOverView.setOnRestart(() -> showScreen(createGameView()));
+                return gameView;
+        }
 
-        // 시작 메뉴가 구현되면 해당 화면으로 연결
-        gameOverView.setOnMainMenu(() -> showScreen(createGameView()));
+        private void showGameOver(int score, int clearedLines) {
+                GameOverView gameOverView = new GameOverView(scoreboardManager);
 
-        gameOverView.setOnExit(Platform::exit);
+                gameOverView.setOnRestart(
+                                () -> showScreen(createGameView()));
+                gameOverView.setOnMainMenu(this::showStartMenu);
+                gameOverView.setOnExit(Platform::exit);
 
-        showScreen(gameOverView);
-        gameOverView.showResult(score, clearedLines);
-    }
+                showScreen(gameOverView);
+                gameOverView.showResult(score, clearedLines);
+        }
 
-    public static void main(String[] args) {
-        launch();
-    }
+        public static void main(String[] args) {
+                launch();
+        }
 }
