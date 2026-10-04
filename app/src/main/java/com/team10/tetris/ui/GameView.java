@@ -24,6 +24,11 @@ public class GameView extends BorderPane {
     private static final int CELL_SIZE = 28;
     private static final int TIMER_STEP_MS = 50;
 
+    // 무늬 간격은 칸 폭의 약 22%, 선 굵기는 1.75px
+    private static final double PATTERN_SPACING_RATIO = 0.22;
+    private static final double PATTERN_LINE_WIDTH = 1.75;
+    private static final double OUTLINE_WIDTH = 1.5;
+
     private final GameEngine engine;
     private final Canvas boardCanvas;
     private final Canvas nextCanvas;
@@ -42,6 +47,8 @@ public class GameView extends BorderPane {
 
     private boolean settingsOpenedWhilePaused = false;
     private boolean gameOverNotified = false;
+
+    private BlockPalette palette = BlockPalette.NORMAL;
 
     private Runnable onSettingsRequested = () -> {
     };
@@ -150,6 +157,16 @@ public class GameView extends BorderPane {
     // 점수 담당 팀원이 계산한 점수를 전달하는 연결 지점
     public void setScore(int score) {
         this.score = Math.max(0, score);
+        redraw();
+    }
+
+    public boolean isColorBlindMode() {
+        return palette == BlockPalette.COLOR_BLIND;
+    }
+
+    // 설정 화면 담당자가 색맹 모드 토글에서 호출
+    public void setColorBlindMode(boolean colorBlindMode) {
+        palette = BlockPalette.of(colorBlindMode);
         redraw();
     }
 
@@ -271,12 +288,14 @@ public class GameView extends BorderPane {
                 boardCanvas.getHeight());
 
         // 고정된 블록
-        gc.setFill(Color.web("#527A83"));
-
         for (int row = 0; row < Board.HEIGHT; row++) {
             for (int col = 0; col < Board.WIDTH; col++) {
                 if (board.getCell(row, col) != 0) {
-                    drawCell(gc, row, col);
+                    drawCell(
+                            gc,
+                            row,
+                            col,
+                            palette.styleOf(board.getCellType(row, col)));
                 }
             }
         }
@@ -285,8 +304,7 @@ public class GameView extends BorderPane {
         if (!engine.isGameOver()) {
             Tetromino block = engine.getCurrentBlock();
             int[][] shape = block.getShape();
-
-            gc.setFill(Color.web("#63D4C5"));
+            BlockStyle style = palette.styleOf(block.getType());
 
             for (int row = 0; row < shape.length; row++) {
                 for (int col = 0; col < shape[row].length; col++) {
@@ -294,7 +312,8 @@ public class GameView extends BorderPane {
                         drawCell(
                                 gc,
                                 block.getRow() + row,
-                                block.getCol() + col);
+                                block.getCol() + col,
+                                style);
                     }
                 }
             }
@@ -324,9 +343,9 @@ public class GameView extends BorderPane {
                 nextCanvas.getWidth(),
                 nextCanvas.getHeight());
 
-        int[][] shape = engine.getNextBlock().getShape();
-
-        gc.setFill(Color.web("#63D4C5"));
+        Tetromino nextBlock = engine.getNextBlock();
+        int[][] shape = nextBlock.getShape();
+        BlockStyle style = palette.styleOf(nextBlock.getType());
 
         int previewCellSize = 24;
 
@@ -339,11 +358,12 @@ public class GameView extends BorderPane {
         for (int row = 0; row < shape.length; row++) {
             for (int col = 0; col < shape[row].length; col++) {
                 if (shape[row][col] == 1) {
-                    gc.fillRect(
+                    drawBlock(
+                            gc,
                             startX + col * previewCellSize,
                             startY + row * previewCellSize,
                             previewCellSize - 2,
-                            previewCellSize - 2);
+                            style);
                 }
             }
         }
@@ -352,11 +372,138 @@ public class GameView extends BorderPane {
     private void drawCell(
             GraphicsContext gc,
             int row,
-            int col) {
-        gc.fillRect(
+            int col,
+            BlockStyle style) {
+        drawBlock(
+                gc,
                 col * CELL_SIZE + 1,
                 row * CELL_SIZE + 1,
                 CELL_SIZE - 2,
-                CELL_SIZE - 2);
+                style);
+    }
+
+    // 블록 한 칸: 채우기 → 무늬 → 외곽선
+    private void drawBlock(
+            GraphicsContext gc,
+            double x,
+            double y,
+            double size,
+            BlockStyle style) {
+        gc.setFill(style.fill());
+        gc.fillRect(x, y, size, size);
+
+        if (style.pattern() != BlockPattern.NONE) {
+            // 무늬가 칸 밖으로 나가지 않도록 칸 영역으로 자름
+            gc.save();
+            gc.beginPath();
+            gc.rect(x, y, size, size);
+            gc.closePath();
+            gc.clip();
+
+            drawPattern(gc, x, y, size, style);
+
+            gc.restore();
+        }
+
+        gc.setStroke(BlockPalette.OUTLINE);
+        gc.setLineWidth(OUTLINE_WIDTH);
+        gc.strokeRect(
+                x + OUTLINE_WIDTH / 2,
+                y + OUTLINE_WIDTH / 2,
+                size - OUTLINE_WIDTH,
+                size - OUTLINE_WIDTH);
+        gc.setLineWidth(1);
+    }
+
+    // 무늬는 화면 기준으로 그려서 블록이 회전해도 방향이 바뀌지 않음
+    private void drawPattern(
+            GraphicsContext gc,
+            double x,
+            double y,
+            double size,
+            BlockStyle style) {
+        double spacing = size * PATTERN_SPACING_RATIO;
+
+        gc.setStroke(style.patternColor());
+        gc.setFill(style.patternColor());
+        gc.setLineWidth(PATTERN_LINE_WIDTH);
+
+        switch (style.pattern()) {
+            case HORIZONTAL_LINES -> drawHorizontalLines(gc, x, y, size, spacing);
+            case VERTICAL_LINES -> drawVerticalLines(gc, x, y, size, spacing);
+            case GRID -> {
+                drawHorizontalLines(gc, x, y, size, spacing);
+                drawVerticalLines(gc, x, y, size, spacing);
+            }
+            case DIAGONAL_RIGHT -> drawDiagonalLines(gc, x, y, size, spacing, true);
+            case DIAGONAL_LEFT -> drawDiagonalLines(gc, x, y, size, spacing, false);
+            case CROSS_DIAGONAL -> {
+                drawDiagonalLines(gc, x, y, size, spacing, true);
+                drawDiagonalLines(gc, x, y, size, spacing, false);
+            }
+            case DOTS -> drawDots(gc, x, y, size);
+            case NONE -> {
+            }
+        }
+    }
+
+    private void drawHorizontalLines(
+            GraphicsContext gc,
+            double x,
+            double y,
+            double size,
+            double spacing) {
+        for (double offset = spacing; offset < size; offset += spacing) {
+            gc.strokeLine(x, y + offset, x + size, y + offset);
+        }
+    }
+
+    private void drawVerticalLines(
+            GraphicsContext gc,
+            double x,
+            double y,
+            double size,
+            double spacing) {
+        for (double offset = spacing; offset < size; offset += spacing) {
+            gc.strokeLine(x + offset, y, x + offset, y + size);
+        }
+    }
+
+    // rising == true 이면 '/', false 이면 '\'
+    private void drawDiagonalLines(
+            GraphicsContext gc,
+            double x,
+            double y,
+            double size,
+            double spacing,
+            boolean rising) {
+        // 선 사이의 수직 거리가 spacing이 되도록 가로 방향 간격을 넓힘
+        double step = spacing * Math.sqrt(2);
+
+        for (double offset = step; offset < size * 2; offset += step) {
+            if (rising) {
+                gc.strokeLine(x + offset - size, y + size, x + offset, y);
+            } else {
+                gc.strokeLine(x + offset - size, y, x + offset, y + size);
+            }
+        }
+    }
+
+    private void drawDots(
+            GraphicsContext gc,
+            double x,
+            double y,
+            double size) {
+        double radius = size * 0.11;
+
+        for (double cy : new double[] {0.3, 0.7}) {
+            for (double cx : new double[] {0.3, 0.7}) {
+                gc.fillOval(
+                        x + size * cx - radius,
+                        y + size * cy - radius,
+                        radius * 2,
+                        radius * 2);
+            }
+        }
     }
 }
