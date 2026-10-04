@@ -7,8 +7,12 @@ public class Board {
 
     private final int[][] cells;
 
+    // 고정된 칸의 블록 종류 (색상 표시용, 종류를 모르는 칸은 null)
+    private final TetrominoType[][] cellTypes;
+
     public Board() {
         cells = new int[HEIGHT][WIDTH];
+        cellTypes = new TetrominoType[HEIGHT][WIDTH];
     }
 
     public int getCell(int row, int col) {
@@ -17,6 +21,11 @@ public class Board {
 
     public void setCell(int row, int col, int value) {
         cells[row][col] = value;
+        cellTypes[row][col] = null;
+    }
+
+    public TetrominoType getCellType(int row, int col) {
+        return cellTypes[row][col];
     }
 
     public boolean isInside(int row, int col) {
@@ -64,6 +73,7 @@ public void lock(Tetromino block) {
                 int boardCol = block.getCol() + col;
 
                 cells[boardRow][boardCol] = 1;
+                cellTypes[boardRow][boardCol] = block.getType();
             }
         }
     }
@@ -86,11 +96,13 @@ public int clearLines() {
             for (int moveRow = row; moveRow > 0; moveRow--) {
                 for (int col = 0; col < WIDTH; col++) {
                     cells[moveRow][col] = cells[moveRow - 1][col];
+                    cellTypes[moveRow][col] = cellTypes[moveRow - 1][col];
                 }
             }
 
             for (int col = 0; col < WIDTH; col++) {
                 cells[0][col] = 0;
+                cellTypes[0][col] = null;
             }
 
             clearedLines++;
