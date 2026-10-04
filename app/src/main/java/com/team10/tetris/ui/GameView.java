@@ -4,10 +4,13 @@ import com.team10.tetris.game.Board;
 import com.team10.tetris.game.GameEngine;
 import com.team10.tetris.game.Tetromino;
 import com.team10.tetris.game.TetrominoType;
+import com.team10.tetris.settings.GameSettings;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.WeakChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -50,6 +53,10 @@ public class GameView extends BorderPane {
 
     private BlockPalette palette = BlockPalette.NORMAL;
 
+    // 설정이 바뀌면 즉시 다시 그림 (설정 쪽은 약한 참조로 들고 있어 끝난 게임 화면이 남지 않음)
+    private final ChangeListener<Boolean> colorBlindModeListener =
+            (observable, oldValue, newValue) -> setColorBlindMode(newValue);
+
     private Runnable onSettingsRequested = () -> {
     };
     private Runnable onGameOver = () -> {
@@ -59,6 +66,14 @@ public class GameView extends BorderPane {
         this(new GameEngine(
                 new Board(),
                 new Tetromino(TetrominoType.T, 0, 3)));
+    }
+
+    public GameView(GameEngine engine, GameSettings settings) {
+        this(engine);
+
+        setColorBlindMode(settings.isColorBlindMode());
+        settings.colorBlindModeProperty().addListener(
+                new WeakChangeListener<>(colorBlindModeListener));
     }
 
     public GameView(GameEngine engine) {
