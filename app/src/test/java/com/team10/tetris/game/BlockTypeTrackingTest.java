@@ -1,5 +1,7 @@
 package com.team10.tetris.game;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -109,6 +111,53 @@ class BlockTypeTrackingTest {
         for (int col = 0; col < Board.WIDTH; col++) {
             assertNull(board.getCellType(0, col));
             assertNull(board.getCellType(1, col));
+        }
+    }
+
+    @Test
+    void removeRowsMovesCellTypesDown() {
+        Board board = new Board();
+
+        // 17번 줄과 19번 줄을 지우고, 그 사이 18번 줄과 위쪽 블록이 내려오는지 확인
+        board.lock(new Tetromino(TetrominoType.T, 15, 0));   // 15: 0~2, 16: 1
+        board.lock(new Tetromino(TetrominoType.O, 17, 4));   // 17~18: 4~5
+        board.lock(new Tetromino(TetrominoType.J, 18, 7));   // 18: 7, 19: 7~9
+
+        int removed = board.removeRows(List.of(17, 19));
+
+        assertEquals(2, removed);
+
+        // 18번 줄(O 아랫부분, J 윗부분)이 19번 줄로 내려옴
+        assertEquals(TetrominoType.O, board.getCellType(19, 4));
+        assertEquals(TetrominoType.J, board.getCellType(19, 7));
+        assertNull(board.getCellType(19, 8));
+
+        // 15~16번 줄의 T가 두 줄 내려옴
+        assertEquals(TetrominoType.T, board.getCellType(17, 0));
+        assertEquals(TetrominoType.T, board.getCellType(17, 2));
+        assertEquals(TetrominoType.T, board.getCellType(18, 1));
+
+        // 원래 자리는 비워짐
+        assertNull(board.getCellType(15, 0));
+        assertNull(board.getCellType(16, 1));
+    }
+
+    @Test
+    void removeRowsKeepsCellTypesAlignedWithCells() {
+        Board board = new Board();
+
+        board.lock(new Tetromino(TetrominoType.S, 17, 0));
+        board.lock(new Tetromino(TetrominoType.L, 18, 5));
+
+        board.removeRows(List.of(19));
+
+        for (int row = 0; row < Board.HEIGHT; row++) {
+            for (int col = 0; col < Board.WIDTH; col++) {
+                boolean filled = board.getCell(row, col) != 0;
+                boolean typed = board.getCellType(row, col) != null;
+
+                assertEquals(filled, typed, "row " + row + ", col " + col);
+            }
         }
     }
 }

@@ -306,7 +306,11 @@ public class GameView extends BorderPane {
         for (int row = 0; row < Board.HEIGHT; row++) {
             for (int col = 0; col < Board.WIDTH; col++) {
                 if (snapshot.cells().get(row).get(col) != 0) {
-                    drawCell(gc, row, col, palette.styleOf(null));
+                    drawCell(
+                            gc,
+                            row,
+                            col,
+                            palette.styleOf(snapshot.cellTypes().get(row).get(col)));
                 }
             }
         }
