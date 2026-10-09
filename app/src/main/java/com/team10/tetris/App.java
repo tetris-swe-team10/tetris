@@ -2,16 +2,18 @@ package com.team10.tetris;
 
 import java.util.Map;
 
-import com.team10.tetris.game.Board;
 import com.team10.tetris.game.GameEngine;
-import com.team10.tetris.game.Tetromino;
-import com.team10.tetris.game.TetrominoType;
+import com.team10.tetris.game.GameConfig;
+import com.team10.tetris.game.GameMode;
+import com.team10.tetris.game.Difficulty;
 import com.team10.tetris.input.MenuKeyBindings;
 import com.team10.tetris.score.ScoreboardManager;
 import com.team10.tetris.screen.StartMenuAction;
 import com.team10.tetris.screen.StartScreen;
 import com.team10.tetris.ui.GameOverView;
 import com.team10.tetris.ui.GameView;
+import com.team10.tetris.ui.ScoreboardView;
+import javafx.scene.control.ChoiceDialog;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -28,6 +30,7 @@ public class App extends Application {
         private final ScoreboardManager scoreboardManager = new ScoreboardManager();
 
         private Scene scene;
+        private Difficulty lastSelectedDifficulty = Difficulty.NORMAL;
 
         @Override
         public void start(Stage stage) {
@@ -50,7 +53,9 @@ public class App extends Application {
                 return new StartScreen(
                                 Map.of(
                                                 StartMenuAction.START_GAME,
-                                                () -> showScreen(createGameView()),
+                                                this::chooseDifficulty,
+                                                StartMenuAction.OPEN_SCOREBOARD,
+                                                this::showScoreboard,
                                                 StartMenuAction.EXIT,
                                                 Platform::exit),
                                 MenuKeyBindings.defaults());
@@ -67,30 +72,49 @@ public class App extends Application {
                 screen.requestFocus();
         }
 
-        private GameView createGameView() {
-                GameEngine engine = new GameEngine(
-                                new Board(),
-                                new Tetromino(TetrominoType.T, 0, 3));
+        private void chooseDifficulty() {
+                ChoiceDialog<Difficulty> dialog = new ChoiceDialog<>(
+                                lastSelectedDifficulty, Difficulty.values());
+                dialog.initOwner(scene.getWindow());
+                dialog.setTitle("게임 난이도 선택");
+                dialog.setHeaderText("시작할 난이도를 선택하세요. 한 판 동안 변경되지 않습니다.");
+                dialog.setContentText("난이도");
+                ((javafx.scene.control.Button) dialog.getDialogPane()
+                        .lookupButton(javafx.scene.control.ButtonType.OK)).setText("게임 시작");
+                dialog.showAndWait().ifPresent(difficulty -> {
+                        lastSelectedDifficulty = difficulty;
+                        showScreen(createGameView(new GameConfig(GameMode.NORMAL, difficulty)));
+                });
+        }
+
+        private void showScoreboard() {
+                ScoreboardView view = new ScoreboardView(scoreboardManager);
+                view.setOnBackRequested(this::showStartMenu);
+                showScreen(view);
+        }
+
+        private GameView createGameView(GameConfig config) {
+                GameEngine engine = new GameEngine(config);
 
                 GameView gameView = new GameView(engine);
                 gameView.setOnGameOver(
                                 () -> showGameOver(
                                                 gameView.getScore(),
-                                                engine.getTotalClearedLines()));
+                                                engine.getTotalClearedLines(), config));
 
                 return gameView;
         }
 
-        private void showGameOver(int score, int clearedLines) {
+        private void showGameOver(int score, int clearedLines, GameConfig config) {
                 GameOverView gameOverView = new GameOverView(scoreboardManager);
 
                 gameOverView.setOnRestart(
-                                () -> showScreen(createGameView()));
+                                () -> showScreen(createGameView(config)));
                 gameOverView.setOnMainMenu(this::showStartMenu);
                 gameOverView.setOnExit(Platform::exit);
 
                 showScreen(gameOverView);
-                gameOverView.showResult(score, clearedLines);
+                gameOverView.showResult(score, clearedLines, config);
         }
 
         public static void main(String[] args) {

@@ -1,0 +1,49 @@
+.root {
+    -fx-font-family: "Arial";
+}
+
+.start-screen {
+    -fx-background-color: linear-gradient(to bottom right, #07111f, #10243a);
+}
+
+.title {
+    -fx-text-fill: #edf7fa;
+    -fx-font-size: 72px;
+    -fx-font-weight: bold;
+}
+
+.subtitle,
+.guide {
+    -fx-text-fill: #96aabe;
+}
+
+.subtitle {
+    -fx-font-size: 20px;
+}
+
+.menu-button {
+    -fx-alignment: center-left;
+    -fx-background-color: #132336;
+    -fx-background-radius: 8px;
+    -fx-border-color: #2b4155;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+    -fx-padding: 15px 22px;
+    -fx-text-fill: #edf7fa;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.menu-button:selected {
+    -fx-background-color: #50e1c7;
+    -fx-border-color: #50e1c7;
+    -fx-text-fill: #07111f;
+}
+
+.menu-button:disabled {
+    -fx-opacity: 0.45;
+}
+
+.guide {
+    -fx-font-size: 13px;
+}
