@@ -27,8 +27,9 @@ public final class SettingsScreen extends BorderPane {
         eyebrow.getStyleClass().add("settings-eyebrow");
         Label title = new Label("설정");
         title.getStyleClass().add("settings-title");
-        Label description = new Label("게임 환경과 화면 표시 방식을 변경합니다.");
+        Label description = new Label("↑ ↓ / W S 이동 · Enter 선택 · ← → 화면 모드 변경 · ESC 뒤로");
         description.getStyleClass().add("settings-description");
+        description.setWrapText(true);
 
         SettingsPanel panel = new SettingsPanel(
                 settings,
@@ -57,6 +58,7 @@ public final class SettingsScreen extends BorderPane {
         scrollPane.setPannable(true);
         setCenter(scrollPane);
 
+        SettingsNavigation.install(this, centeredContent, scrollPane);
         setFocusTraversable(true);
         setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {

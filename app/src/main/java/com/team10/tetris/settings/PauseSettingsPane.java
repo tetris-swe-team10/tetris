@@ -30,8 +30,9 @@ public final class PauseSettingsPane extends StackPane {
         eyebrow.getStyleClass().add("settings-eyebrow");
         Label title = new Label("설정");
         title.getStyleClass().add("settings-title");
-        Label description = new Label("ESC 키를 누르면 게임으로 돌아갑니다.");
+        Label description = new Label("↑ ↓ / W S 이동 · Enter 선택 · ← → 화면 모드 변경 · ESC 복귀");
         description.getStyleClass().add("settings-description");
+        description.setWrapText(true);
 
         SettingsPanel panel = new SettingsPanel(
                 settings,
@@ -65,6 +66,7 @@ public final class PauseSettingsPane extends StackPane {
         StackPane.setAlignment(scrollPane, Pos.CENTER);
         getChildren().add(scrollPane);
 
+        SettingsNavigation.install(this, content, scrollPane);
         setFocusTraversable(true);
         setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {

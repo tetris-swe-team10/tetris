@@ -142,3 +142,12 @@
 .settings-actions {
     -fx-padding: 8px 0 0 0;
 }
+
+.settings-root .button:focused,
+.settings-root .toggle-button:focused,
+.settings-root .combo-box:focused {
+    -fx-border-color: #ffffff;
+    -fx-border-width: 2px;
+    -fx-border-insets: -3px;
+    -fx-border-radius: 8px;
+}
