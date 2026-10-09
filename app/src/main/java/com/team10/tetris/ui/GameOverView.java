@@ -2,6 +2,7 @@ package com.team10.tetris.ui;
 
 import com.team10.tetris.score.GameRecord;
 import com.team10.tetris.score.ScoreboardManager;
+import com.team10.tetris.game.GameConfig;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -42,6 +44,7 @@ public class GameOverView extends BorderPane {
     private final Label headlineLabel = new Label("수고했어요!");
     private final Label descriptionLabel =
             new Label("이번 판의 기록을 확인해 보세요.");
+    private final Label contextLabel = new Label();
 
     // FINAL SCORE 박스와 순위표가 번갈아 들어가는 자리
     private final VBox contentArea = new VBox();
@@ -56,6 +59,7 @@ public class GameOverView extends BorderPane {
 
     private int score;
     private int clearedLines;
+    private GameConfig config = GameConfig.DEFAULT;
 
     public GameOverView(ScoreboardManager manager) {
         this.manager = manager;
@@ -90,16 +94,22 @@ public class GameOverView extends BorderPane {
      * 점수가 순위에 들면 이름 입력을 요청하고, 아니면 순위표를 바로 보여준다.
      */
     public void showResult(int score, int clearedLines) {
+        showResult(score, clearedLines, GameConfig.DEFAULT);
+    }
+
+    public void showResult(int score, int clearedLines, GameConfig config) {
+        this.config = config;
+        contextLabel.setText(config.mode() + " / " + config.difficulty());
         this.score = Math.max(0, score);
         this.clearedLines = Math.max(0, clearedLines);
 
         headlineLabel.setText("수고했어요!");
-        descriptionLabel.setText("이번 판의 기록을 확인해 보세요.");
+        descriptionLabel.setText(config.mode() + " / " + config.difficulty() + " 기록을 확인해 보세요.");
 
         boolean canRegister = false;
 
         try {
-            canRegister = manager.isHighScore(this.score);
+            canRegister = manager.isHighScore(this.score, config.mode(), config.difficulty());
         } catch (IOException exception) {
             // 기록을 읽지 못하면 등록 단계를 건너뛴다
         }
@@ -125,7 +135,8 @@ public class GameOverView extends BorderPane {
         headlineLabel.setStyle(labelStyle(38, COLOR_TEXT, true));
         descriptionLabel.setStyle(labelStyle(14, COLOR_TEXT_DIM, false));
 
-        VBox header = new VBox(8, eyebrow, headlineLabel, descriptionLabel);
+        contextLabel.setStyle(labelStyle(13, COLOR_ACCENT, true));
+        VBox header = new VBox(8, eyebrow, contextLabel, headlineLabel, descriptionLabel);
         header.setPadding(new Insets(0, 0, 24, 0));
 
         return header;
@@ -225,7 +236,7 @@ public class GameOverView extends BorderPane {
         int highScore = 0;
 
         try {
-            highScore = manager.getHighScore();
+            highScore = manager.getHighScore(config.mode(), config.difficulty());
         } catch (IOException exception) {
             // 최고 점수를 읽지 못하면 0으로 표시
         }
@@ -287,9 +298,10 @@ public class GameOverView extends BorderPane {
         int rank = ScoreboardManager.UNRANKED;
 
         try {
-            rank = manager.saveAndGetRank(playerName, score, clearedLines);
+            rank = manager.saveAndGetRank(playerName, score, clearedLines, config.mode(), config.difficulty());
         } catch (IOException exception) {
             descriptionLabel.setText("기록을 저장하지 못했습니다.");
+            return;
         }
 
         nameInputRow.setVisible(false);
@@ -307,7 +319,7 @@ public class GameOverView extends BorderPane {
         List<GameRecord> records;
 
         try {
-            records = manager.getTopRecords(ScoreboardManager.MAX_RECORDS);
+            records = manager.getTopRecords(config.mode(), config.difficulty(), ScoreboardManager.MAX_RECORDS);
         } catch (IOException exception) {
             contentArea.getChildren().setAll(
                     createMessageLabel("기록을 불러오지 못했습니다.")
@@ -337,7 +349,11 @@ public class GameOverView extends BorderPane {
             );
         }
 
-        contentArea.getChildren().setAll(table);
+        ScrollPane scroll = new ScrollPane(table);
+        scroll.setFitToWidth(true);
+        scroll.setStyle("-fx-background: #16202C; -fx-background-color: #16202C;");
+        VBox.setVgrow(scroll, Priority.ALWAYS);
+        contentArea.getChildren().setAll(scroll);
         contentArea.setAlignment(Pos.TOP_LEFT);
     }
 
