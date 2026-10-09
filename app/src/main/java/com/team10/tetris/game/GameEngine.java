@@ -59,16 +59,22 @@ public class GameEngine {
 
     public GameSnapshot snapshot() {
         List<List<Integer>> cells = new ArrayList<>();
+        List<List<TetrominoType>> cellTypes = new ArrayList<>();
         for (int row = 0; row < Board.HEIGHT; row++) {
             List<Integer> line = new ArrayList<>();
-            for (int col = 0; col < Board.WIDTH; col++) line.add(board.getCell(row, col));
+            List<TetrominoType> typeLine = new ArrayList<>();
+            for (int col = 0; col < Board.WIDTH; col++) {
+                line.add(board.getCell(row, col));
+                typeLine.add(board.getCellType(row, col));
+            }
             cells.add(line);
+            cellTypes.add(typeLine);
         }
         boolean active = state == GameState.PLAYING
                 || (state == GameState.PAUSED && stateBeforePause == GameState.PLAYING);
         return new GameSnapshot(cells, active ? PieceSnapshot.of(currentBlock) : null,
                 PieceSnapshot.of(nextBlock), config, state, score, totalClearedLines,
-                dropIntervalMs, clearingRows);
+                dropIntervalMs, clearingRows, cellTypes);
     }
     private boolean moveHorizontal(int delta) {
         if (state != GameState.PLAYING) return false;

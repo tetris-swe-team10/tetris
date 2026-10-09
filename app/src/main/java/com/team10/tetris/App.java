@@ -10,6 +10,8 @@ import com.team10.tetris.input.MenuKeyBindings;
 import com.team10.tetris.score.ScoreboardManager;
 import com.team10.tetris.screen.StartMenuAction;
 import com.team10.tetris.screen.StartScreen;
+import com.team10.tetris.settings.GameSettings;
+import com.team10.tetris.settings.SettingsManager;
 import com.team10.tetris.ui.GameOverView;
 import com.team10.tetris.ui.GameView;
 import com.team10.tetris.ui.ScoreboardView;
@@ -28,6 +30,8 @@ public class App extends Application {
         private static final int WINDOW_HEIGHT = 640;
 
         private final ScoreboardManager scoreboardManager = new ScoreboardManager();
+        // 앱 시작 시 설정 파일을 한 번 읽음
+        private final GameSettings gameSettings = new GameSettings(new SettingsManager());
 
         private Scene scene;
         private Difficulty lastSelectedDifficulty = Difficulty.NORMAL;
@@ -96,7 +100,7 @@ public class App extends Application {
         private GameView createGameView(GameConfig config) {
                 GameEngine engine = new GameEngine(config);
 
-                GameView gameView = new GameView(engine);
+                GameView gameView = new GameView(engine, gameSettings);
                 gameView.setOnGameOver(
                                 () -> showGameOver(
                                                 gameView.getScore(),

@@ -12,8 +12,15 @@ public class Board {
     public static final int HEIGHT = 20;
     private final int[][] cells = new int[HEIGHT][WIDTH];
 
+    // 고정된 칸의 블록 종류 (색상 표시용, 종류를 모르는 칸은 null)
+    private final TetrominoType[][] cellTypes = new TetrominoType[HEIGHT][WIDTH];
+
     public int getCell(int row, int col) { return cells[row][col]; }
-    public void setCell(int row, int col, int value) { cells[row][col] = value; }
+    public void setCell(int row, int col, int value) {
+        cells[row][col] = value;
+        cellTypes[row][col] = null;
+    }
+    public TetrominoType getCellType(int row, int col) { return cellTypes[row][col]; }
     public boolean isInside(int row, int col) {
         return row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH;
     }
@@ -36,7 +43,10 @@ public class Board {
         int[][] shape = block.getShape();
         for (int row = 0; row < shape.length; row++) {
             for (int col = 0; col < shape[row].length; col++) {
-                if (shape[row][col] == 1) cells[block.getRow() + row][block.getCol() + col] = 1;
+                if (shape[row][col] == 1) {
+                    cells[block.getRow() + row][block.getCol() + col] = 1;
+                    cellTypes[block.getRow() + row][block.getCol() + col] = block.getType();
+                }
             }
         }
     }
@@ -56,7 +66,7 @@ public class Board {
         return List.copyOf(rows);
     }
 
-    /** 중복 행을 한 번만 제거하고 남은 행의 순서를 유지한다. */
+    /** 중복 행을 한 번만 제거하고 남은 행의 순서를 유지한다. 블록 종류도 함께 옮긴다. */
     public int removeRows(Collection<Integer> rows) {
         Set<Integer> selected = new HashSet<>(rows);
         for (Integer row : selected) {
@@ -66,9 +76,15 @@ public class Board {
         int target = HEIGHT - 1;
         for (int source = HEIGHT - 1; source >= 0; source--) {
             if (selected.contains(source)) continue;
-            System.arraycopy(cells[source], 0, cells[target--], 0, WIDTH);
+            System.arraycopy(cells[source], 0, cells[target], 0, WIDTH);
+            System.arraycopy(cellTypes[source], 0, cellTypes[target], 0, WIDTH);
+            target--;
         }
-        while (target >= 0) Arrays.fill(cells[target--], 0);
+        while (target >= 0) {
+            Arrays.fill(cells[target], 0);
+            Arrays.fill(cellTypes[target], null);
+            target--;
+        }
         return selected.size();
     }
 }
