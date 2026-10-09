@@ -4,6 +4,7 @@ import com.team10.tetris.game.Board;
 import com.team10.tetris.game.GameEngine;
 import com.team10.tetris.game.Tetromino;
 import com.team10.tetris.game.TetrominoType;
+import com.team10.tetris.settings.GameSettings;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -25,6 +26,7 @@ public class GameView extends BorderPane {
     private static final int TIMER_STEP_MS = 50;
 
     private final GameEngine engine;
+    private final GameSettings settings;
     private final Canvas boardCanvas;
     private final Canvas nextCanvas;
 
@@ -51,11 +53,17 @@ public class GameView extends BorderPane {
     public GameView() {
         this(new GameEngine(
                 new Board(),
-                new Tetromino(TetrominoType.T, 0, 3)));
+                new Tetromino(TetrominoType.T, 0, 3)),
+                new GameSettings());
     }
 
     public GameView(GameEngine engine) {
+        this(engine, new GameSettings());
+    }
+
+    public GameView(GameEngine engine, GameSettings settings) {
         this.engine = engine;
+        this.settings = settings;
 
         boardCanvas = new Canvas(
                 Board.WIDTH * CELL_SIZE,
@@ -87,7 +95,7 @@ public class GameView extends BorderPane {
         pauseButton.setFocusTraversable(false);
         settingsButton.setFocusTraversable(false);
 
-        pauseButton.setOnAction(event -> togglePause());
+        pauseButton.setOnAction(event -> requestSettings());
         settingsButton.setOnAction(event -> requestSettings());
 
         setFocusTraversable(true);
@@ -100,7 +108,7 @@ public class GameView extends BorderPane {
                 case UP -> engine.rotateClockwise();
                 case SPACE -> engine.hardDrop();
 
-                case ESCAPE -> togglePause();
+                case ESCAPE -> requestSettings();
 
                 default -> {
                     return;
@@ -174,29 +182,13 @@ public class GameView extends BorderPane {
 
         elapsedMs += TIMER_STEP_MS;
 
-        if (elapsedMs >= engine.getDropIntervalMs()) {
+        if (elapsedMs >= settings.adjustDropInterval(engine.getDropIntervalMs())) {
             engine.tick();
             elapsedMs = 0;
 
             redraw();
             checkGameOver();
         }
-    }
-
-    private void togglePause() {
-        if (engine.isGameOver()) {
-            return;
-        }
-
-        if (engine.isPaused()) {
-            engine.resume();
-        } else {
-            engine.pause();
-        }
-
-        elapsedMs = 0;
-        redraw();
-        requestFocus();
     }
 
     private void requestSettings() {
@@ -252,7 +244,7 @@ public class GameView extends BorderPane {
             settingsButton.setDisable(true);
         } else if (engine.isPaused()) {
             statusLabel.setText("PAUSED");
-            pauseButton.setText("계속하기");
+            pauseButton.setText("설정 열기");
         } else {
             statusLabel.setText("PLAYING");
             pauseButton.setText("일시정지");
@@ -271,7 +263,7 @@ public class GameView extends BorderPane {
                 boardCanvas.getHeight());
 
         // 고정된 블록
-        gc.setFill(Color.web("#527A83"));
+        gc.setFill(Color.web(settings.isColorBlindMode() ? "#F4D35E" : "#527A83"));
 
         for (int row = 0; row < Board.HEIGHT; row++) {
             for (int col = 0; col < Board.WIDTH; col++) {
@@ -286,7 +278,7 @@ public class GameView extends BorderPane {
             Tetromino block = engine.getCurrentBlock();
             int[][] shape = block.getShape();
 
-            gc.setFill(Color.web("#63D4C5"));
+            gc.setFill(Color.web(settings.isColorBlindMode() ? "#EE6C4D" : "#63D4C5"));
 
             for (int row = 0; row < shape.length; row++) {
                 for (int col = 0; col < shape[row].length; col++) {
@@ -326,7 +318,7 @@ public class GameView extends BorderPane {
 
         int[][] shape = engine.getNextBlock().getShape();
 
-        gc.setFill(Color.web("#63D4C5"));
+        gc.setFill(Color.web(settings.isColorBlindMode() ? "#EE6C4D" : "#63D4C5"));
 
         int previewCellSize = 24;
 

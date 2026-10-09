@@ -1,0 +1,144 @@
+.settings-root {
+    -fx-font-family: "Arial";
+    -fx-text-fill: #e8f1f5;
+}
+
+.settings-screen {
+    -fx-background-color: linear-gradient(to bottom right, #081321, #10253a);
+}
+
+.settings-scroll,
+.settings-scroll > .viewport,
+.pause-settings-scroll,
+.pause-settings-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.settings-content {
+    -fx-background-color: transparent;
+}
+
+.settings-content-wrapper {
+    -fx-background-color: transparent;
+}
+
+.settings-scroll > .scroll-bar:vertical,
+.settings-scroll > .scroll-bar:horizontal,
+.pause-settings-scroll > .scroll-bar:vertical,
+.pause-settings-scroll > .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-max-width: 0;
+    -fx-max-height: 0;
+}
+
+.settings-eyebrow {
+    -fx-text-fill: #59ddca;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.settings-title {
+    -fx-text-fill: #f4f8fb;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.settings-panel {
+    -fx-background-color: #102136;
+    -fx-background-radius: 14px;
+    -fx-border-color: #2b5268;
+    -fx-border-radius: 14px;
+    -fx-padding: 24px;
+}
+
+.settings-panel .separator .line {
+    -fx-border-color: #294155;
+}
+
+.settings-section-title {
+    -fx-text-fill: #e8f1f5;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.settings-description {
+    -fx-text-fill: #8da3b5;
+    -fx-font-size: 12px;
+}
+
+.settings-choice-row .toggle-button,
+.settings-panel .combo-box,
+.secondary-button,
+.danger-button {
+    -fx-background-color: #10253d;
+    -fx-border-color: #2b465f;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #dce8ef;
+    -fx-padding: 9px 15px;
+}
+
+.settings-choice-row .toggle-button:selected,
+.switch-button:selected,
+.primary-button {
+    -fx-background-color: #59ddca;
+    -fx-text-fill: #061622;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+}
+
+.settings-panel .combo-box .list-cell {
+    -fx-text-fill: #dce8ef;
+    -fx-background-color: #10253d;
+}
+
+.settings-panel .combo-box-popup .list-view,
+.settings-panel .combo-box-popup .list-cell {
+    -fx-background-color: #10253d;
+}
+
+.settings-panel .combo-box-popup .list-cell:hover {
+    -fx-background-color: #183c54;
+}
+
+.switch-button {
+    -fx-background-color: #2d4860;
+    -fx-text-fill: #dce8ef;
+    -fx-background-radius: 16px;
+    -fx-min-width: 58px;
+    -fx-padding: 7px 12px;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button {
+    -fx-min-height: 40px;
+}
+
+.danger-button {
+    -fx-border-color: #9e5361;
+}
+
+.pause-settings-overlay {
+    -fx-background-color: rgba(3, 10, 18, 0.76);
+}
+
+.pause-settings-dialog {
+    -fx-background-color: #0d1d31;
+    -fx-background-radius: 14px;
+    -fx-border-color: #59ddca;
+    -fx-border-radius: 14px;
+    -fx-padding: 28px;
+}
+
+.pause-settings-scroll {
+    -fx-background-color: transparent;
+    -fx-background-radius: 14px;
+}
+
+.settings-actions {
+    -fx-padding: 8px 0 0 0;
+}
