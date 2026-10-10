@@ -35,7 +35,9 @@ public final class SettingsPanel extends VBox {
         this.onScoreReset = Objects.requireNonNull(onScoreReset);
 
         getStyleClass().add("settings-panel");
-        setSpacing(18);
+        setSpacing(12);
+        setMinWidth(0);
+        setMinHeight(VBox.USE_PREF_SIZE);
 
         getChildren().addAll(
                 createDropSpeedSection(),
@@ -167,6 +169,7 @@ public final class SettingsPanel extends VBox {
         VBox text = createSection(title, description);
         ToggleButton toggle = new ToggleButton();
         toggle.getStyleClass().add("switch-button");
+        toggle.setMinWidth(Region.USE_PREF_SIZE);
         toggle.setSelected(selected);
         updateToggleText(toggle);
         toggle.setOnAction(event -> {
@@ -203,7 +206,9 @@ public final class SettingsPanel extends VBox {
         Label descriptionLabel = new Label(description);
         descriptionLabel.getStyleClass().add("settings-description");
         descriptionLabel.setWrapText(true);
-        return new VBox(6, titleLabel, descriptionLabel);
+        VBox section = new VBox(6, titleLabel, descriptionLabel);
+        section.setMinWidth(0);
+        return section;
     }
 
     private void updateToggleText(ToggleButton toggle) {

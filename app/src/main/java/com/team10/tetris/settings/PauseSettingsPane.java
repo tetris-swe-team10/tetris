@@ -24,7 +24,8 @@ public final class PauseSettingsPane extends StackPane {
         Objects.requireNonNull(onResume);
         Objects.requireNonNull(onMainMenu);
         getStyleClass().addAll("settings-root", "pause-settings-overlay");
-        setPadding(new Insets(32));
+        setPadding(new Insets(16));
+        setMinSize(0, 0);
 
         Label eyebrow = new Label("PAUSE / SETTINGS");
         eyebrow.getStyleClass().add("settings-eyebrow");
@@ -56,13 +57,18 @@ public final class PauseSettingsPane extends StackPane {
 
         VBox content = new VBox(10, eyebrow, title, description, panel, actions);
         content.getStyleClass().add("pause-settings-dialog");
-        content.setMaxWidth(560);
+        content.setMinWidth(0);
+        content.setMinHeight(VBox.USE_PREF_SIZE);
+        content.setMaxWidth(Double.MAX_VALUE);
 
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.getStyleClass().add("pause-settings-scroll");
         scrollPane.setFitToWidth(true);
-        scrollPane.setMaxWidth(600);
-        scrollPane.setMaxHeight(560);
+        scrollPane.setMinSize(0, 0);
+        scrollPane.setMaxWidth(608);
+        scrollPane.setMaxHeight(Double.MAX_VALUE);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         StackPane.setAlignment(scrollPane, Pos.CENTER);
         getChildren().add(scrollPane);
 
