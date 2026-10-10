@@ -42,7 +42,7 @@ public class GameView extends BorderPane {
     private int elapsedMs = 0;
     private int score = 0;
 
-    private boolean settingsOpenedWhilePaused = false;
+    private boolean settingsOpen = false;
     private boolean gameOverNotified = false;
 
     private Runnable onSettingsRequested = () -> {
@@ -101,6 +101,10 @@ public class GameView extends BorderPane {
         setFocusTraversable(true);
 
         setOnKeyPressed(event -> {
+            if (settingsOpen) {
+                event.consume();
+                return;
+            }
             switch (event.getCode()) {
                 case LEFT -> engine.moveLeft();
                 case RIGHT -> engine.moveRight();
@@ -134,11 +138,13 @@ public class GameView extends BorderPane {
                     } else {
                         elapsedMs = 0;
 
-                        if (!engine.isGameOver()) {
+                        if (!engine.isGameOver() && !settingsOpen) {
                             dropTimer.play();
                         }
 
-                        Platform.runLater(this::requestFocus);
+                        Platform.runLater(() -> {
+                            if (getScene() != null && !settingsOpen) requestFocus();
+                        });
                     }
                 });
 
@@ -192,12 +198,12 @@ public class GameView extends BorderPane {
     }
 
     private void requestSettings() {
-        if (engine.isGameOver()) {
+        if (engine.isGameOver() || settingsOpen) {
             return;
         }
 
-        // 설정 화면에 들어가기 전 상태를 기억
-        settingsOpenedWhilePaused = engine.isPaused();
+        settingsOpen = true;
+        dropTimer.stop();
 
         engine.pause();
         elapsedMs = 0;
@@ -208,14 +214,18 @@ public class GameView extends BorderPane {
 
     // 설정 화면 담당자가 돌아가기 버튼에서 호출
     public void returnFromSettings() {
-        if (!settingsOpenedWhilePaused && !engine.isGameOver()) {
+        settingsOpen = false;
+        if (!engine.isGameOver()) {
             engine.resume();
+            if (getScene() != null) dropTimer.play();
         }
 
         elapsedMs = 0;
         redraw();
 
-        Platform.runLater(this::requestFocus);
+        Platform.runLater(() -> {
+            if (getScene() != null && !settingsOpen) requestFocus();
+        });
     }
 
     private void checkGameOver() {

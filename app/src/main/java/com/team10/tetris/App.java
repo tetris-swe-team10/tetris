@@ -109,6 +109,7 @@ public class App extends Application {
         }
 
         private void showPauseSettings(GameView gameView) {
+                gameView.setDisable(true);
                 StackPane layeredGame = new StackPane();
                 PauseSettingsPane settingsPane = new PauseSettingsPane(
                                 settings,
@@ -116,6 +117,7 @@ public class App extends Application {
                                 this::resetScores,
                                 () -> {
                                         layeredGame.getChildren().remove(gameView);
+                                        gameView.setDisable(false);
                                         showScreen(gameView);
                                         gameView.returnFromSettings();
                                 },
