@@ -30,7 +30,7 @@ public final class PauseSettingsPane extends StackPane {
         eyebrow.getStyleClass().add("settings-eyebrow");
         Label title = new Label("설정");
         title.getStyleClass().add("settings-title");
-        Label description = new Label("↑ ↓ / W S 이동 · Enter 선택 · ← → 화면 모드 변경 · ESC 복귀");
+        Label description = new Label("↑ ↓ 항목 이동 · ← → 옵션 이동 · Enter 선택/확정 · ESC 복귀");
         description.getStyleClass().add("settings-description");
         description.setWrapText(true);
 

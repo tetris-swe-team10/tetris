@@ -7,6 +7,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -89,6 +93,46 @@ public final class SettingsPanel extends VBox {
         modes.getItems().setAll(DisplayMode.values());
         modes.setValue(settings.getDisplayMode());
         modes.setMaxWidth(Double.MAX_VALUE);
+        modes.setOnShown(event -> {
+            if (modes.getSkin() instanceof ComboBoxListViewSkin<?> skin
+                    && skin.getPopupContent() instanceof ListView<?> list) {
+                list.getFocusModel().focus(modes.getSelectionModel().getSelectedIndex());
+                if (list.getProperties().putIfAbsent("settings-mode-keys", true) == null) {
+                    list.addEventFilter(KeyEvent.KEY_PRESSED, key -> {
+                        KeyCode code = key.getCode();
+                        if (code == KeyCode.UP || code == KeyCode.DOWN
+                                || code == KeyCode.LEFT || code == KeyCode.RIGHT) {
+                            int delta = code == KeyCode.UP || code == KeyCode.LEFT ? -1 : 1;
+                            int next = Math.floorMod(list.getFocusModel().getFocusedIndex() + delta,
+                                    modes.getItems().size());
+                            list.getFocusModel().focus(next);
+                            list.scrollTo(next);
+                            key.consume();
+                        } else if (code == KeyCode.HOME || code == KeyCode.END
+                                || code == KeyCode.PAGE_UP || code == KeyCode.PAGE_DOWN) {
+                            int next = code == KeyCode.HOME || code == KeyCode.PAGE_UP
+                                    ? 0 : modes.getItems().size() - 1;
+                            list.getFocusModel().focus(next);
+                            list.scrollTo(next);
+                            key.consume();
+                        } else if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
+                            int index = list.getFocusModel().getFocusedIndex();
+                            modes.hide();
+                            if (index >= 0) modes.setValue(modes.getItems().get(index));
+                            modes.requestFocus();
+                            key.consume();
+                        } else if (code == KeyCode.ESCAPE || code == KeyCode.TAB) {
+                            modes.hide();
+                            modes.requestFocus();
+                            key.consume();
+                        } else {
+                            // 기본 문자 검색 등으로 확인 없이 값이 적용되는 것을 막는다.
+                            key.consume();
+                        }
+                    });
+                }
+            }
+        });
         modes.setOnAction(event -> {
             DisplayMode selected = modes.getValue();
             if (selected != null) {

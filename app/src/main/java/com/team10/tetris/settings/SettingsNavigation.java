@@ -6,6 +6,7 @@ import java.util.List;
 import com.team10.tetris.input.MenuCommand;
 import com.team10.tetris.input.MenuKeyBindings;
 
+import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -13,6 +14,7 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
@@ -24,6 +26,16 @@ final class SettingsNavigation {
         List<Control> controls = new ArrayList<>();
         collect(content, controls);
         MenuKeyBindings bindings = MenuKeyBindings.defaults();
+        root.sceneProperty().addListener((observable, oldScene, scene) -> {
+            if (scene == null) return;
+            Platform.runLater(() -> {
+                if (root.getScene() != scene || !isVisible(root)) return;
+                if (scene.getWindow() != null) scene.getWindow().requestFocus();
+                controls.stream()
+                        .filter(control -> !control.isDisabled() && isVisible(control))
+                        .findFirst().ifPresent(control -> focus(control, content, scrollPane));
+            });
+        });
         root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.isAltDown() || event.isControlDown() || event.isMetaDown()) return;
             List<Control> available = controls.stream()
@@ -42,18 +54,34 @@ final class SettingsNavigation {
             if (command == MenuCommand.MOVE_PREVIOUS || command == MenuCommand.MOVE_NEXT
                     || key == KeyCode.LEFT || key == KeyCode.RIGHT) {
                 int delta = command == MenuCommand.MOVE_PREVIOUS || key == KeyCode.LEFT ? -1 : 1;
-                if (current instanceof ComboBox<?> combo
-                        && (key == KeyCode.LEFT || key == KeyCode.RIGHT)) {
-                    int count = combo.getItems().size();
-                    if (count > 0) {
-                        int selected = combo.getSelectionModel().getSelectedIndex();
-                        combo.getSelectionModel().select(selected < 0 ? (delta > 0 ? 0 : count - 1)
-                                : Math.floorMod(selected + delta, count));
+                boolean horizontal = key == KeyCode.LEFT || key == KeyCode.RIGHT;
+                if (horizontal) {
+                    if (current != null && isOptionRow(current.getParent())) {
+                        List<Control> row = available.stream()
+                                .filter(control -> control.getParent() == current.getParent()).toList();
+                        focus(row.get(Math.floorMod(row.indexOf(current) + delta, row.size())), content, scrollPane);
                     }
                 } else {
-                    int next = index < 0 ? (delta > 0 ? 0 : available.size() - 1)
-                            : Math.floorMod(index + delta, available.size());
-                    focus(available.get(next), content, scrollPane);
+                    List<List<Control>> rows = new ArrayList<>();
+                    for (Control control : available) {
+                        if (!rows.isEmpty() && isOptionRow(control.getParent())
+                                && rows.get(rows.size() - 1).get(0).getParent() == control.getParent()) {
+                            rows.get(rows.size() - 1).add(control);
+                        } else {
+                            List<Control> row = new ArrayList<>();
+                            row.add(control);
+                            rows.add(row);
+                        }
+                    }
+                    int rowIndex = -1;
+                    for (int i = 0; i < rows.size(); i++) if (rows.get(i).contains(current)) rowIndex = i;
+                    int next = rowIndex < 0 ? (delta > 0 ? 0 : rows.size() - 1)
+                            : Math.floorMod(rowIndex + delta, rows.size());
+                    List<Control> row = rows.get(next);
+                    Control target = row.stream()
+                            .filter(control -> control instanceof ToggleButton button && button.isSelected())
+                            .findFirst().orElse(row.get(0));
+                    focus(target, content, scrollPane);
                 }
                 event.consume();
             } else if (command == MenuCommand.CONFIRM) {
@@ -63,6 +91,11 @@ final class SettingsNavigation {
                 event.consume();
             }
         });
+    }
+
+    private static boolean isOptionRow(Parent parent) {
+        return parent != null && (parent.getStyleClass().contains("settings-choice-row")
+                || parent.getStyleClass().contains("settings-actions"));
     }
 
     private static boolean isVisible(Node node) {
