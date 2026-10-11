@@ -1,0 +1,47 @@
+.mode-selection-screen {
+    -fx-background-color: #030712;
+    -fx-border-color: #1f2937 transparent transparent #7c3aed;
+    -fx-border-width: 1px 0 0 5px;
+    -fx-font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+}
+.mode-eyebrow { -fx-text-fill: #3b82f6; -fx-font-size: 11px; -fx-font-weight: bold; }
+.mode-title { -fx-text-fill: #f5f7fb; -fx-font-size: 34px; -fx-font-weight: bold; }
+.mode-description, .mode-card-description { -fx-text-fill: #98a2b3; -fx-font-size: 12px; }
+.mode-card {
+    -fx-background-color: #0b1220;
+    -fx-border-color: #1f2937;
+    -fx-border-width: 1px 1px 1px 3px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 14px 24px;
+    -fx-min-height: 266px;
+}
+.mode-card.normal-card { -fx-border-color: #1f2937 #1f2937 #1f2937 #3b82f6; }
+.mode-card.item-card { -fx-border-color: #1f2937 #1f2937 #1f2937 #7c3aed; }
+.mode-card:selected { -fx-background-color: #101a2d; -fx-border-width: 1px 1px 1px 4px; }
+.mode-card-overline { -fx-text-fill: #f5f7fb; -fx-font-size: 12px; -fx-font-weight: bold; }
+.mode-card-icon { -fx-text-fill: #3b82f6; -fx-font-size: 34px; -fx-font-weight: bold; }
+.mode-card-title { -fx-text-fill: #f5f7fb; -fx-font-size: 22px; -fx-font-weight: bold; }
+.mode-card-badge {
+    -fx-background-color: #111827;
+    -fx-border-color: #334155;
+    -fx-border-radius: 13px;
+    -fx-background-radius: 13px;
+    -fx-text-fill: #3b82f6;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 12px;
+}
+.item-accent { -fx-text-fill: #7c3aed; }
+.mode-primary-button, .mode-secondary-button {
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-min-height: 40px;
+    -fx-cursor: hand;
+}
+.mode-primary-button { -fx-background-color: #3b82f6; -fx-border-color: #3b82f6; -fx-text-fill: #030712; }
+.mode-secondary-button { -fx-background-color: #111827; -fx-border-color: #334155; -fx-text-fill: #f5f7fb; -fx-min-width: 150px; }
+.mode-primary-button:hover { -fx-background-color: #60a5fa; }
+.mode-secondary-button:hover { -fx-background-color: #172033; }
