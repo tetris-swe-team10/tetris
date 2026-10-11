@@ -102,4 +102,44 @@ class GameSettingsTest {
         assertDoesNotThrow(() -> settings.setColorBlindMode(true));
         assertTrue(settings.isColorBlindMode());
     }
+    @Test
+    void usesSafeDefaultsForScreenSettings() {
+        GameSettings settings = createSettings();
+
+        assertEquals(DropSpeed.NORMAL, settings.getDropSpeed());
+        assertEquals(DisplayMode.WINDOWED, settings.getDisplayMode());
+        assertFalse(settings.isDemoMode());
+    }
+
+    @Test
+    void updatesScreenSettings() {
+        GameSettings settings = createSettings();
+
+        settings.setDropSpeed(DropSpeed.FAST);
+        settings.setDisplayMode(DisplayMode.PORTRAIT);
+        settings.setDemoMode(true);
+
+        assertEquals(DropSpeed.FAST, settings.getDropSpeed());
+        assertEquals(DisplayMode.PORTRAIT, settings.getDisplayMode());
+        assertTrue(settings.isDemoMode());
+    }
+
+    @Test
+    void adjustsDropIntervalWithSelectedSpeed() {
+        GameSettings settings = createSettings();
+
+        settings.setDropSpeed(DropSpeed.SLOW);
+        assertEquals(1250, settings.adjustDropInterval(1000));
+        settings.setDropSpeed(DropSpeed.NORMAL);
+        assertEquals(1000, settings.adjustDropInterval(1000));
+        settings.setDropSpeed(DropSpeed.FAST);
+        assertEquals(750, settings.adjustDropInterval(1000));
+    }
+
+    @Test
+    void rejectsInvalidBaseDropInterval() {
+        assertThrows(IllegalArgumentException.class,
+                () -> DropSpeed.NORMAL.adjustInterval(0));
+    }
+
 }

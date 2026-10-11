@@ -53,7 +53,7 @@ public class GameView extends BorderPane {
 
     private long lastUpdateNanos;
 
-    private boolean settingsOpenedWhilePaused = false;
+    private boolean settingsOpen = false;
     private boolean gameOverNotified = false;
 
     private BlockPalette palette = BlockPalette.NORMAL;
@@ -124,6 +124,10 @@ public class GameView extends BorderPane {
         setFocusTraversable(true);
 
         setOnKeyPressed(event -> {
+            if (settingsOpen) {
+                event.consume();
+                return;
+            }
             switch (event.getCode()) {
                 case LEFT -> controller.handle(GameCommand.LEFT);
                 case RIGHT -> controller.handle(GameCommand.RIGHT);
@@ -157,11 +161,13 @@ public class GameView extends BorderPane {
                     } else {
                         lastUpdateNanos = System.nanoTime();
 
-                        if (!engine.isGameOver()) {
+                        if (!engine.isGameOver() && !settingsOpen) {
                             dropTimer.play();
                         }
 
-                        Platform.runLater(this::requestFocus);
+                        Platform.runLater(() -> {
+                            if (getScene() != null && !settingsOpen) requestFocus();
+                        });
                     }
                 });
 
@@ -229,13 +235,12 @@ public class GameView extends BorderPane {
     }
 
     private void requestSettings() {
-        if (engine.isGameOver()) {
+        if (engine.isGameOver() || settingsOpen) {
             return;
         }
 
-        // 설정 화면에 들어가기 전 상태를 기억
-        settingsOpenedWhilePaused = engine.isPaused();
-
+        settingsOpen = true;
+        dropTimer.stop();
         controller.pause();
         lastUpdateNanos = System.nanoTime();
 
@@ -245,14 +250,18 @@ public class GameView extends BorderPane {
 
     // 설정 화면 담당자가 돌아가기 버튼에서 호출
     public void returnFromSettings() {
-        if (!settingsOpenedWhilePaused && !engine.isGameOver()) {
+        settingsOpen = false;
+        if (!engine.isGameOver()) {
             controller.resume();
+            if (getScene() != null) dropTimer.play();
         }
 
         lastUpdateNanos = System.nanoTime();
         redraw();
 
-        Platform.runLater(this::requestFocus);
+        Platform.runLater(() -> {
+            if (getScene() != null && !settingsOpen) requestFocus();
+        });
     }
 
     private void checkGameOver() {
