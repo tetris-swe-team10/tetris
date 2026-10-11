@@ -3,10 +3,10 @@ package com.team10.tetris;
 import java.io.IOException;
 import java.util.Map;
 
-import com.team10.tetris.game.Board;
+import com.team10.tetris.game.Difficulty;
+import com.team10.tetris.game.GameConfig;
 import com.team10.tetris.game.GameEngine;
-import com.team10.tetris.game.Tetromino;
-import com.team10.tetris.game.TetrominoType;
+import com.team10.tetris.game.GameMode;
 import com.team10.tetris.input.MenuKeyBindings;
 import com.team10.tetris.score.ScoreboardManager;
 import com.team10.tetris.screen.StartMenuAction;
@@ -14,9 +14,11 @@ import com.team10.tetris.screen.StartScreen;
 import com.team10.tetris.settings.DisplayMode;
 import com.team10.tetris.settings.GameSettings;
 import com.team10.tetris.settings.PauseSettingsPane;
+import com.team10.tetris.settings.SettingsManager;
 import com.team10.tetris.settings.SettingsScreen;
 import com.team10.tetris.ui.GameOverView;
 import com.team10.tetris.ui.GameView;
+import com.team10.tetris.ui.ScoreboardView;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -24,6 +26,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -34,10 +37,11 @@ public class App extends Application {
         private static final int WINDOW_HEIGHT = 640;
 
         private final ScoreboardManager scoreboardManager = new ScoreboardManager();
-        private final GameSettings settings = new GameSettings();
+        private final GameSettings settings = new GameSettings(new SettingsManager());
 
         private Scene scene;
         private Stage stage;
+        private Difficulty lastSelectedDifficulty = Difficulty.NORMAL;
 
         @Override
         public void start(Stage stage) {
@@ -52,7 +56,7 @@ public class App extends Application {
                                                 "/com/team10/tetris/settings.css").toExternalForm());
 
                 stage.setTitle("Tetris");
-                stage.setMinWidth(560);
+                stage.setMinWidth(800);
                 stage.setMinHeight(560);
                 stage.setScene(scene);
                 stage.show();
@@ -64,9 +68,11 @@ public class App extends Application {
                 return new StartScreen(
                                 Map.of(
                                                 StartMenuAction.START_GAME,
-                                                () -> showScreen(createGameView()),
+                                                this::chooseDifficulty,
                                                 StartMenuAction.OPEN_SETTINGS,
                                                 this::showSettingsScreen,
+                                                StartMenuAction.OPEN_SCOREBOARD,
+                                                this::showScoreboard,
                                                 StartMenuAction.EXIT,
                                                 Platform::exit),
                                 MenuKeyBindings.defaults());
@@ -83,19 +89,35 @@ public class App extends Application {
                 screen.requestFocus();
         }
 
-        private GameView createGameView() {
-                GameEngine engine = new GameEngine(
-                                new Board(),
-                                new Tetromino(TetrominoType.T, 0, 3));
+        private void chooseDifficulty() {
+                ChoiceDialog<Difficulty> dialog = new ChoiceDialog<>(
+                                lastSelectedDifficulty, Difficulty.values());
+                dialog.initOwner(scene.getWindow());
+                dialog.setTitle("게임 난이도 선택");
+                dialog.setHeaderText("시작할 난이도를 선택하세요. 한 판 동안 변경되지 않습니다.");
+                dialog.setContentText("난이도");
+                ((javafx.scene.control.Button) dialog.getDialogPane()
+                                .lookupButton(ButtonType.OK)).setText("게임 시작");
+                dialog.showAndWait().ifPresent(difficulty -> {
+                        lastSelectedDifficulty = difficulty;
+                        showScreen(createGameView(new GameConfig(GameMode.NORMAL, difficulty)));
+                });
+        }
 
+        private void showScoreboard() {
+                ScoreboardView view = new ScoreboardView(scoreboardManager);
+                view.setOnBackRequested(this::showStartMenu);
+                showScreen(view);
+        }
+
+        private GameView createGameView(GameConfig config) {
+                GameEngine engine = new GameEngine(config);
                 GameView gameView = new GameView(engine, settings);
-                gameView.setOnSettingsRequested(
-                                () -> showPauseSettings(gameView));
+                gameView.setOnSettingsRequested(() -> showPauseSettings(gameView));
                 gameView.setOnGameOver(
                                 () -> showGameOver(
                                                 gameView.getScore(),
-                                                engine.getTotalClearedLines()));
-
+                                                engine.getTotalClearedLines(), config));
                 return gameView;
         }
 
@@ -130,9 +152,7 @@ public class App extends Application {
 
         private void applyDisplayMode(DisplayMode mode) {
                 stage.setFullScreen(mode == DisplayMode.FULL_SCREEN);
-                if (mode == DisplayMode.FULL_SCREEN) {
-                        return;
-                }
+                if (mode == DisplayMode.FULL_SCREEN) return;
 
                 if (mode == DisplayMode.PORTRAIT) {
                         stage.setWidth(640);
@@ -152,9 +172,7 @@ public class App extends Application {
                                 ButtonType.CANCEL);
                 confirmation.initOwner(stage);
                 confirmation.setHeaderText("점수 초기화");
-                if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
-                        return;
-                }
+                if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
 
                 Alert alert;
                 try {
@@ -170,16 +188,13 @@ public class App extends Application {
                 alert.showAndWait();
         }
 
-        private void showGameOver(int score, int clearedLines) {
+        private void showGameOver(int score, int clearedLines, GameConfig config) {
                 GameOverView gameOverView = new GameOverView(scoreboardManager);
-
-                gameOverView.setOnRestart(
-                                () -> showScreen(createGameView()));
+                gameOverView.setOnRestart(() -> showScreen(createGameView(config)));
                 gameOverView.setOnMainMenu(this::showStartMenu);
                 gameOverView.setOnExit(Platform::exit);
-
                 showScreen(gameOverView);
-                gameOverView.showResult(score, clearedLines);
+                gameOverView.showResult(score, clearedLines, config);
         }
 
         public static void main(String[] args) {

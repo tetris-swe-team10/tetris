@@ -140,6 +140,7 @@ class GameEngineTest {
         assertEquals(false, engine.moveDown());
 
         // 줄이 삭제됐는지 확인
+        engine.advanceClear(GameEngine.LINE_CLEAR_DURATION_MS);
         assertEquals(0, board.getCell(19, 0));
     }
 
@@ -194,6 +195,7 @@ class GameEngineTest {
 
         // 현재 블록 고정 → 다음 블록 생성 시도
         engine.moveDown();
+        engine.advanceClear(GameEngine.LINE_CLEAR_DURATION_MS);
 
         assertEquals(true, engine.isGameOver());
     }
@@ -329,6 +331,7 @@ class GameEngineTest {
         GameEngine engine = new GameEngine(board, block);
 
         engine.moveDown();
+        engine.advanceClear(GameEngine.LINE_CLEAR_DURATION_MS);
 
         assertEquals(1, engine.getTotalClearedLines());
     }
@@ -354,6 +357,7 @@ class GameEngineTest {
 
             // 아래로 갈 수 없으므로 lock → 한 줄 삭제
             engine.moveDown();
+        engine.advanceClear(GameEngine.LINE_CLEAR_DURATION_MS);
         }
 
         assertEquals(5, engine.getTotalClearedLines());
@@ -426,6 +430,7 @@ class GameEngineTest {
         GameEngine engine = new GameEngine(board, block);
 
         engine.moveDown();
+        engine.advanceClear(GameEngine.LINE_CLEAR_DURATION_MS);
 
         assertEquals(1, engine.getLastClearedLines());
         assertEquals(1, engine.getTotalClearedLines());
@@ -448,6 +453,7 @@ class GameEngineTest {
         GameEngine engine = new GameEngine(board, block);
 
         engine.moveDown();
+        engine.advanceClear(GameEngine.LINE_CLEAR_DURATION_MS);
 
         assertEquals(true, engine.isGameOver());
         assertEquals(0, engine.hardDrop());
