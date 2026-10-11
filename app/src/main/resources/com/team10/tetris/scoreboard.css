@@ -1,0 +1,50 @@
+.scoreboard-screen {
+    -fx-background-color: #030712;
+    -fx-border-color: #1f2937 transparent transparent #7c3aed;
+    -fx-border-width: 1px 0 0 5px;
+    -fx-font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+}
+.scoreboard-title { -fx-text-fill: #f5f7fb; -fx-font-size: 28px; -fx-font-weight: bold; }
+.scoreboard-filters { -fx-text-fill: #98a2b3; }
+.scoreboard-filters > .label { -fx-text-fill: #98a2b3; -fx-font-size: 11px; -fx-font-weight: bold; }
+.scoreboard-filter {
+    -fx-background-color: #111827;
+    -fx-border-color: #334155;
+    -fx-border-radius: 13px;
+    -fx-background-radius: 13px;
+    -fx-mark-color: #3b82f6;
+}
+.scoreboard-filter .list-cell { -fx-background-color: transparent; -fx-text-fill: #f5f7fb; -fx-font-size: 11px; }
+.scoreboard-records {
+    -fx-background-color: #0b1220;
+    -fx-border-color: #1f2937 #1f2937 #1f2937 #3b82f6;
+    -fx-border-width: 1px 1px 1px 3px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 14px 16px;
+}
+.scoreboard-scroll, .scoreboard-scroll > .viewport { -fx-background-color: transparent; }
+.scoreboard-scroll > .scroll-bar { -fx-opacity: 0; -fx-pref-width: 0; -fx-pref-height: 0; }
+.scoreboard-header-row { -fx-padding: 12px 0; -fx-border-color: transparent transparent #1f2937 transparent; }
+.scoreboard-record-row { -fx-padding: 17px 0; -fx-border-color: transparent transparent #111827 transparent; }
+.scoreboard-cell { -fx-text-fill: #f5f7fb; -fx-font-size: 13px; }
+.scoreboard-header-row .scoreboard-cell { -fx-text-fill: #98a2b3; -fx-font-size: 11px; -fx-font-weight: bold; }
+.scoreboard-rank { -fx-text-fill: #f5b800; -fx-font-weight: bold; }
+.scoreboard-item { -fx-text-fill: #7c3aed; }
+.scoreboard-empty { -fx-text-fill: #98a2b3; -fx-padding: 28px; }
+.scoreboard-back {
+    -fx-background-color: #111827;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #f5f7fb;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-min-width: 150px;
+    -fx-min-height: 40px;
+}
+.scoreboard-back:hover { -fx-background-color: #172033; }
+.scoreboard-filter:focused, .scoreboard-back:focused {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 2px;
+}

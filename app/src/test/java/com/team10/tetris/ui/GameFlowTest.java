@@ -152,10 +152,23 @@ class GameFlowTest {
                 capture(scene, "result-hard");
                 ScoreboardView records = new ScoreboardView(manager);
                 scene.setRoot(records); records.applyCss(); records.layout();
-                for (Node node : records.lookupAll(".combo-box")) {
-                    @SuppressWarnings("unchecked") ComboBox<Object> choice = (ComboBox<Object>)node;
-                    if (choice.getValue() instanceof Difficulty) choice.setValue(Difficulty.HARD);
-                }
+                @SuppressWarnings("unchecked")
+                ComboBox<GameMode> modeFilter = (ComboBox<GameMode>) records.lookupAll(".combo-box").stream()
+                        .map(node -> (ComboBox<?>) node)
+                        .filter(choice -> choice.getValue() instanceof GameMode)
+                        .findFirst().orElseThrow();
+                @SuppressWarnings("unchecked")
+                ComboBox<Difficulty> difficultyFilter = (ComboBox<Difficulty>) records.lookupAll(".combo-box").stream()
+                        .map(node -> (ComboBox<?>) node)
+                        .filter(choice -> choice.getValue() instanceof Difficulty)
+                        .findFirst().orElseThrow();
+                records.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false, false, false));
+                assertEquals(GameMode.ITEM, modeFilter.getValue());
+                records.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.LEFT, false, false, false, false));
+                assertEquals(GameMode.NORMAL, modeFilter.getValue());
+                records.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, false, false, false, false));
+                records.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false, false, false));
+                assertEquals(Difficulty.HARD, difficultyFilter.getValue());
                 assertTrue(records.lookupAll(".label").stream().anyMatch(n -> ((Label)n).getText().equals("HardPlayer")));
                 capture(scene, "scoreboard-hard");
             } finally { stage.close(); }
