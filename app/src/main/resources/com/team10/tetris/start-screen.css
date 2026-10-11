@@ -1,43 +1,52 @@
 .root {
-    -fx-font-family: "Arial";
+    -fx-font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 }
 
 .start-screen {
-    -fx-background-color: linear-gradient(to bottom right, #07111f, #10243a);
+    -fx-background-color: #030712;
+    -fx-border-color: #334155 transparent transparent #7c3aed;
+    -fx-border-width: 1px 0 0 5px;
+}
+
+.eyebrow {
+    -fx-text-fill: #3b82f6;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
 }
 
 .title {
-    -fx-text-fill: #edf7fa;
-    -fx-font-size: 72px;
+    -fx-text-fill: #f5f7fb;
+    -fx-font-size: 34px;
     -fx-font-weight: bold;
 }
 
 .subtitle,
 .guide {
-    -fx-text-fill: #96aabe;
+    -fx-text-fill: #98a2b3;
 }
 
 .subtitle {
-    -fx-font-size: 20px;
+    -fx-font-size: 13px;
 }
 
 .menu-button {
-    -fx-alignment: center-left;
-    -fx-background-color: #132336;
-    -fx-background-radius: 8px;
-    -fx-border-color: #2b4155;
-    -fx-border-radius: 8px;
+    -fx-alignment: center;
+    -fx-background-color: #111827;
+    -fx-background-radius: 6px;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6px;
     -fx-cursor: hand;
-    -fx-padding: 15px 22px;
-    -fx-text-fill: #edf7fa;
-    -fx-font-size: 17px;
+    -fx-min-height: 48px;
+    -fx-padding: 12px 20px;
+    -fx-text-fill: #f5f7fb;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
 }
 
 .menu-button:selected {
-    -fx-background-color: #50e1c7;
-    -fx-border-color: #50e1c7;
-    -fx-text-fill: #07111f;
+    -fx-background-color: #3b82f6;
+    -fx-border-color: #3b82f6;
+    -fx-text-fill: #030712;
 }
 
 .menu-button:disabled {
@@ -45,5 +54,5 @@
 }
 
 .guide {
-    -fx-font-size: 13px;
+    -fx-font-size: 12px;
 }

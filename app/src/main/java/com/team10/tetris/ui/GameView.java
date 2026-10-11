@@ -135,7 +135,7 @@ public class GameView extends BorderPane {
                 case UP -> controller.handle(GameCommand.ROTATE);
                 case SPACE -> controller.handle(GameCommand.HARD_DROP);
 
-                case ESCAPE -> togglePause();
+                case ESCAPE -> requestSettings();
 
                 default -> {
                     return;

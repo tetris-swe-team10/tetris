@@ -31,12 +31,15 @@ public final class StartScreen extends BorderPane {
         this.keyBindings = Objects.requireNonNull(keyBindings);
 
         getStyleClass().add("start-screen");
-        setPadding(new Insets(64, 80, 48, 80));
+        setPadding(new Insets(72, 70, 48, 70));
+
+        Label eyebrow = new Label("SELECT SESSION");
+        eyebrow.getStyleClass().add("eyebrow");
 
         Label title = new Label("TETRIS");
         title.getStyleClass().add("title");
 
-        VBox heading = new VBox(8, title);
+        VBox heading = new VBox(8, eyebrow, title);
 
         menuButtons = menuActions.stream()
                 .map(this::createMenuButton)
@@ -44,13 +47,13 @@ public final class StartScreen extends BorderPane {
 
         VBox menu = new VBox(12);
         menu.getStyleClass().add("menu");
-        menu.setMaxWidth(340);
+        menu.setMaxWidth(380);
         menu.getChildren().addAll(menuButtons);
 
         Label guide = new Label("↑ ↓ 또는 W S 메뉴 이동    Enter 선택");
         guide.getStyleClass().add("guide");
 
-        VBox content = new VBox(42, heading, menu, guide);
+        VBox content = new VBox(34, heading, menu, guide);
         content.setAlignment(Pos.CENTER_LEFT);
         setCenter(content);
 
