@@ -31,13 +31,13 @@ public class GameOverView extends BorderPane {
             "'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif";
 
     // 시안 색상
-    private static final String COLOR_BACKGROUND = "#101820";
-    private static final String COLOR_PANEL = "#16202C";
-    private static final String COLOR_ACCENT = "#63D4C5";
-    private static final String COLOR_TEXT = "#E8EEF2";
-    private static final String COLOR_TEXT_DIM = "#A3B1BE";
-    private static final String COLOR_BORDER = "#22303F";
-    private static final String COLOR_HIGHLIGHT = "#1B3B3A";
+    private static final String COLOR_BACKGROUND = "#030712";
+    private static final String COLOR_PANEL = "#0B1220";
+    private static final String COLOR_ACCENT = "#3B82F6";
+    private static final String COLOR_TEXT = "#F5F7FB";
+    private static final String COLOR_TEXT_DIM = "#98A2B3";
+    private static final String COLOR_BORDER = "#334155";
+    private static final String COLOR_HIGHLIGHT = "#111D35";
 
     private final ScoreboardManager manager;
 
@@ -456,7 +456,7 @@ public class GameOverView extends BorderPane {
 
     private String accentButtonStyle() {
         return "-fx-background-color: " + COLOR_ACCENT + ";"
-                + "-fx-text-fill: #0B1620;"
+                + "-fx-text-fill: #030712;"
                 + "-fx-font-family: " + FONT_FAMILY + ";"
                 + "-fx-font-size: 15px;"
                 + "-fx-font-weight: bold;"
