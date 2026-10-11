@@ -112,7 +112,7 @@ public class GameView extends BorderPane {
         setCenter(boardCanvas);
         setRight(rightPanel);
         setPadding(new Insets(20));
-        setStyle("-fx-background-color: #101820;");
+        setStyle("-fx-background-color: #030712;");
 
         pauseButton.setFocusTraversable(false);
         settingsButton.setFocusTraversable(false);
@@ -304,7 +304,7 @@ public class GameView extends BorderPane {
     private void drawBoard() {
         GraphicsContext gc = boardCanvas.getGraphicsContext2D();
 
-        gc.setFill(Color.web("#17212B"));
+        gc.setFill(Color.web("#060B16"));
         gc.fillRect(
                 0,
                 0,
@@ -350,7 +350,7 @@ public class GameView extends BorderPane {
         }
 
         // 격자
-        gc.setStroke(Color.web("#344653"));
+        gc.setStroke(Color.web("#1F2937"));
 
         for (int row = 0; row < Board.HEIGHT; row++) {
             for (int col = 0; col < Board.WIDTH; col++) {
@@ -366,7 +366,7 @@ public class GameView extends BorderPane {
     private void drawNextBlock() {
         GraphicsContext gc = nextCanvas.getGraphicsContext2D();
 
-        gc.setFill(Color.web("#17212B"));
+        gc.setFill(Color.web("#060B16"));
         gc.fillRect(
                 0,
                 0,

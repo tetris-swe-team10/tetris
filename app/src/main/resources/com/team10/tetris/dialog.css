@@ -1,0 +1,51 @@
+.tetris-dialog {
+    -fx-background-color: #0b1220;
+    -fx-border-color: #334155 #334155 #334155 #7c3aed;
+    -fx-border-width: 1px 1px 1px 4px;
+    -fx-font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+}
+.tetris-dialog > .header-panel { -fx-background-color: #0b1220; }
+.tetris-dialog > .header-panel > .label {
+    -fx-text-fill: #f5f7fb;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+.tetris-dialog > .content.label, .tetris-dialog .content.label {
+    -fx-text-fill: #98a2b3;
+    -fx-font-size: 12px;
+}
+.tetris-dialog .button-bar { -fx-background-color: #0b1220; }
+.tetris-dialog .button {
+    -fx-background-color: #111827;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #f5f7fb;
+    -fx-font-weight: bold;
+    -fx-min-height: 38px;
+    -fx-padding: 8px 18px;
+}
+.tetris-dialog .button:default {
+    -fx-background-color: #3b82f6;
+    -fx-border-color: #3b82f6;
+    -fx-text-fill: #030712;
+}
+.tetris-dialog .button:focused { -fx-border-color: #93c5fd; -fx-border-width: 2px; }
+.difficulty-dialog .combo-box {
+    -fx-background-color: #111827;
+    -fx-border-color: #334155;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-mark-color: #3b82f6;
+}
+.difficulty-dialog .combo-box .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f5f7fb;
+}
+.difficulty-dialog .label { -fx-text-fill: #98a2b3; }
+.combo-box-popup .list-view { -fx-background-color: #0b1220; -fx-border-color: #334155; }
+.combo-box-popup .list-cell { -fx-background-color: #0b1220; -fx-text-fill: #f5f7fb; }
+.combo-box-popup .list-cell:hover, .combo-box-popup .list-cell:selected {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: #030712;
+}
