@@ -7,6 +7,7 @@ import com.team10.tetris.game.PenaltyController;
 public interface GameItem {
     default boolean isAvailable(PenaltyController penalties) { return true; }
     default void onAssigned(PenaltyController penalties) {}
+    default void onSpawn(PenaltyController penalties) {}
     String symbol();
     String description();
     default void onLock(Board board, int row, int col) {}

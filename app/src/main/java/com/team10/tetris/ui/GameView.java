@@ -300,7 +300,8 @@ public class GameView extends BorderPane {
         drawBoard();
         drawNextBlock();
         penaltyLabel.setText(snapshot.blackoutActive()
-                ? "B 암전 · 현재 블록 착지까지" : "");
+                ? "B 암전 · 현재 블록 착지까지"
+                : snapshot.rotationLocked() ? "K 회전 잠금 · 현재 블록" : "");
 
         scoreLabel.setText(String.valueOf(snapshot.score()));
         linesLabel.setText(
