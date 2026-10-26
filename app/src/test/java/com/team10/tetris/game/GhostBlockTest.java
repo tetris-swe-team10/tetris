@@ -68,13 +68,32 @@ class GhostBlockTest {
         assertNull(engine.snapshot().ghostBlock());
     }
 
-    @Test void hidesProjectionDuringBlackoutClearingAndGameOver() {
+    @Test void blackoutHidesProjectionIndependentlyOfState() {
         GameSnapshot base = new GameEngine(new Board(), new Tetromino(TetrominoType.T, 0, 3)).snapshot();
         for (GameState state : GameState.values()) {
             GameSnapshot hidden = new GameSnapshot(base.cells(), base.currentBlock(), base.nextBlock(),
                     base.config(), state, 0, 0, 1000, java.util.List.of(), base.cellTypes(), true, false);
             assertNull(hidden.ghostBlock());
         }
+    }
+
+    @Test void stateAloneControlsProjectionWithValidCurrentBlockAndNoBlackout() {
+        GameSnapshot base = new GameEngine(new Board(), new Tetromino(TetrominoType.T, 0, 3)).snapshot();
+        PieceSnapshot expected = base.ghostBlock();
+        assertNotNull(expected, "Fixture must have a valid landing position");
+        for (GameState state : GameState.values()) {
+            GameSnapshot snapshot = new GameSnapshot(base.cells(), base.currentBlock(), base.nextBlock(),
+                    base.config(), state, 0, 0, 1000, java.util.List.of(), base.cellTypes(), false, false);
+            assertNotNull(snapshot.currentBlock());
+            assertFalse(snapshot.blackoutActive());
+            switch (state) {
+                case PLAYING, PAUSED -> assertEquals(expected, snapshot.ghostBlock(), state.name());
+                case CLEARING, ITEM_EFFECT, GAME_OVER -> assertNull(snapshot.ghostBlock(), state.name());
+            }
+        }
+    }
+
+    @Test void engineHidesProjectionWhileClearingAndAfterGameOver() {
         Board full = new Board();
         for (int col = 0; col < Board.WIDTH; col++) full.setCell(19, col, 1);
         GameEngine clearing = new GameEngine(full, new Tetromino(TetrominoType.O, 17, 3));
