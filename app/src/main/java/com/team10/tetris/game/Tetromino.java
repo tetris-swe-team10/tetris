@@ -111,6 +111,11 @@ public class Tetromino {
         row++;
     }
 
+    /** 회전 가능한 블록인지. 무게추처럼 모양이 고정된 블록은 false로 재정의한다. */
+    public boolean canRotate() {
+        return true;
+    }
+
     public void rotateClockwise() {
         if (item != null) {
             int height = getShape().length;

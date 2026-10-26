@@ -39,7 +39,9 @@ class DemoShortcutTest {
         GameEngine game=new GameEngine(new GameConfig(GameMode.ITEM,Difficulty.NORMAL));
         game.configureDemoItems(true,10);
         game.pause(); assertFalse(game.requestDemoItem(1)); game.resume();
-        assertFalse(game.requestDemoItem(4));
+        assertTrue(game.requestDemoItem(4));
+        assertEquals("W",game.demoRequestedSymbol());
+        assertFalse(game.requestDemoItem(5));
         game.requestDemoItem(1); game.configureDemoItems(false,10);
         game.hardDrop(); assertNull(game.getNextBlock().getItem());
     }

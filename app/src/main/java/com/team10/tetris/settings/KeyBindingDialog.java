@@ -25,7 +25,7 @@ public final class KeyBindingDialog extends Dialog<GameKeyBindings> {
                 getClass().getResource("/com/team10/tetris/dialog.css")).toExternalForm());
         getDialogPane().getStyleClass().add("tetris-dialog");
         draft.putAll(current.asMap());
-        Label instructions = new Label("변경할 조작을 선택한 뒤 사용할 키를 누르세요.\nESC는 키 입력 취소, SPACE는 바로 내리기입니다.\nEnter·Tab·1~3 및 보조 키는 고정 기능으로 사용합니다.");
+        Label instructions = new Label("변경할 조작을 선택한 뒤 사용할 키를 누르세요.\nESC는 키 입력 취소, SPACE는 바로 내리기입니다.\nEnter·Tab·1~4 및 보조 키는 고정 기능으로 사용합니다.");
         instructions.setWrapText(true);
         instructions.setStyle("-fx-text-fill: #E8EEF2;");
         Label message = new Label();

@@ -165,7 +165,11 @@ public class GameView extends BorderPane {
                 engine.requestDemoItem(2);
             } else if (key == javafx.scene.input.KeyCode.DIGIT3 || key == javafx.scene.input.KeyCode.NUMPAD3) {
                 engine.requestDemoItem(3);
-            } else {
+            }  else if (engine.isItemDemoEnabled()
+                    && (key == javafx.scene.input.KeyCode.DIGIT4 || key == javafx.scene.input.KeyCode.NUMPAD4)) {
+                engine.requestDemoItem(4);
+            }
+            else {
                 var bindings = gameSettings == null ? com.team10.tetris.input.GameKeyBindings.defaults()
                         : gameSettings.getKeyBindings();
                 var command = bindings.commandFor(key);
@@ -372,7 +376,7 @@ public class GameView extends BorderPane {
         demoLabel.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-text-fill: #98A2B3; -fx-font-size: 12px;");
         demoLabel.setVisible(engine.isItemDemoEnabled());
         demoLabel.setManaged(engine.isItemDemoEnabled());
-        demoLabel.setText("데모 · 1 폭탄 / 2 암전 / 3 회전 잠금\n새 NEXT에 지급 · 벌칙 중에는 해제 후 지급"
+        demoLabel.setText("데모 · 1 폭탄 / 2 암전 / 3 회전 잠금 / 4 무게추\n새 NEXT에 지급 · 벌칙 중에는 해제 후 지급"
                 + (engine.demoRequestedSymbol().isEmpty() ? "" : "\n예약: " + engine.demoRequestedSymbol()));
         scoreLabel.setText(String.valueOf(snapshot.score()));
         linesLabel.setText(
@@ -476,10 +480,7 @@ public class GameView extends BorderPane {
                     }
                 }
             }
-            if (block.item() != null) {
-                drawItemMarker(gc, (block.col() + block.item().col()) * CELL_SIZE,
-                        (block.row() + block.item().row()) * CELL_SIZE, CELL_SIZE, block.item().symbol());
-            }
+            drawItemMarkers(gc, block, block.col() * CELL_SIZE, block.row() * CELL_SIZE, CELL_SIZE);
         }
 
         // 삭제 예정 행은 압축 전 위치에 밝은 색으로 표시한다.
@@ -589,10 +590,19 @@ public class GameView extends BorderPane {
                 }
             }
         }
-        if (nextBlock.item() != null) {
-            drawItemMarker(gc, startX + nextBlock.item().col() * previewCellSize,
-                    startY + nextBlock.item().row() * previewCellSize, previewCellSize,
-                    nextBlock.item().symbol());
+        drawItemMarkers(gc, nextBlock, startX, startY, previewCellSize);
+    }
+    /** 부착형은 한 칸, 블록형 아이템(무게추)은 모든 칸에 문자를 그린다. */
+    private void drawItemMarkers(GraphicsContext gc, PieceSnapshot piece, double x, double y, double size) {
+        var item = piece.item();
+        if (item == null) return;
+        for (int r = 0; r < piece.shape().size(); r++) {
+            for (int c = 0; c < piece.shape().get(r).size(); c++) {
+                boolean marked = piece.isItemPiece()
+                        ? piece.shape().get(r).get(c) != 0
+                        : r == item.row() && c == item.col();
+                if (marked) drawItemMarker(gc, x + c * size, y + r * size, size, item.symbol());
+            }
         }
     }
 

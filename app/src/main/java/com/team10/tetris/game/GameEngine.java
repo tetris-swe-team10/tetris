@@ -7,6 +7,8 @@ import com.team10.tetris.game.item.SmallBomb;
 import com.team10.tetris.game.item.Blackout;
 import com.team10.tetris.game.item.RotationLock;
 import com.team10.tetris.game.item.LineClearItem;
+import com.team10.tetris.game.item.WeightItem;
+import com.team10.tetris.game.item.WeightPiece;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +43,7 @@ public class GameEngine {
             case 1 -> new SmallBomb();
             case 2 -> new Blackout();
             case 3 -> new RotationLock();
+            case 4 -> new WeightItem();
             default -> null;
         };
         if (item == null) return false;
@@ -87,7 +90,7 @@ public class GameEngine {
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring) {
         this(board, currentBlock, config, generator, scoring,
-                new RandomItemAssigner(List.of(new SmallBomb(), new Blackout(), new RotationLock(), new LineClearItem()), new Random()));
+                new RandomItemAssigner(List.of(new SmallBomb(), new Blackout(), new RotationLock(), new LineClearItem(), new WeightItem()), new Random()));
     }
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring, ItemAssigner itemAssigner) {
@@ -139,6 +142,7 @@ public class GameEngine {
     }
     private boolean moveHorizontal(int delta) {
         if (state != GameState.PLAYING) return false;
+        if (currentBlock instanceof WeightPiece weight && weight.isAnchored()) return false;
         currentBlock.move(0, delta);
         if (board.canPlace(currentBlock)) return true;
         currentBlock.move(0, -delta);
@@ -148,6 +152,11 @@ public class GameEngine {
     public boolean moveRight() { return moveHorizontal(1); }
     public boolean moveDown() {
         if (state != GameState.PLAYING) return false;
+        if (currentBlock instanceof WeightPiece weight) {
+            if (!weight.isAnchored()) return fallWeight(weight);
+            while (state == GameState.PLAYING && currentBlock == weight) drillOneRow(weight);
+            return false;
+        }
         currentBlock.moveDown();
         if (board.canPlace(currentBlock)) {
             score += scoring.dropPoints(1, dropIntervalMs);
@@ -156,6 +165,36 @@ public class GameEngine {
         currentBlock.move(-1, 0);
         resolveLanding();
         return false;
+    }
+    /** 닿기 전: 일반 블록과 같은 낙하·점수. 닿는 순간 좌우를 잠근다(바닥이면 바로 사라짐). */
+    private boolean fallWeight(WeightPiece weight) {
+        weight.moveDown();
+        if (board.canPlace(weight)) {
+            score += scoring.dropPoints(1, dropIntervalMs);
+            return true;
+        }
+        weight.move(-1, 0);
+        penalties.finishActive(); // 일반 블록의 착지처럼 진행 중인 암전을 끝낸다.
+        weight.anchor();
+        if (weight.bottomRow() == Board.HEIGHT - 1) finishWeight();
+        return false;
+    }
+    /** 파괴 중 한 칸: 내려간 자리와 겹치는 칸만 지운다. 점수·줄 수·압축 없음. */
+    private void drillOneRow(WeightPiece weight) {
+        weight.moveDown();
+        int[][] shape = weight.getShape();
+        for (int r = 0; r < shape.length; r++) {
+            for (int c = 0; c < shape[r].length; c++) {
+                int row = weight.getRow() + r, col = weight.getCol() + c;
+                if (shape[r][c] != 0 && board.isInside(row, col)) board.setCell(row, col, 0);
+            }
+        }
+        if (weight.bottomRow() == Board.HEIGHT - 1) finishWeight();
+    }
+    /** 바닥 도달: 보드에 남기지 않고 다음 블록으로 넘어간다. 생성 자리가 막히면 게임 오버. */
+    private void finishWeight() {
+        lastClearedLines = 0;
+        resolveLockedBoard(Set.of());
     }
     private void resolveLanding() {
         penalties.finishActive();
@@ -239,7 +278,7 @@ public class GameEngine {
         }
     }
     public boolean rotateClockwise() {
-        if (state != GameState.PLAYING || penalties.rotationLocked()) return false;
+        if (state != GameState.PLAYING || penalties.rotationLocked() || !currentBlock.canRotate()) return false;
         currentBlock.rotateClockwise();
         if (board.canPlace(currentBlock)) return true;
         currentBlock.rotateCounterClockwise();
@@ -250,14 +289,13 @@ public class GameEngine {
     private Tetromino createNextTetromino() {
         Tetromino piece = createRandomTetromino();
         if (isItemDemoEnabled() && demoRequestedItem != null && demoRequestedItem.isAvailable(penalties)) {
-            new RandomItemAssigner(List.of(demoRequestedItem), new Random()).attachTo(piece);
+            piece = new RandomItemAssigner(List.of(demoRequestedItem), new Random()).award(piece, penalties);
             demoRequestedItem.onAssigned(penalties);
             demoRequestedItem = null;
         } else if (config.mode() == GameMode.ITEM && pendingItems > 0) {
-            itemAssigner.attachTo(piece, penalties);
+            piece = itemAssigner.award(piece, penalties);
             if (piece.getItem() != null) piece.getItem().item().onAssigned(penalties);
             pendingItems--;
-
         }
         return piece;
     }
@@ -276,9 +314,19 @@ public class GameEngine {
         if (state != GameState.PLAYING) return 0;
         int droppedRows = 0;
         while (moveDown()) droppedRows++;
+        // 무게추가 이번 하드 드롭으로 막 닿았다면 남은 파괴도 바닥까지 진행한다.
+        if (currentBlock instanceof WeightPiece weight && weight.isAnchored()) moveDown();
         return droppedRows;
     }
-    public void tick() { moveDown(); }
+
+    public void tick() {
+        if (state == GameState.PLAYING && currentBlock instanceof WeightPiece weight && weight.isAnchored()) {
+            drillOneRow(weight); // 파괴 중에는 낙하 틱마다 한 칸
+            return;
+        }
+        moveDown();
+    }
+
     public void pause() {
         if (state != GameState.PAUSED && state != GameState.GAME_OVER) {
             stateBeforePause = state;

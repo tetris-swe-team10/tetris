@@ -9,8 +9,8 @@ public final class GameKeyBindings {
     public static final List<GameCommand> ACTIONS = List.of(
             GameCommand.LEFT, GameCommand.RIGHT, GameCommand.ROTATE, GameCommand.DOWN);
     private static final Set<KeyCode> RESERVED = Set.of(KeyCode.ESCAPE, KeyCode.SPACE,
-            KeyCode.ENTER, KeyCode.TAB, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,
-            KeyCode.NUMPAD1, KeyCode.NUMPAD2, KeyCode.NUMPAD3, KeyCode.UNDEFINED);
+            KeyCode.ENTER, KeyCode.TAB, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,KeyCode.DIGIT4,
+            KeyCode.NUMPAD1, KeyCode.NUMPAD2, KeyCode.NUMPAD3,KeyCode.NUMPAD4, KeyCode.UNDEFINED);
     private final Map<GameCommand, KeyCode> keys;
 
     public GameKeyBindings(Map<GameCommand, KeyCode> keys) {
@@ -20,7 +20,7 @@ public final class GameKeyBindings {
         for (GameCommand action : ACTIONS) {
             KeyCode key = keys.get(action);
             if (key == null || key.isModifierKey() || RESERVED.contains(key))
-                throw new IllegalArgumentException("ESC·SPACE·Enter·Tab·1~3 및 보조 키는 사용할 수 없습니다.");
+                throw new IllegalArgumentException("ESC·SPACE·Enter·Tab·1~4 및 보조 키는 사용할 수 없습니다.");
             if (!used.add(key)) throw new IllegalArgumentException("다른 조작에 이미 사용 중인 키입니다.");
         }
         this.keys = Map.copyOf(keys);
