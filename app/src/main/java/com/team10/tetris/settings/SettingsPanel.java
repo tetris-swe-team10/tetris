@@ -24,6 +24,8 @@ public final class SettingsPanel extends VBox {
     private final GameSettings settings;
     private final Consumer<DisplayMode> onDisplayModeChanged;
     private final Runnable onScoreReset;
+    private final Runnable onKeyChangeRequested;
+    private final Label persistenceStatus = new Label();
 
     public SettingsPanel(
             GameSettings settings,
@@ -33,12 +35,18 @@ public final class SettingsPanel extends VBox {
         this.settings = Objects.requireNonNull(settings);
         this.onDisplayModeChanged = Objects.requireNonNull(onDisplayModeChanged);
         this.onScoreReset = Objects.requireNonNull(onScoreReset);
+        this.onKeyChangeRequested = onKeyChangeRequested;
 
         getStyleClass().add("settings-panel");
         setSpacing(12);
         setMinWidth(0);
         setMinHeight(VBox.USE_PREF_SIZE);
 
+        rebuild();
+    }
+
+    private void rebuild() {
+        getChildren().clear();
         VBox demoItems = createDemoItemSection();
         demoItems.setVisible(settings.isDemoMode());
         demoItems.setManaged(settings.isDemoMode());
@@ -66,7 +74,8 @@ public final class SettingsPanel extends VBox {
                         }),
                 demoItems,
                 new Separator(),
-                createScoreSection());
+                createScoreSection(),
+                persistenceStatus);
     }
 
     private VBox createDemoItemSection() {
@@ -96,8 +105,8 @@ public final class SettingsPanel extends VBox {
 
     private VBox createDropSpeedSection() {
         VBox section = createSection(
-                "낙하 속도",
-                "자동으로 블록이 내려오는 속도를 선택합니다.");
+                "기본 낙하 속도",
+                "시작 간격을 선택합니다. 이후 줄 삭제에 따른 가속량은 난이도에 따릅니다.");
 
         ToggleGroup group = new ToggleGroup();
         HBox choices = new HBox(10);
@@ -184,13 +193,21 @@ public final class SettingsPanel extends VBox {
     private VBox createControlsSection(Runnable onKeyChangeRequested) {
         VBox section = createSection(
                 "조작 키",
-                "← → 이동    ↑ 회전    ↓ 내리기    SPACE 바로 내리기");
+                settings.getKeyBindings().description());
         Button changeButton = new Button("키 변경");
         changeButton.getStyleClass().add("secondary-button");
-        changeButton.setDisable(onKeyChangeRequested == null);
-        if (onKeyChangeRequested != null) {
-            changeButton.setOnAction(event -> onKeyChangeRequested.run());
-        }
+        changeButton.setId("change-keys");
+        changeButton.setOnAction(event -> {
+            if (onKeyChangeRequested != null) { onKeyChangeRequested.run(); return; }
+            KeyBindingDialog dialog = new KeyBindingDialog(getScene() == null ? null : getScene().getWindow(),
+                    settings.getKeyBindings());
+            dialog.showAndWait().ifPresent(keys -> {
+                settings.setKeyBindings(keys);
+                ((Label) section.getChildren().get(1)).setText(keys.description());
+                persistenceStatus.setText("키를 변경했습니다. 재실행 후에도 유지하려면 설정 저장을 눌러 주세요.");
+            });
+            changeButton.requestFocus();
+        });
         section.getChildren().add(changeButton);
         return section;
     }
@@ -216,6 +233,46 @@ public final class SettingsPanel extends VBox {
         HBox row = new HBox(16, text, spacer, toggle);
         row.setAlignment(Pos.CENTER_LEFT);
         return new VBox(row);
+    }
+
+    /** 화면 하단: 복귀 버튼은 왼쪽, 저장·초기화는 오른쪽에 배치한다. */
+    public HBox createFooter(Button... navigationButtons) {
+        Button save = new Button("설정 저장");
+        save.setId("save-settings"); save.getStyleClass().add("primary-button");
+        save.setOnAction(event -> {
+            try {
+                settings.save(); persistenceStatus.setText("설정을 저장했습니다.");
+            } catch (java.io.IOException exception) {
+                persistenceStatus.setText("설정을 저장하지 못했습니다. 저장 위치와 권한을 확인해 주세요.");
+            }
+        });
+        Button reset = new Button("설정 초기화");
+        reset.setId("reset-settings"); reset.getStyleClass().add("secondary-button");
+        reset.setOnAction(event -> {
+            try {
+                settings.resetDefaults();
+                onDisplayModeChanged.accept(settings.getDisplayMode());
+                persistenceStatus.setText("기본 설정을 복원하고 저장했습니다. 점수 기록은 유지됩니다.");
+                rebuild();
+                javafx.application.Platform.runLater(() -> {
+                    reset.requestFocus();
+                });
+            } catch (java.io.IOException exception) {
+                persistenceStatus.setText("설정 초기화에 실패했습니다. 기존 설정을 유지합니다.");
+            }
+        });
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox actions = new HBox(10);
+        actions.getChildren().addAll(navigationButtons);
+        actions.getChildren().addAll(spacer, save, reset);
+        actions.setId("settings-footer");
+        actions.getStyleClass().add("settings-actions");
+        persistenceStatus.setId("settings-save-status");
+        persistenceStatus.setWrapText(true); persistenceStatus.getStyleClass().add("settings-description");
+        persistenceStatus.visibleProperty().bind(persistenceStatus.textProperty().isNotEmpty());
+        persistenceStatus.managedProperty().bind(persistenceStatus.visibleProperty());
+        return actions;
     }
 
     private VBox createScoreSection() {

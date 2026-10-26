@@ -73,6 +73,8 @@ public class GameEngine {
     private List<CellPosition> effectCells = List.of();
     private int effectElapsedMs;
     private int score;
+    private int baseDropIntervalMs = INITIAL_DROP_INTERVAL_MS;
+    private long speedUpCount;
     private int dropIntervalMs = INITIAL_DROP_INTERVAL_MS;
     private int totalClearedLines;
     private int lastClearedLines;
@@ -332,8 +334,20 @@ public class GameEngine {
         }
     }
     public void resume() { if (state == GameState.PAUSED) state = stateBeforePause; }
+    /** 기본 간격을 바꿔도 이미 도달한 가속 단계는 유지한다. */
+    public void setBaseDropIntervalMs(int intervalMs) {
+        if (intervalMs < MIN_DROP_INTERVAL_MS)
+            throw new IllegalArgumentException("기본 낙하 간격은 200ms 이상이어야 합니다.");
+        baseDropIntervalMs = intervalMs;
+        updateDropInterval();
+    }
     public void increaseSpeed() {
-        dropIntervalMs = Math.max(MIN_DROP_INTERVAL_MS, dropIntervalMs - config.difficulty().speedStepMs());
+        speedUpCount++;
+        updateDropInterval();
+    }
+    private void updateDropInterval() {
+        dropIntervalMs = (int) Math.max(MIN_DROP_INTERVAL_MS,
+                baseDropIntervalMs - speedUpCount * config.difficulty().speedStepMs());
     }
     /** 기존 fixture 호환. UI는 snapshot을 사용한다. */
     public void setCurrentBlock(Tetromino block) { currentBlock = Objects.requireNonNull(block); }

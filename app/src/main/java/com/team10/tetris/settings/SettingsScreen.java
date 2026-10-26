@@ -42,7 +42,7 @@ public final class SettingsScreen extends BorderPane {
         backButton.setMaxWidth(220);
         backButton.setOnAction(event -> onBack.run());
 
-        VBox content = new VBox(14, eyebrow, title, description, panel, backButton);
+        VBox content = new VBox(14, eyebrow, title, description, panel, panel.createFooter(backButton));
         content.getStyleClass().add("settings-content");
         content.setAlignment(Pos.TOP_CENTER);
         content.setMinWidth(0);

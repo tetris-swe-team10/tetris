@@ -90,6 +90,7 @@ public class GameView extends BorderPane {
         this(engine);
 
         this.gameSettings = settings;
+        engine.setBaseDropIntervalMs(settings.adjustDropInterval(GameEngine.INITIAL_DROP_INTERVAL_MS));
         engine.configureDemoItems(settings.isDemoMode(), settings.getDemoItemLines());
         setColorBlindMode(settings.isColorBlindMode());
         settings.colorBlindModeProperty().addListener(
@@ -155,22 +156,24 @@ public class GameView extends BorderPane {
                 event.consume();
                 return;
             }
-            switch (event.getCode()) {
-                case DIGIT1, NUMPAD1 -> engine.requestDemoItem(1);
-                case DIGIT2, NUMPAD2 -> engine.requestDemoItem(2);
-                case DIGIT3, NUMPAD3 -> engine.requestDemoItem(3);
-                case DIGIT4, NUMPAD4 -> engine.requestDemoItem(4);
-                case LEFT -> controller.handle(GameCommand.LEFT);
-                case RIGHT -> controller.handle(GameCommand.RIGHT);
-                case DOWN -> controller.handle(GameCommand.DOWN);
-                case UP -> controller.handle(GameCommand.ROTATE);
-                case SPACE -> controller.handle(GameCommand.HARD_DROP);
-
-                case ESCAPE -> requestSettings();
-
-                default -> {
-                    return;
-                }
+            if (event.isAltDown() || event.isControlDown() || event.isMetaDown() || event.isShiftDown()) return;
+            var key = event.getCode();
+            if (key == javafx.scene.input.KeyCode.ESCAPE) {
+                requestSettings();
+            } else if (key == javafx.scene.input.KeyCode.DIGIT1 || key == javafx.scene.input.KeyCode.NUMPAD1) {
+                engine.requestDemoItem(1);
+            } else if (key == javafx.scene.input.KeyCode.DIGIT2 || key == javafx.scene.input.KeyCode.NUMPAD2) {
+                engine.requestDemoItem(2);
+            } else if (key == javafx.scene.input.KeyCode.DIGIT3 || key == javafx.scene.input.KeyCode.NUMPAD3) {
+                engine.requestDemoItem(3);
+            } else if (key == javafx.scene.input.KeyCode.DIGIT4 || key == javafx.scene.input.KeyCode.NUMPAD4) {
+                engine.requestDemoItem(4);
+            } else {
+                var bindings = gameSettings == null ? com.team10.tetris.input.GameKeyBindings.defaults()
+                        : gameSettings.getKeyBindings();
+                var command = bindings.commandFor(key);
+                if (command.isEmpty()) return;
+                controller.handle(command.get());
             }
 
             redraw();
@@ -282,6 +285,7 @@ public class GameView extends BorderPane {
     // 설정 화면 담당자가 돌아가기 버튼에서 호출
     public void returnFromSettings() {
         if (gameSettings != null) {
+            engine.setBaseDropIntervalMs(gameSettings.adjustDropInterval(GameEngine.INITIAL_DROP_INTERVAL_MS));
             engine.configureDemoItems(gameSettings.isDemoMode(), gameSettings.getDemoItemLines());
         }
         settingsOpen = false;
@@ -414,6 +418,10 @@ public class GameView extends BorderPane {
                 boardCanvas.getWidth(),
                 boardCanvas.getHeight());
 
+        // 안내선은 고정 블록 뒤에 그려 쌓인 블록을 가리지 않는다.
+        PieceSnapshot ghost = snapshot.ghostBlock();
+        if (ghost != null) drawDropGuides(gc, snapshot.currentBlock(), ghost);
+
         // 고정 블록은 조작 블록의 실제 점유 영역 중심에서 지름 4칸만 보인다.
         gc.save();
         if (snapshot.blackoutActive() && snapshot.currentBlock() != null) {
@@ -450,6 +458,8 @@ public class GameView extends BorderPane {
         }
 
         gc.restore();
+
+        if (ghost != null && ghost.row() > snapshot.currentBlock().row()) drawGhost(gc, ghost);
 
         // 현재 블록
         if (snapshot.currentBlock() != null) {
@@ -497,6 +507,53 @@ public class GameView extends BorderPane {
         }
     }
 
+    /** 좌우 끝 열의 실제 점유 칸을 기준으로 현재 블록 아래와 착지 위치 위를 연결한다. */
+    private void drawDropGuides(GraphicsContext gc, PieceSnapshot current, PieceSnapshot ghost) {
+        if (ghost.row() <= current.row()) return;
+        int left = Integer.MAX_VALUE, right = -1;
+        for (var row : current.shape()) {
+            for (int col = 0; col < row.size(); col++) {
+                if (row.get(col) != 0) { left = Math.min(left, col); right = Math.max(right, col); }
+            }
+        }
+        gc.save();
+        gc.setStroke(Color.web("#CBD5E1", 0.42));
+        gc.setLineWidth(1);
+        gc.setLineDashes(5, 5);
+        for (int side = 0; side < 2; side++) {
+            int col = side == 0 ? left : right;
+            int top = -1, bottom = -1;
+            for (int row = 0; row < current.shape().size(); row++) {
+                if (current.shape().get(row).get(col) != 0) {
+                    if (top < 0) top = row;
+                    bottom = row;
+                }
+            }
+            double start = (current.row() + bottom + 1) * CELL_SIZE;
+            double end = (ghost.row() + top) * CELL_SIZE;
+            double x = (current.col() + col + side) * CELL_SIZE + (side == 0 ? 2 : -2);
+            if (end > start) gc.strokeLine(x, start, x, end);
+        }
+        gc.restore();
+    }
+
+    private void drawGhost(GraphicsContext gc, PieceSnapshot ghost) {
+        gc.save();
+        gc.setFill(Color.web("#CBD5E1", 0.08));
+        gc.setStroke(Color.web("#CBD5E1", 0.8));
+        gc.setLineWidth(1.5);
+        for (int row = 0; row < ghost.shape().size(); row++) {
+            for (int col = 0; col < ghost.shape().get(row).size(); col++) {
+                if (ghost.shape().get(row).get(col) == 0) continue;
+                double x = (ghost.col() + col) * CELL_SIZE + 3;
+                double y = (ghost.row() + row) * CELL_SIZE + 3;
+                gc.fillRect(x, y, CELL_SIZE - 6, CELL_SIZE - 6);
+                gc.strokeRect(x, y, CELL_SIZE - 6, CELL_SIZE - 6);
+            }
+        }
+        gc.restore();
+    }
+
     private void drawNextBlock() {
         GraphicsContext gc = nextCanvas.getGraphicsContext2D();
 
@@ -533,7 +590,6 @@ public class GameView extends BorderPane {
         }
         drawItemMarkers(gc, nextBlock, startX, startY, previewCellSize);
     }
-
     /** 부착형은 한 칸, 블록형 아이템(무게추)은 모든 칸에 문자를 그린다. */
     private void drawItemMarkers(GraphicsContext gc, PieceSnapshot piece, double x, double y, double size) {
         var item = piece.item();
