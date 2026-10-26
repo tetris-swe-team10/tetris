@@ -23,6 +23,7 @@ public final class MenuKeyBindings {
                 KeyCode.W, MenuCommand.MOVE_PREVIOUS,
                 KeyCode.DOWN, MenuCommand.MOVE_NEXT,
                 KeyCode.S, MenuCommand.MOVE_NEXT,
-                KeyCode.ENTER, MenuCommand.CONFIRM));
+                KeyCode.ENTER, MenuCommand.CONFIRM,
+                KeyCode.SPACE, MenuCommand.CONFIRM));
     }
 }

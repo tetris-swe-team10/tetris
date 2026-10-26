@@ -31,10 +31,13 @@ class MenuKeyBindingsTest {
     }
 
     @Test
-    void mapsEnterToConfirm() {
+    void mapsEnterAndSpaceToConfirm() {
         assertEquals(
                 MenuCommand.CONFIRM,
                 bindings.commandFor(KeyCode.ENTER).orElseThrow());
+        assertEquals(
+                MenuCommand.CONFIRM,
+                bindings.commandFor(KeyCode.SPACE).orElseThrow());
     }
 
     @Test

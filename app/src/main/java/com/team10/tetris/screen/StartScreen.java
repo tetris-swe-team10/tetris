@@ -62,7 +62,7 @@ public final class StartScreen extends BorderPane {
         menu.setMaxWidth(Double.MAX_VALUE);
         menu.getChildren().addAll(menuButtons);
 
-        Label guide = new Label("게임 시작 후 일반 모드 또는 아이템 모드를 선택합니다.\n↑ ↓ / W S 이동 · Enter 선택");
+        Label guide = new Label("게임 시작 후 일반 모드 또는 아이템 모드를 선택합니다.\n↑ ↓ / W S 이동 · Enter / Space 선택");
         guide.setWrapText(true);
         guide.getStyleClass().add("guide");
 
