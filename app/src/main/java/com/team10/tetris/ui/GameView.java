@@ -17,6 +17,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -24,6 +25,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
 public class GameView extends BorderPane {
@@ -45,6 +49,7 @@ public class GameView extends BorderPane {
     private final Label scoreLabel = new Label();
     private final Label linesLabel = new Label();
     private final Label statusLabel = new Label();
+    private final Label itemLabel = new Label();
 
     private final Button pauseButton = new Button("일시정지");
     private final Button settingsButton = new Button("설정");
@@ -98,6 +103,7 @@ public class GameView extends BorderPane {
                 linesLabel,
                 new Label("NEXT"),
                 nextCanvas,
+                itemLabel,
                 statusLabel,
                 pauseButton,
                 settingsButton);
@@ -105,6 +111,10 @@ public class GameView extends BorderPane {
         rightPanel.setAlignment(Pos.TOP_CENTER);
         rightPanel.setPadding(new Insets(20));
         rightPanel.setPrefWidth(180);
+        itemLabel.setId("next-item-description");
+        itemLabel.setWrapText(true);
+        itemLabel.setMaxWidth(145);
+        itemLabel.setAlignment(Pos.CENTER);
         for (var node : rightPanel.getChildren()) {
             if (node instanceof Label label) label.setStyle("-fx-text-fill: #E8EEF2;");
         }
@@ -284,6 +294,15 @@ public class GameView extends BorderPane {
         scoreLabel.setText(String.valueOf(snapshot.score()));
         linesLabel.setText(
                 String.valueOf(snapshot.totalClearedLines()));
+        var nextItem = snapshot.nextBlock().item();
+        itemLabel.setText(nextItem == null ? "" : nextItem.symbol() + " " + nextItem.description());
+        itemLabel.setVisible(nextItem != null);
+        itemLabel.setManaged(nextItem != null);
+        nextCanvas.setAccessibleText(nextItem == null ? "다음 블록 " + snapshot.nextBlock().type()
+                : "다음 블록 " + nextItem.symbol() + " " + nextItem.description());
+        var activeItem = snapshot.currentBlock() == null ? null : snapshot.currentBlock().item();
+        boardCanvas.setAccessibleText(activeItem == null ? "게임 보드"
+                : "게임 보드, 현재 블록 " + activeItem.symbol() + " " + activeItem.description());
 
         if (engine.isGameOver()) {
             statusLabel.setText("GAME OVER");
@@ -341,6 +360,10 @@ public class GameView extends BorderPane {
                     }
                 }
             }
+            if (block.item() != null) {
+                drawItemMarker(gc, (block.col() + block.item().col()) * CELL_SIZE,
+                        (block.row() + block.item().row()) * CELL_SIZE, CELL_SIZE, block.item().symbol());
+            }
         }
 
         // 삭제 예정 행은 압축 전 위치에 밝은 색으로 표시한다.
@@ -397,6 +420,28 @@ public class GameView extends BorderPane {
                 }
             }
         }
+        if (nextBlock.item() != null) {
+            drawItemMarker(gc, startX + nextBlock.item().col() * previewCellSize,
+                    startY + nextBlock.item().row() * previewCellSize, previewCellSize,
+                    nextBlock.item().symbol());
+        }
+    }
+
+    /** 문자와 명암 테두리로 구분해 일반·색맹 팔레트 모두에서 읽을 수 있게 한다. */
+    private void drawItemMarker(GraphicsContext gc, double x, double y, double size, String symbol) {
+        gc.save();
+        double inset = 3;
+        gc.setFill(Color.web("#111827"));
+        gc.fillRoundRect(x + inset, y + inset, size - 2 * inset, size - 2 * inset, 4, 4);
+        gc.setStroke(Color.WHITE);
+        gc.setLineWidth(1);
+        gc.strokeRoundRect(x + inset, y + inset, size - 2 * inset, size - 2 * inset, 4, 4);
+        gc.setFill(Color.WHITE);
+        gc.setFont(Font.font("System", FontWeight.BOLD, size * 0.64));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.fillText(symbol, x + size / 2, y + size / 2, size - 6);
+        gc.restore();
     }
 
     private void drawCell(
