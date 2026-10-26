@@ -3,6 +3,9 @@ package com.team10.tetris.game;
 import com.team10.tetris.game.item.ItemAssigner;
 import com.team10.tetris.game.item.RandomItemAssigner;
 import com.team10.tetris.game.item.SmallBomb;
+import com.team10.tetris.game.item.LineClearItem;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +46,7 @@ public class GameEngine {
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring) {
         this(board, currentBlock, config, generator, scoring,
-                new RandomItemAssigner(List.of(new SmallBomb()), new Random()));
+                new RandomItemAssigner(List.of(new SmallBomb(), new LineClearItem()), new Random()));
     }
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring, ItemAssigner itemAssigner) {
@@ -110,14 +113,19 @@ public class GameEngine {
     }
     private void resolveLanding() {
         board.lock(currentBlock);
-        // 현재 블록의 효과만 고정 직후 한 번 실행한다. 폭발 후 남은 완성 행을 검사한다.
+        // 현재 블록의 효과만 고정 직후 한 번 실행한다.
+        // 효과 적용 후의 완성 행과 아이템이 요청한 행을 합쳐 기존 삭제 절차로 처리한다.
+        Set<Integer> rows = new TreeSet<>();
         var attached = currentBlock.getItem();
         if (config.mode() == GameMode.ITEM && attached != null) {
-            attached.item().onLock(board, currentBlock.getRow() + attached.row(),
-                    currentBlock.getCol() + attached.col());
+            int itemRow = currentBlock.getRow() + attached.row();
+            int itemCol = currentBlock.getCol() + attached.col();
+            attached.item().onLock(board, itemRow, itemCol);
+            rows.addAll(attached.item().rowsToClear(board, itemRow, itemCol));
         }
+        rows.addAll(board.findFullRows());
         lastClearedLines = 0;
-        clearingRows = board.findFullRows();
+        clearingRows = List.copyOf(rows);
         if (clearingRows.isEmpty()) {
             spawnAfterLanding();
         } else {

@@ -11,7 +11,8 @@ class SmallBombTest {
 
     private GameEngine game(Board board, Tetromino piece, GameMode mode) {
         return new GameEngine(board, piece, new GameConfig(mode, Difficulty.NORMAL),
-                () -> new Tetromino(TetrominoType.O, 0, 3), new StandardScoringPolicy());
+                () -> new Tetromino(TetrominoType.O, 0, 3), new StandardScoringPolicy(),
+                new RandomItemAssigner(List.of(bomb), new Random()));
     }
 
     @Test void explosionClearsExactlyNineCellsAndTheirTypesWithoutMovingOtherCells() {
