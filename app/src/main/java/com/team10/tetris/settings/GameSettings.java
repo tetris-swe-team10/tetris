@@ -2,6 +2,7 @@ package com.team10.tetris.settings;
 
 import java.io.IOException;
 import java.util.Objects;
+import com.team10.tetris.input.GameKeyBindings;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -15,8 +16,29 @@ public final class GameSettings {
     private DropSpeed dropSpeed = DropSpeed.NORMAL;
     private DisplayMode displayMode = DisplayMode.WINDOWED;
     private boolean demoMode;
+    private boolean loading;
     private int demoItemLines = 1;
+    private GameKeyBindings keyBindings = GameKeyBindings.defaults();
 
+    public GameKeyBindings getKeyBindings() { return keyBindings; }
+    public void setKeyBindings(GameKeyBindings keys) { keyBindings = Objects.requireNonNull(keys); }
+    public SettingsData snapshot() {
+        return new SettingsData(isColorBlindMode(), dropSpeed, displayMode, demoMode, demoItemLines, keyBindings);
+    }
+    public void save() throws IOException { settingsManager.saveSettings(snapshot()); }
+    public void resetDefaults() throws IOException {
+        SettingsData defaults = SettingsData.defaults();
+        settingsManager.saveSettings(defaults);
+        apply(defaults);
+    }
+    private void apply(SettingsData data) {
+        loading = true;
+        try {
+            colorBlindMode.set(data.colorBlindMode());
+            dropSpeed = data.dropSpeed(); displayMode = data.displayMode();
+            demoMode = data.demoMode(); demoItemLines = data.demoItemLines(); keyBindings = data.keyBindings();
+        } finally { loading = false; }
+    }
     public int getDemoItemLines() { return demoItemLines; }
     public void setDemoItemLines(int lines) {
         if (lines < 1 || lines > 100) throw new IllegalArgumentException("Expected 1..100 lines");
@@ -30,7 +52,7 @@ public final class GameSettings {
 
     public GameSettings(SettingsManager settingsManager) {
         this.settingsManager = Objects.requireNonNull(settingsManager);
-        colorBlindMode.set(settingsManager.loadColorBlindMode());
+        apply(settingsManager.loadSettings());
         colorBlindMode.addListener(
                 (observable, oldValue, newValue) -> saveColorBlindMode(newValue));
     }
@@ -76,6 +98,7 @@ public final class GameSettings {
     }
 
     private void saveColorBlindMode(boolean value) {
+        if (loading) return;
         try {
             settingsManager.saveColorBlindMode(value);
         } catch (IOException exception) {

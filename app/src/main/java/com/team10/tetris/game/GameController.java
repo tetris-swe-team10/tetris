@@ -4,6 +4,11 @@ package com.team10.tetris.game;
 public final class GameController {
     private final GameEngine engine;
     private long fallElapsedMs;
+    private java.util.function.IntUnaryOperator dropIntervalAdjuster = value -> value;
+    public void setDropIntervalAdjuster(java.util.function.IntUnaryOperator adjuster) {
+        dropIntervalAdjuster = java.util.Objects.requireNonNull(adjuster);
+    }
+    private int dropIntervalMs() { return Math.max(1, dropIntervalAdjuster.applyAsInt(engine.getDropIntervalMs())); }
     public GameController(GameEngine engine) { this.engine = engine; }
     public void handle(GameCommand command) {
         if (engine.getState() != GameState.PLAYING) return;
@@ -32,10 +37,10 @@ public final class GameController {
                 fallElapsedMs = 0;
                 remaining -= step;
             } else if (engine.getState() == GameState.PLAYING) {
-                int step = (int) Math.min(remaining, Math.max(0, engine.getDropIntervalMs() - fallElapsedMs));
+                int step = (int) Math.min(remaining, Math.max(0, dropIntervalMs() - fallElapsedMs));
                 fallElapsedMs += step;
                 remaining -= step;
-                if (fallElapsedMs >= engine.getDropIntervalMs()) {
+                if (fallElapsedMs >= dropIntervalMs()) {
                     fallElapsedMs = 0;
                     engine.tick();
                 }

@@ -90,6 +90,7 @@ public class GameView extends BorderPane {
         this(engine);
 
         this.gameSettings = settings;
+        controller.setDropIntervalAdjuster(settings::adjustDropInterval);
         engine.configureDemoItems(settings.isDemoMode(), settings.getDemoItemLines());
         setColorBlindMode(settings.isColorBlindMode());
         settings.colorBlindModeProperty().addListener(
@@ -155,21 +156,22 @@ public class GameView extends BorderPane {
                 event.consume();
                 return;
             }
-            switch (event.getCode()) {
-                case DIGIT1, NUMPAD1 -> engine.requestDemoItem(1);
-                case DIGIT2, NUMPAD2 -> engine.requestDemoItem(2);
-                case DIGIT3, NUMPAD3 -> engine.requestDemoItem(3);
-                case LEFT -> controller.handle(GameCommand.LEFT);
-                case RIGHT -> controller.handle(GameCommand.RIGHT);
-                case DOWN -> controller.handle(GameCommand.DOWN);
-                case UP -> controller.handle(GameCommand.ROTATE);
-                case SPACE -> controller.handle(GameCommand.HARD_DROP);
-
-                case ESCAPE -> requestSettings();
-
-                default -> {
-                    return;
-                }
+            if (event.isAltDown() || event.isControlDown() || event.isMetaDown() || event.isShiftDown()) return;
+            var key = event.getCode();
+            if (key == javafx.scene.input.KeyCode.ESCAPE) {
+                requestSettings();
+            } else if (key == javafx.scene.input.KeyCode.DIGIT1 || key == javafx.scene.input.KeyCode.NUMPAD1) {
+                engine.requestDemoItem(1);
+            } else if (key == javafx.scene.input.KeyCode.DIGIT2 || key == javafx.scene.input.KeyCode.NUMPAD2) {
+                engine.requestDemoItem(2);
+            } else if (key == javafx.scene.input.KeyCode.DIGIT3 || key == javafx.scene.input.KeyCode.NUMPAD3) {
+                engine.requestDemoItem(3);
+            } else {
+                var bindings = gameSettings == null ? com.team10.tetris.input.GameKeyBindings.defaults()
+                        : gameSettings.getKeyBindings();
+                var command = bindings.commandFor(key);
+                if (command.isEmpty()) return;
+                controller.handle(command.get());
             }
 
             redraw();
