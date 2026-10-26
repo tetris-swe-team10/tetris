@@ -342,17 +342,19 @@ public class GameView extends BorderPane {
         super.layoutChildren();
         if (infoPanel == null) return;
         double w = getWidth(), h = getHeight();
-        double pad = Math.max(16, Math.min(w * .065, 100));
-        double gap = Math.max(20, w * .035);
+        double pad = Math.max(16, Math.min(w * .03, 40));
+        double gap = Math.max(20, Math.min(w * .025, 36));
         double available = Math.max(0, w - 2 * pad - gap);
+        // 보드는 높이를 최대한 활용하고, 정보 영역은 보조 패널 폭으로 제한한다.
+        double panelWidth = Math.min(300, Math.max(220, available * .32));
         double scale = Math.max(.2, Math.min((h - 2 * pad) / (Board.HEIGHT * CELL_SIZE),
-                available * .46 / (Board.WIDTH * CELL_SIZE)));
+                Math.max(0, available - panelWidth) / (Board.WIDTH * CELL_SIZE)));
         double bw = Board.WIDTH * CELL_SIZE * scale, bh = Board.HEIGHT * CELL_SIZE * scale;
-        double panelWidth = available - bw;
+        double left = (w - bw - gap - panelWidth) / 2;
         boardCanvas.setScaleX(scale); boardCanvas.setScaleY(scale);
-        boardCanvas.relocate(pad + (bw - boardCanvas.getWidth()) / 2,
+        boardCanvas.relocate(left + (bw - boardCanvas.getWidth()) / 2,
                 (h - bh) / 2 + (bh - boardCanvas.getHeight()) / 2);
-        infoPanel.resizeRelocate(pad + bw + gap, Math.max(pad, (h - bh) / 2), panelWidth, bh);
+        infoPanel.resizeRelocate(left + bw + gap, Math.max(pad, (h - bh) / 2), panelWidth, bh);
     }
 
     public void redraw() {
