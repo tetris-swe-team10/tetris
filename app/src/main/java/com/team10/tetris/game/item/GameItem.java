@@ -4,6 +4,7 @@ import com.team10.tetris.game.Board;
 import com.team10.tetris.game.PenaltyController;
 import com.team10.tetris.game.CellPosition;
 import java.util.List;
+import java.util.Set;
 
 /** 공통 부착 아이템. 즉시 효과는 기존 콜백, 지속 효과는 상태를 받는 콜백을 사용한다. */
 public interface GameItem {
@@ -15,6 +16,8 @@ public interface GameItem {
     /** 선택적 삭제 연출. 기존 즉시/지속 아이템은 빈 목록·0ms를 유지한다. */
     default List<CellPosition> previewCells(Board board, int row, int col) { return List.of(); }
     default int effectDurationMs() { return 0; }
+    /** 보드 변경 효과 이후 엔진에 요청할 추가 삭제 행. 완성 행과 합쳐 처리한다. */
+    default Set<Integer> rowsToClear(Board board, int row, int col) { return Set.of(); }
     default void onLock(Board board, int row, int col) {}
 
     /** 엔진 호출 지점. 기존 즉시 효과 구현은 변경 없이 동작한다. */

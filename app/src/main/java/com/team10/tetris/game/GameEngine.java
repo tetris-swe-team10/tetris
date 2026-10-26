@@ -6,10 +6,13 @@ import com.team10.tetris.game.item.RandomItemAssigner;
 import com.team10.tetris.game.item.SmallBomb;
 import com.team10.tetris.game.item.Blackout;
 import com.team10.tetris.game.item.RotationLock;
+import com.team10.tetris.game.item.LineClearItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 
 /** 순수 Java 모델: 점수·난이도·착지·삭제 상태 전이를 관리한다. */
 public class GameEngine {
@@ -82,7 +85,7 @@ public class GameEngine {
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring) {
         this(board, currentBlock, config, generator, scoring,
-                new RandomItemAssigner(List.of(new SmallBomb(), new Blackout(), new RotationLock()), new Random()));
+                new RandomItemAssigner(List.of(new SmallBomb(), new Blackout(), new RotationLock(), new LineClearItem()), new Random()));
     }
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring, ItemAssigner itemAssigner) {
@@ -156,6 +159,7 @@ public class GameEngine {
         penalties.finishActive();
         board.lock(currentBlock);
         lastClearedLines = 0;
+        Set<Integer> requestedRows = Set.of();
         // 벌칙은 착지 때 종료하고, 삭제 효과만 연출 완료까지 보류한다.
         var attached = currentBlock.getItem();
         if (config.mode() == GameMode.ITEM && attached != null) {
@@ -171,11 +175,14 @@ public class GameEngine {
             }
             effectCells = List.of();
             attached.item().onLock(board, row, col, penalties);
+            requestedRows = attached.item().rowsToClear(board, row, col);
         }
-        resolveLockedBoard();
+        resolveLockedBoard(requestedRows);
     }
-    private void resolveLockedBoard() {
-        clearingRows = board.findFullRows();
+    private void resolveLockedBoard(Set<Integer> requestedRows) {
+        Set<Integer> rows = new TreeSet<>(requestedRows);
+        rows.addAll(board.findFullRows());
+        clearingRows = List.copyOf(rows);
         if (clearingRows.isEmpty()) {
             spawnAfterLanding();
         } else {
@@ -194,11 +201,12 @@ public class GameEngine {
         effectElapsedMs = (int) Math.min(duration, (long) effectElapsedMs + elapsedMs);
         if (effectElapsedMs < duration) return;
         pendingEffect.onLock(board, effectOrigin.row(), effectOrigin.col(), penalties);
+        Set<Integer> requestedRows = pendingEffect.rowsToClear(board, effectOrigin.row(), effectOrigin.col());
         pendingEffect = null;
         effectOrigin = null;
         effectCells = List.of();
         state = GameState.PLAYING;
-        resolveLockedBoard();
+        resolveLockedBoard(requestedRows);
     }
     /** Controller가 경과시간을 전달한다. 일시정지는 삭제 시간도 멈춘다. */
     public void advanceClear(int elapsedMs) {
