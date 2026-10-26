@@ -1,6 +1,6 @@
 package com.team10.tetris.settings;
 
-/** 사용자가 선택할 수 있는 자동 낙하 속도 배율. */
+/** 기본 낙하 간격에 적용하는 배율. 난이도별 가속량에는 곱하지 않는다. */
 public enum DropSpeed {
     SLOW("느리게", 1.25),
     NORMAL("보통", 1.0),
