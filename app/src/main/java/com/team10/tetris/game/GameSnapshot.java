@@ -10,6 +10,28 @@ public record GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock
         int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
         List<List<TetrominoType>> cellTypes, boolean blackoutActive, boolean rotationLocked,
         List<CellPosition> effectCells, boolean effectFlashVisible) {
+    /** 읽기 전용 보드로 착지 위치만 예측한다. 점수·아이템·게임 상태를 바꾸지 않는다. */
+    public PieceSnapshot ghostBlock() {
+        if (blackoutActive || currentBlock == null
+                || (state != GameState.PLAYING && state != GameState.PAUSED)
+                || !canPlaceGhost(currentBlock.row())) return null;
+        int row = currentBlock.row();
+        while (canPlaceGhost(row + 1)) row++;
+        return new PieceSnapshot(currentBlock.type(), row, currentBlock.col(), currentBlock.shape());
+    }
+
+    private boolean canPlaceGhost(int originRow) {
+        for (int r = 0; r < currentBlock.shape().size(); r++) {
+            for (int c = 0; c < currentBlock.shape().get(r).size(); c++) {
+                if (currentBlock.shape().get(r).get(c) == 0) continue;
+                int row = originRow + r, col = currentBlock.col() + c;
+                if (row < 0 || row >= Board.HEIGHT || col < 0 || col >= Board.WIDTH
+                        || cells.get(row).get(col) != 0) return false;
+            }
+        }
+        return true;
+    }
+
     public GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
             PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
             int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,

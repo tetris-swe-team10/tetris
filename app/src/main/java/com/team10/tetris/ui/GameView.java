@@ -415,6 +415,10 @@ public class GameView extends BorderPane {
                 boardCanvas.getWidth(),
                 boardCanvas.getHeight());
 
+        // 안내선은 고정 블록 뒤에 그려 쌓인 블록을 가리지 않는다.
+        PieceSnapshot ghost = snapshot.ghostBlock();
+        if (ghost != null) drawDropGuides(gc, snapshot.currentBlock(), ghost);
+
         // 고정 블록은 조작 블록의 실제 점유 영역 중심에서 지름 4칸만 보인다.
         gc.save();
         if (snapshot.blackoutActive() && snapshot.currentBlock() != null) {
@@ -451,6 +455,8 @@ public class GameView extends BorderPane {
         }
 
         gc.restore();
+
+        if (ghost != null && ghost.row() > snapshot.currentBlock().row()) drawGhost(gc, ghost);
 
         // 현재 블록
         if (snapshot.currentBlock() != null) {
@@ -499,6 +505,53 @@ public class GameView extends BorderPane {
                         CELL_SIZE);
             }
         }
+    }
+
+    /** 좌우 끝 열의 실제 점유 칸을 기준으로 현재 블록 아래와 착지 위치 위를 연결한다. */
+    private void drawDropGuides(GraphicsContext gc, PieceSnapshot current, PieceSnapshot ghost) {
+        if (ghost.row() <= current.row()) return;
+        int left = Integer.MAX_VALUE, right = -1;
+        for (var row : current.shape()) {
+            for (int col = 0; col < row.size(); col++) {
+                if (row.get(col) != 0) { left = Math.min(left, col); right = Math.max(right, col); }
+            }
+        }
+        gc.save();
+        gc.setStroke(Color.web("#CBD5E1", 0.42));
+        gc.setLineWidth(1);
+        gc.setLineDashes(5, 5);
+        for (int side = 0; side < 2; side++) {
+            int col = side == 0 ? left : right;
+            int top = -1, bottom = -1;
+            for (int row = 0; row < current.shape().size(); row++) {
+                if (current.shape().get(row).get(col) != 0) {
+                    if (top < 0) top = row;
+                    bottom = row;
+                }
+            }
+            double start = (current.row() + bottom + 1) * CELL_SIZE;
+            double end = (ghost.row() + top) * CELL_SIZE;
+            double x = (current.col() + col + side) * CELL_SIZE + (side == 0 ? 2 : -2);
+            if (end > start) gc.strokeLine(x, start, x, end);
+        }
+        gc.restore();
+    }
+
+    private void drawGhost(GraphicsContext gc, PieceSnapshot ghost) {
+        gc.save();
+        gc.setFill(Color.web("#CBD5E1", 0.08));
+        gc.setStroke(Color.web("#CBD5E1", 0.8));
+        gc.setLineWidth(1.5);
+        for (int row = 0; row < ghost.shape().size(); row++) {
+            for (int col = 0; col < ghost.shape().get(row).size(); col++) {
+                if (ghost.shape().get(row).get(col) == 0) continue;
+                double x = (ghost.col() + col) * CELL_SIZE + 3;
+                double y = (ghost.row() + row) * CELL_SIZE + 3;
+                gc.fillRect(x, y, CELL_SIZE - 6, CELL_SIZE - 6);
+                gc.strokeRect(x, y, CELL_SIZE - 6, CELL_SIZE - 6);
+            }
+        }
+        gc.restore();
     }
 
     private void drawNextBlock() {
