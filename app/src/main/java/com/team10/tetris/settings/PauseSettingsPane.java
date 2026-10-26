@@ -65,8 +65,10 @@ public final class PauseSettingsPane extends StackPane {
         scrollPane.getStyleClass().add("pause-settings-scroll");
         scrollPane.setFitToWidth(true);
         scrollPane.setMinSize(0, 0);
-        scrollPane.setMaxWidth(608);
-        scrollPane.setMaxHeight(Double.MAX_VALUE);
+        scrollPane.maxWidthProperty().bind(javafx.beans.binding.Bindings.min(1100, widthProperty().multiply(.9)));
+        scrollPane.maxHeightProperty().bind(javafx.beans.binding.Bindings.createDoubleBinding(
+                () -> Math.min(Math.max(0, getHeight() - 40), content.prefHeight(scrollPane.getWidth()) + 4),
+                heightProperty(), scrollPane.widthProperty(), content.layoutBoundsProperty()));
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         StackPane.setAlignment(scrollPane, Pos.CENTER);
