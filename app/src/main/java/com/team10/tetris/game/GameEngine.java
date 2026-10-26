@@ -1,5 +1,8 @@
 package com.team10.tetris.game;
 
+import com.team10.tetris.game.item.ItemAssigner;
+import com.team10.tetris.game.item.RandomItemAssigner;
+import com.team10.tetris.game.item.SmallBomb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,10 +14,13 @@ public class GameEngine {
     public static final int LINE_CLEAR_DURATION_MS = 300;
     private static final int MIN_DROP_INTERVAL_MS = 200;
     private static final int LINES_PER_SPEED_UP = 5;
+    private static final int LINES_PER_ITEM = 10;
     private final Board board;
     private final GameConfig config;
     private final PieceGenerator generator;
     private final ScoringPolicy scoring;
+    private final ItemAssigner itemAssigner;
+    private int pendingItems;
     private Tetromino currentBlock;
     private Tetromino nextBlock;
     private GameState state = GameState.PLAYING;
@@ -36,10 +42,16 @@ public class GameEngine {
     }
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring) {
+        this(board, currentBlock, config, generator, scoring,
+                new RandomItemAssigner(List.of(new SmallBomb()), new Random()));
+    }
+    public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
+            PieceGenerator generator, ScoringPolicy scoring, ItemAssigner itemAssigner) {
         this.board = Objects.requireNonNull(board);
         this.config = Objects.requireNonNull(config);
         this.generator = Objects.requireNonNull(generator);
         this.scoring = Objects.requireNonNull(scoring);
+        this.itemAssigner = Objects.requireNonNull(itemAssigner);
         this.currentBlock = currentBlock == null ? createRandomTetromino() : currentBlock;
         nextBlock = createRandomTetromino();
         if (!board.canPlace(this.currentBlock)) state = GameState.GAME_OVER;
@@ -98,6 +110,12 @@ public class GameEngine {
     }
     private void resolveLanding() {
         board.lock(currentBlock);
+        // 현재 블록의 효과만 고정 직후 한 번 실행한다. 폭발 후 남은 완성 행을 검사한다.
+        var attached = currentBlock.getItem();
+        if (config.mode() == GameMode.ITEM && attached != null) {
+            attached.item().onLock(board, currentBlock.getRow() + attached.row(),
+                    currentBlock.getCol() + attached.col());
+        }
         lastClearedLines = 0;
         clearingRows = board.findFullRows();
         if (clearingRows.isEmpty()) {
@@ -114,8 +132,12 @@ public class GameEngine {
         clearingElapsedMs = (int) Math.min(LINE_CLEAR_DURATION_MS, (long) clearingElapsedMs + elapsedMs);
         if (clearingElapsedMs < LINE_CLEAR_DURATION_MS) return;
         int previousLevel = totalClearedLines / LINES_PER_SPEED_UP;
+        int previousItemBoundary = totalClearedLines / LINES_PER_ITEM;
         lastClearedLines = board.removeRows(clearingRows);
         totalClearedLines += lastClearedLines;
+        if (config.mode() == GameMode.ITEM) {
+            pendingItems += totalClearedLines / LINES_PER_ITEM - previousItemBoundary;
+        }
         score += scoring.linePoints(lastClearedLines);
         int currentLevel = totalClearedLines / LINES_PER_SPEED_UP;
         for (int i = previousLevel; i < currentLevel; i++) increaseSpeed();
@@ -138,6 +160,11 @@ public class GameEngine {
         if (state != GameState.PLAYING || !board.canPlace(nextBlock)) return false;
         currentBlock = nextBlock;
         nextBlock = createRandomTetromino();
+        // 이미 예고한 NEXT는 유지하고 새로 보충하는 NEXT에만 붙인다.
+        if (config.mode() == GameMode.ITEM && pendingItems > 0) {
+            itemAssigner.attachTo(nextBlock);
+            pendingItems--;
+        }
         return true;
     }
     public int hardDrop() {

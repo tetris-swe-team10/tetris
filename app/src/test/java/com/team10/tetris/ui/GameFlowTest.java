@@ -174,4 +174,64 @@ class GameFlowTest {
             } finally { stage.close(); }
         });
     }
+
+    @Test void smallBombIsAnnouncedInNextAndWorksInBothPalettes() throws Exception {
+        onFx(() -> {
+            GameEngine engine = new GameEngine(new Board(), null,
+                    new GameConfig(GameMode.ITEM, Difficulty.NORMAL),
+                    () -> new Tetromino(TetrominoType.O, 0, 3), new StandardScoringPolicy(),
+                    piece -> piece.attachItem(new com.team10.tetris.game.item.SmallBomb(), 0, 0));
+            // 실제 엔진의 줄 삭제/10줄 경계를 통해 지급한다.
+            for (int count : new int[] {4, 4, 2}) {
+                Board board = engine.getBoard();
+                for (int r = 0; r < Board.HEIGHT; r++)
+                    for (int c = 0; c < Board.WIDTH; c++) board.setCell(r, c, 0);
+                for (int r = Board.HEIGHT - count; r < Board.HEIGHT; r++)
+                    for (int c = 0; c < Board.WIDTH; c++) if (c != 4) board.setCell(r, c, 1);
+                Tetromino piece = new Tetromino(TetrominoType.I, 16, 4);
+                piece.rotateClockwise(); engine.setCurrentBlock(piece);
+                engine.moveDown(); engine.advanceClear(300);
+            }
+            GameView view = new GameView(engine);
+            Stage stage = new Stage();
+            Scene scene = new Scene(view, 960, 640);
+            stage.setScene(scene); stage.show();
+            try {
+                view.redraw();
+                assertEquals(10, engine.getTotalClearedLines());
+                assertTrue(((Label) view.lookup("#next-item-description")).getText().contains("E 작은 폭탄"));
+                capture(scene, "small-bomb-next");
+                view.setColorBlindMode(true);
+                capture(scene, "small-bomb-next-colorblind");
+                var predicted = engine.snapshot().nextBlock().item();
+                view.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.SPACE, false, false, false, false));
+                assertEquals(predicted, engine.snapshot().currentBlock().item());
+                assertEquals("", ((Label) view.lookup("#next-item-description")).getText());
+                capture(scene, "small-bomb-active-colorblind");
+
+                Board board = engine.getBoard();
+                for (int r = 0; r < Board.HEIGHT; r++)
+                    for (int c = 0; c < Board.WIDTH; c++) board.setCell(r, c, 0);
+                board.lock(new Tetromino(TetrominoType.I, 17, 3));
+                board.lock(new Tetromino(TetrominoType.O, 18, 0));
+                board.setCell(18, 4, 1);
+                Tetromino bomb = new Tetromino(TetrominoType.I, 19, 3);
+                bomb.attachItem(new com.team10.tetris.game.item.SmallBomb(), 0, 1);
+                engine.setCurrentBlock(bomb);
+                view.setColorBlindMode(false);
+                capture(scene, "small-bomb-before");
+                int score = engine.getScore();
+                view.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.SPACE, false, false, false, false));
+                assertEquals(score, engine.getScore());
+                assertEquals(1, board.getCell(17, 4));
+                assertEquals(0, board.getCell(18, 4));
+                assertEquals(0, board.getCell(19, 4));
+                assertEquals(1, board.getCell(19, 6));
+                capture(scene, "small-bomb-after");
+            } finally {
+                scene.setRoot(new javafx.scene.layout.Pane());
+                stage.close();
+            }
+        });
+    }
 }
