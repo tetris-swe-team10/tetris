@@ -11,9 +11,14 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -33,7 +38,7 @@ public final class ModeSelectionScreen extends BorderPane {
         Objects.requireNonNull(onBack);
         getStyleClass().add("mode-selection-screen");
         getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/team10/tetris/mode-selection.css")).toExternalForm());
-        setPadding(new Insets(42, 70, 42, 70));
+        setPadding(Insets.EMPTY);
 
         VBox heading = new VBox(6,
                 label("SELECT SESSION", "mode-eyebrow"),
@@ -46,16 +51,67 @@ public final class ModeSelectionScreen extends BorderPane {
         cards = List.of(normal, item);
         startButtons = cards.stream().map(card -> (Button) card.getChildren()
                 .get(card.getChildren().size() - 1)).toList();
-        HBox row = new HBox(30, normal, item);
-        HBox.setHgrow(normal, Priority.ALWAYS);
-        HBox.setHgrow(item, Priority.ALWAYS);
+        GridPane row = new GridPane();
+        row.setId("mode-cards");
+        row.setMinWidth(0);
+        row.add(normal, 0, 0); row.add(item, 1, 0);
 
         Button records = new Button("기록 보기");
         records.getStyleClass().add("mode-secondary-button");
         records.setOnAction(event -> onScoreboard.run());
-        HBox footer = new HBox(records);
-        footer.setAlignment(Pos.CENTER_RIGHT);
-        setCenter(new VBox(28, heading, row, footer));
+        Button back = new Button("시작 화면으로");
+        back.getStyleClass().add("mode-secondary-button");
+        back.setOnAction(event -> onBack.run());
+        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox footer = new HBox(12, back, spacer, records);
+        footer.setAlignment(Pos.CENTER_LEFT);
+        VBox content = new VBox(24, heading, row, footer);
+        content.setId("mode-selection-content");
+        content.setMinSize(0, VBox.USE_PREF_SIZE);
+        content.setMaxHeight(VBox.USE_PREF_SIZE);
+        StackPane centered = new StackPane(content);
+        centered.setAlignment(Pos.CENTER);
+        centered.setMinWidth(0);
+        ScrollPane scroll = new ScrollPane(centered);
+        scroll.getStyleClass().add("mode-scroll");
+        scroll.setFitToWidth(true);
+        scroll.setMinSize(0, 0);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.viewportBoundsProperty().addListener((obs, oldBounds, bounds) -> {
+            double width = bounds.getWidth(), height = bounds.getHeight();
+            if (width <= 0 || height <= 0) return;
+            boolean stacked = width < 760;
+            double scale = Math.max(.9, Math.min(1.5, Math.min(width / 960, height / 700)));
+            double padding = Math.max(20, Math.min(64, width * .045));
+            double gap = 24 * scale;
+            content.setMaxWidth(Math.min(1440, width));
+            content.setPadding(new Insets(padding));
+            content.setSpacing(gap);
+            centered.setMinHeight(height);
+            row.setHgap(gap); row.setVgap(16 * scale);
+            int columns = stacked ? 1 : 2;
+            if (row.getColumnConstraints().size() != columns) {
+                row.getColumnConstraints().clear();
+                for (int i = 0; i < columns; i++) {
+                    ColumnConstraints column = new ColumnConstraints();
+                    column.setPercentWidth(100.0 / columns);
+                    column.setHgrow(Priority.ALWAYS);
+                    row.getColumnConstraints().add(column);
+                }
+                GridPane.setConstraints(item, stacked ? 0 : 1, stacked ? 1 : 0);
+            }
+            double cardHeight = stacked ? Math.max(240, Math.min(360, (height - 270) / 2))
+                    : Math.max(266, Math.min(520, height * .52));
+            for (VBox card : cards) {
+                card.setPrefHeight(cardHeight);
+                card.setMinHeight(0);
+                card.setSpacing(10 * scale);
+                card.setPadding(new Insets(20 * scale, 24 * scale, 20 * scale, 24 * scale));
+            }
+            scaleText(content, scale);
+        });
+        setCenter(scroll);
 
         setFocusTraversable(true);
         setOnKeyPressed(event -> {
@@ -85,12 +141,28 @@ public final class ModeSelectionScreen extends BorderPane {
         start.getStyleClass().add("mode-primary-button");
         start.setMaxWidth(Double.MAX_VALUE);
         start.setOnAction(event -> onModeSelected.accept(mode));
+        Region spacer = new Region(); VBox.setVgrow(spacer, Priority.ALWAYS);
         VBox card = new VBox(10, label(overline, "mode-card-overline"), iconLabel,
-                label(title, "mode-card-title"), label(description, "mode-card-description"), badgeLabel, start);
+                label(title, "mode-card-title"), label(description, "mode-card-description"), badgeLabel, spacer, start);
         card.getStyleClass().addAll("mode-card", mode == GameMode.NORMAL ? "normal-card" : "item-card");
         card.setMaxWidth(Double.MAX_VALUE);
+        card.setMinWidth(0);
         card.setOnMouseEntered(event -> { selection.select(modes.indexOf(mode)); updateSelection(); });
         return card;
+    }
+
+    private static void scaleText(javafx.scene.Parent parent, double scale) {
+        for (javafx.scene.Node child : parent.getChildrenUnmodifiable()) {
+            double base = 0;
+            if (child.getStyleClass().contains("mode-title")) base = 34;
+            else if (child.getStyleClass().contains("mode-card-title")) base = 22;
+            else if (child.getStyleClass().contains("mode-card-icon")) base = 34;
+            else if (child.getStyleClass().contains("mode-eyebrow") || child.getStyleClass().contains("mode-card-badge")) base = 11;
+            else if (child instanceof Label) base = 12;
+            else if (child instanceof Button) base = 13;
+            if (base > 0) child.setStyle("-fx-font-size: " + base * scale + "px;");
+            if (child instanceof javafx.scene.Parent nested) scaleText(nested, scale);
+        }
     }
 
     private void updateSelection() {
@@ -101,6 +173,8 @@ public final class ModeSelectionScreen extends BorderPane {
     private Label label(String text, String styleClass) {
         Label label = new Label(text);
         label.getStyleClass().add(styleClass);
+        label.setWrapText(true);
+        label.setMinWidth(0);
         return label;
     }
 }

@@ -106,6 +106,12 @@ public class GameView extends BorderPane {
 
         nextCanvas = new Canvas(120, 120);
 
+        Label modeBadge = sessionBadge(engine.getConfig().mode() + " 모드", "current-mode", "#60A5FA");
+        Label difficultyBadge = sessionBadge("난이도 · " + engine.getConfig().difficulty(), "current-difficulty", "#22D3EE");
+        javafx.scene.layout.FlowPane session = new javafx.scene.layout.FlowPane(8, 8, modeBadge, difficultyBadge);
+        session.setId("current-session");
+        session.setMinWidth(0);
+
         VBox scoreCard = infoCard("SCORE", scoreLabel, "#3B82F6");
         VBox linesCard = infoCard("LINES", linesLabel, "#21BED7");
         HBox counters = new HBox(16, scoreCard, linesCard);
@@ -125,7 +131,7 @@ public class GameView extends BorderPane {
                     + "-fx-border-color: #334155; -fx-border-radius: 6; -fx-background-radius: 6; "
                     + "-fx-font-weight: bold; -fx-padding: 12 16;");
         }
-        infoPanel = new VBox(16, counters, previewCard, penaltyLabel, demoLabel, statusLabel, spacer, actions);
+        infoPanel = new VBox(16, session, counters, previewCard, penaltyLabel, demoLabel, statusLabel, spacer, actions);
         infoPanel.setMinWidth(0);
         infoPanel.setPadding(new Insets(0));
         itemLabel.setId("next-item-description");
@@ -313,6 +319,16 @@ public class GameView extends BorderPane {
 
         redraw();
         onGameOver.run();
+    }
+
+    private static Label sessionBadge(String text, String id, String color) {
+        Label label = new Label(text);
+        label.setId(id);
+        label.setAccessibleText(text);
+        label.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-font-size: 12px; -fx-font-weight: bold; "
+                + "-fx-text-fill: " + color + "; -fx-background-color: #111827; "
+                + "-fx-border-color: #334155; -fx-background-radius: 14; -fx-border-radius: 14; -fx-padding: 6 10;");
+        return label;
     }
 
     private static VBox infoCard(String title, javafx.scene.Node value, String accent) {

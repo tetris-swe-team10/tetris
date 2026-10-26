@@ -45,3 +45,9 @@
 .mode-secondary-button { -fx-background-color: #111827; -fx-border-color: #334155; -fx-text-fill: #f5f7fb; -fx-min-width: 150px; }
 .mode-primary-button:hover { -fx-background-color: #60a5fa; }
 .mode-secondary-button:hover { -fx-background-color: #172033; }
+
+.mode-scroll, .mode-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.mode-scroll { -fx-background-insets: 0; }
