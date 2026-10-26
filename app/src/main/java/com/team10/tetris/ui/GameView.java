@@ -174,6 +174,9 @@ public class GameView extends BorderPane {
             }  else if (engine.isItemDemoEnabled()
                     && (key == javafx.scene.input.KeyCode.DIGIT4 || key == javafx.scene.input.KeyCode.NUMPAD4)) {
                 engine.requestDemoItem(4);
+            }  else if (engine.isItemDemoEnabled()
+                    && (key == javafx.scene.input.KeyCode.DIGIT5 || key == javafx.scene.input.KeyCode.NUMPAD5)) {
+                engine.requestDemoItem(5);
             }
             else {
                 var bindings = gameSettings == null ? com.team10.tetris.input.GameKeyBindings.defaults()
@@ -392,7 +395,7 @@ public class GameView extends BorderPane {
         demoLabel.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-text-fill: #98A2B3; -fx-font-size: 12px;");
         demoLabel.setVisible(engine.isItemDemoEnabled());
         demoLabel.setManaged(engine.isItemDemoEnabled());
-        demoLabel.setText("데모 · 1 폭탄 / 2 암전 / 3 회전 잠금 / 4 무게추\n새 NEXT에 지급 · 벌칙 중에는 해제 후 지급"
+        demoLabel.setText("데모 · 1 폭탄 / 2 암전 / 3 회전 잠금 / 4 무게추 / 5 줄 삭제\n새 NEXT에 지급 · 벌칙 중에는 해제 후 지급"
                 + (engine.demoRequestedSymbol().isEmpty() ? "" : "\n예약: " + engine.demoRequestedSymbol()));
         scoreLabel.setText(String.valueOf(snapshot.score()));
         linesLabel.setText(
