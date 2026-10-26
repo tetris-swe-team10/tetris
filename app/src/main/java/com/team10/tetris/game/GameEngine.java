@@ -4,6 +4,7 @@ import com.team10.tetris.game.item.ItemAssigner;
 import com.team10.tetris.game.item.RandomItemAssigner;
 import com.team10.tetris.game.item.SmallBomb;
 import com.team10.tetris.game.item.Blackout;
+import com.team10.tetris.game.item.RotationLock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +57,7 @@ public class GameEngine {
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring) {
         this(board, currentBlock, config, generator, scoring,
-                new RandomItemAssigner(List.of(new SmallBomb(), new Blackout()), new Random()));
+                new RandomItemAssigner(List.of(new SmallBomb(), new Blackout(), new RotationLock()), new Random()));
     }
     public GameEngine(Board board, Tetromino currentBlock, GameConfig config,
             PieceGenerator generator, ScoringPolicy scoring, ItemAssigner itemAssigner) {
@@ -102,7 +103,7 @@ public class GameEngine {
                 || (state == GameState.PAUSED && stateBeforePause == GameState.PLAYING);
         return new GameSnapshot(cells, active ? PieceSnapshot.of(currentBlock) : null,
                 PieceSnapshot.of(nextBlock), config, state, score, totalClearedLines,
-                dropIntervalMs, clearingRows, cellTypes, penalties.active());
+                dropIntervalMs, clearingRows, cellTypes, penalties.blackoutActive(), penalties.rotationLocked());
     }
     private boolean moveHorizontal(int delta) {
         if (state != GameState.PLAYING) return false;
@@ -170,7 +171,7 @@ public class GameEngine {
         }
     }
     public boolean rotateClockwise() {
-        if (state != GameState.PLAYING) return false;
+        if (state != GameState.PLAYING || penalties.rotationLocked()) return false;
         currentBlock.rotateClockwise();
         if (board.canPlace(currentBlock)) return true;
         currentBlock.rotateCounterClockwise();
@@ -193,6 +194,9 @@ public class GameEngine {
         if (state != GameState.PLAYING || !board.canPlace(nextBlock)) return false;
         currentBlock = nextBlock;
         penalties.activatePending();
+        if (config.mode() == GameMode.ITEM && currentBlock.getItem() != null) {
+            currentBlock.getItem().item().onSpawn(penalties);
+        }
         nextBlock = createNextTetromino();
         return true;
     }
