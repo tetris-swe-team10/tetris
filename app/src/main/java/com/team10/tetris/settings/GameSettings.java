@@ -15,6 +15,14 @@ public final class GameSettings {
     private DropSpeed dropSpeed = DropSpeed.NORMAL;
     private DisplayMode displayMode = DisplayMode.WINDOWED;
     private boolean demoMode;
+    private int demoItemLines = 1;
+
+    public int getDemoItemLines() { return demoItemLines; }
+    public void setDemoItemLines(int lines) {
+        if (lines < 1 || lines > 100) throw new IllegalArgumentException("Expected 1..100 lines");
+        demoItemLines = lines;
+    }
+    public int getItemLineInterval() { return demoMode ? demoItemLines : 10; }
 
     public GameSettings() {
         this(new SettingsManager());

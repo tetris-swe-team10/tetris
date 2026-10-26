@@ -19,18 +19,25 @@ public final class GameController {
     }
     public void advance(int elapsedMs) {
         if (elapsedMs < 0) throw new IllegalArgumentException("Negative elapsed time");
-        if (engine.getState() == GameState.CLEARING) {
-            engine.advanceClear(elapsedMs);
-            fallElapsedMs = 0;
-        } else if (engine.getState() == GameState.PLAYING) {
-            fallElapsedMs += elapsedMs;
-            while (engine.getState() == GameState.PLAYING && fallElapsedMs >= engine.getDropIntervalMs()) {
-                fallElapsedMs -= engine.getDropIntervalMs();
-                engine.tick();
-            }
-            if (engine.getState() != GameState.PLAYING) fallElapsedMs = 0;
+        int remaining = elapsedMs;
+        while (remaining > 0) {
+            if (engine.getState() == GameState.CLEARING) {
+                int step = Math.min(remaining, engine.getClearRemainingMs());
+                engine.advanceClear(step);
+                fallElapsedMs = 0;
+                remaining -= step;
+            } else if (engine.getState() == GameState.PLAYING) {
+                int step = (int) Math.min(remaining, Math.max(0, engine.getDropIntervalMs() - fallElapsedMs));
+                fallElapsedMs += step;
+                remaining -= step;
+                if (fallElapsedMs >= engine.getDropIntervalMs()) {
+                    fallElapsedMs = 0;
+                    engine.tick();
+                }
+            } else break;
         }
     }
+
     public void pause() { engine.pause(); fallElapsedMs = 0; }
     public void resume() { engine.resume(); fallElapsedMs = 0; }
     public GameSnapshot snapshot() { return engine.snapshot(); }
