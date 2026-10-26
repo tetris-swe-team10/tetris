@@ -166,9 +166,11 @@ public class GameView extends BorderPane {
                 engine.requestDemoItem(2);
             } else if (key == javafx.scene.input.KeyCode.DIGIT3 || key == javafx.scene.input.KeyCode.NUMPAD3) {
                 engine.requestDemoItem(3);
-            } else if (key == javafx.scene.input.KeyCode.DIGIT4 || key == javafx.scene.input.KeyCode.NUMPAD4) {
+            }  else if (engine.isItemDemoEnabled()
+                    && (key == javafx.scene.input.KeyCode.DIGIT4 || key == javafx.scene.input.KeyCode.NUMPAD4)) {
                 engine.requestDemoItem(4);
-            } else {
+            }
+            else {
                 var bindings = gameSettings == null ? com.team10.tetris.input.GameKeyBindings.defaults()
                         : gameSettings.getKeyBindings();
                 var command = bindings.commandFor(key);

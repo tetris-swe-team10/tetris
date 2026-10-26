@@ -23,7 +23,7 @@ class GameKeyBindingsTest {
     @Test void rejectsMissingDuplicateReservedAndModifierKeys() {
         assertThrows(IllegalArgumentException.class,()->new GameKeyBindings(Map.of()));
         for(KeyCode key:new KeyCode[]{KeyCode.RIGHT,KeyCode.ESCAPE,KeyCode.SPACE,KeyCode.DIGIT1,
-                KeyCode.NUMPAD3,KeyCode.SHIFT,KeyCode.CONTROL,KeyCode.TAB,KeyCode.ENTER}) {
+                KeyCode.NUMPAD3,KeyCode.DIGIT4,KeyCode.NUMPAD4,KeyCode.SHIFT,KeyCode.CONTROL,KeyCode.TAB,KeyCode.ENTER}) {
             var map=new EnumMap<GameCommand,KeyCode>(GameKeyBindings.defaults().asMap());map.put(GameCommand.LEFT,key);
             assertThrows(IllegalArgumentException.class,()->new GameKeyBindings(map));
         }
