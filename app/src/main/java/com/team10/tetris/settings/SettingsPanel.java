@@ -105,8 +105,8 @@ public final class SettingsPanel extends VBox {
 
     private VBox createDropSpeedSection() {
         VBox section = createSection(
-                "낙하 속도",
-                "자동으로 블록이 내려오는 속도를 선택합니다.");
+                "기본 낙하 속도",
+                "시작 간격을 선택합니다. 이후 줄 삭제에 따른 가속량은 난이도에 따릅니다.");
 
         ToggleGroup group = new ToggleGroup();
         HBox choices = new HBox(10);

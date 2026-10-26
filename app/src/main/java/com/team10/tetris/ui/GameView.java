@@ -90,7 +90,7 @@ public class GameView extends BorderPane {
         this(engine);
 
         this.gameSettings = settings;
-        controller.setDropIntervalAdjuster(settings::adjustDropInterval);
+        engine.setBaseDropIntervalMs(settings.adjustDropInterval(GameEngine.INITIAL_DROP_INTERVAL_MS));
         engine.configureDemoItems(settings.isDemoMode(), settings.getDemoItemLines());
         setColorBlindMode(settings.isColorBlindMode());
         settings.colorBlindModeProperty().addListener(
@@ -283,6 +283,7 @@ public class GameView extends BorderPane {
     // 설정 화면 담당자가 돌아가기 버튼에서 호출
     public void returnFromSettings() {
         if (gameSettings != null) {
+            engine.setBaseDropIntervalMs(gameSettings.adjustDropInterval(GameEngine.INITIAL_DROP_INTERVAL_MS));
             engine.configureDemoItems(gameSettings.isDemoMode(), gameSettings.getDemoItemLines());
         }
         settingsOpen = false;
