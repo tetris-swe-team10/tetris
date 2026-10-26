@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +35,11 @@ class GameFlowTest {
     @TempDir Path temp;
     @BeforeAll static void startJavaFx() throws Exception {
         CountDownLatch started = new CountDownLatch(1);
-        Platform.startup(() -> { Platform.setImplicitExit(false); started.countDown(); });
+        try {
+            Platform.startup(() -> { Platform.setImplicitExit(false); started.countDown(); });
+        } catch (IllegalStateException alreadyStarted) {
+            Platform.runLater(started::countDown);
+        }
         assertTrue(started.await(15, TimeUnit.SECONDS));
     }
     private interface FxTask { void run() throws Exception; }
@@ -60,6 +65,13 @@ class GameFlowTest {
         Path out = Path.of("build", "ui-smoke", name + ".png");
         Files.createDirectories(out.getParent());
         ImageIO.write(png, "png", out.toFile());
+    }
+    private int boardPixel(javafx.scene.canvas.Canvas canvas, int row, int col) {
+        // 반응형 확대/축소가 적용된 캔버스 이미지에서도 같은 보드 칸을 확인한다.
+        WritableImage image = canvas.snapshot(null, null);
+        int x = (int) ((col + 0.5) * image.getWidth() / Board.WIDTH);
+        int y = (int) ((row + 0.5) * image.getHeight() / Board.HEIGHT);
+        return image.getPixelReader().getArgb(x, y);
     }
     private void chooseDialog(Difficulty difficulty, boolean cancel, AtomicReference<Throwable> failure) {
         Platform.runLater(() -> {
@@ -128,11 +140,19 @@ class GameFlowTest {
                 assertEquals(GameState.CLEARING, engine.getState());
                 assertTrue(view.lookupAll(".label").stream().anyMatch(n -> ((Label)n).getText().equals("LINE CLEAR")));
                 capture(scene, "line-clear");
-                button(view, "일시정지").fire();
-                assertEquals(GameState.PAUSED, engine.getState());
-                button(view, "계속하기").fire();
+                AtomicReference<Throwable> resultFailure = new AtomicReference<>();
+                Platform.runLater(() -> {
+                    try {
+                        assertEquals(GameState.PAUSED, engine.getState());
+                        DialogPane pane = Window.getWindows().stream().filter(Window::isShowing)
+                                .map(w -> w.getScene().getRoot()).filter(r -> r instanceof DialogPane)
+                                .map(r -> (DialogPane) r).findFirst().orElseThrow();
+                        ((Button) pane.lookupButton(ButtonType.OK)).fire();
+                    } catch (Throwable error) { resultFailure.set(error); }
+                });
+                button(view, "결과 보기").fire();
+                if (resultFailure.get() != null) throw new AssertionError(resultFailure.get());
                 assertEquals(GameState.CLEARING, engine.getState());
-                assertEquals("일시정지", button(view, "일시정지").getText());
                 engine.advanceClear(300); view.redraw();
                 assertEquals(1000, view.getScore());
                 assertTrue(view.lookupAll(".label").stream().anyMatch(n -> ((Label)n).getText().equals("1000")));
@@ -146,6 +166,11 @@ class GameFlowTest {
                 result.applyCss(); result.layout();
                 ((TextField)result.lookup(".text-field")).setText("HardPlayer");
                 button(result, "저장").fire();
+                AtomicBoolean mainMenuRequested = new AtomicBoolean();
+                result.setOnMainMenu(() -> mainMenuRequested.set(true));
+                result.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false, false, false));
+                result.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, false, false, false, false));
+                assertTrue(mainMenuRequested.get(), "Game-over action buttons should support keyboard navigation");
                 assertEquals(1000, manager.getHighScore(GameMode.NORMAL, Difficulty.HARD));
                 assertEquals(10, manager.getRecords(GameMode.NORMAL, Difficulty.HARD).size());
                 assertEquals(0, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
@@ -227,18 +252,18 @@ class GameFlowTest {
                 assertTrue(view.lookupAll(".label").stream().anyMatch(n -> ((Label)n).getText().equals("BOOM!")));
                 capture(scene, "small-bomb-flash-on");
                 var canvas = assertInstanceOf(javafx.scene.canvas.Canvas.class, view.getCenter());
-                int bright = canvas.snapshot(null, null).getPixelReader().getArgb(4 * 28 + 14, 18 * 28 + 14);
-                int outside = canvas.snapshot(null, null).getPixelReader().getArgb(4 * 28 + 14, 17 * 28 + 14);
+                int bright = boardPixel(canvas, 18, 4);
+                int outside = boardPixel(canvas, 17, 4);
                 GameController animation = new GameController(engine);
-                button(view, "일시정지").fire();
+                animation.pause(); view.redraw();
                 animation.advance(1000); view.redraw();
                 assertEquals(GameState.PAUSED, engine.getState());
-                assertEquals(bright, canvas.snapshot(null, null).getPixelReader().getArgb(4 * 28 + 14, 18 * 28 + 14));
-                button(view, "계속하기").fire();
+                assertEquals(bright, boardPixel(canvas, 18, 4));
+                animation.resume(); view.redraw();
                 assertEquals(GameState.ITEM_EFFECT, engine.getState());
                 animation.advance(75); view.redraw();
-                assertNotEquals(bright, canvas.snapshot(null, null).getPixelReader().getArgb(4 * 28 + 14, 18 * 28 + 14));
-                assertEquals(outside, canvas.snapshot(null, null).getPixelReader().getArgb(4 * 28 + 14, 17 * 28 + 14));
+                assertNotEquals(bright, boardPixel(canvas, 18, 4));
+                assertEquals(outside, boardPixel(canvas, 17, 4));
                 capture(scene, "small-bomb-flash-off");
                 animation.advance(75); view.redraw();
                 view.setColorBlindMode(true);

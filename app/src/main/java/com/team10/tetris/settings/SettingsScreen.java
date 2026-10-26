@@ -47,17 +47,20 @@ public final class SettingsScreen extends BorderPane {
         content.setAlignment(Pos.TOP_CENTER);
         content.setMinWidth(0);
         content.setMinHeight(VBox.USE_PREF_SIZE);
-        content.setMaxWidth(608);
+        content.maxWidthProperty().bind(javafx.beans.binding.Bindings.min(1100, widthProperty().multiply(.9)));
+        content.setMaxHeight(VBox.USE_PREF_SIZE);
         content.setPadding(new Insets(24, 24, 32, 24));
 
         StackPane centeredContent = new StackPane(content);
         centeredContent.getStyleClass().add("settings-content-wrapper");
-        centeredContent.setAlignment(Pos.TOP_CENTER);
+        centeredContent.setAlignment(Pos.CENTER);
         centeredContent.setMinWidth(0);
 
         ScrollPane scrollPane = new ScrollPane(centeredContent);
         scrollPane.getStyleClass().add("settings-scroll");
         scrollPane.setFitToWidth(true);
+        scrollPane.viewportBoundsProperty().addListener((obs, oldBounds, bounds) ->
+                centeredContent.setMinHeight(bounds.getHeight()));
         scrollPane.setMinSize(0, 0);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);

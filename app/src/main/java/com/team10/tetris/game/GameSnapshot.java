@@ -8,13 +8,21 @@ import java.util.List;
 public record GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
         PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
         int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
-        List<List<TetrominoType>> cellTypes, List<CellPosition> effectCells, boolean effectFlashVisible) {
+        List<List<TetrominoType>> cellTypes, boolean blackoutActive, boolean rotationLocked,
+        List<CellPosition> effectCells, boolean effectFlashVisible) {
+    public GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
+            PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
+            int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
+            List<List<TetrominoType>> cellTypes, boolean blackoutActive, boolean rotationLocked) {
+        this(cells, currentBlock, nextBlock, config, state, score, totalClearedLines,
+                dropIntervalMs, clearingRows, cellTypes, blackoutActive, rotationLocked, List.of(), false);
+    }
     public GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
             PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
             int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
             List<List<TetrominoType>> cellTypes) {
         this(cells, currentBlock, nextBlock, config, state, score, totalClearedLines,
-                dropIntervalMs, clearingRows, cellTypes, List.of(), false);
+                dropIntervalMs, clearingRows, cellTypes, false, false);
     }
     public GameSnapshot {
         cells = cells.stream().map(List::copyOf).toList();

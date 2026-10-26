@@ -142,4 +142,17 @@ class GameSettingsTest {
                 () -> DropSpeed.NORMAL.adjustInterval(0));
     }
 
+    @Test void demoIntervalValidationAndNormalFallback() {
+        GameSettings settings = createSettings();
+        assertEquals(1, settings.getDemoItemLines());
+        assertEquals(10, settings.getItemLineInterval());
+        settings.setDemoMode(true);
+        settings.setDemoItemLines(100);
+        assertEquals(100, settings.getItemLineInterval());
+        assertThrows(IllegalArgumentException.class, () -> settings.setDemoItemLines(0));
+        assertThrows(IllegalArgumentException.class, () -> settings.setDemoItemLines(101));
+        assertEquals(100, settings.getDemoItemLines());
+        settings.setDemoMode(false);
+        assertEquals(10, settings.getItemLineInterval());
+    }
 }
