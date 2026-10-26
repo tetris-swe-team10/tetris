@@ -1,6 +1,7 @@
 package com.team10.tetris.game;
 
 import com.team10.tetris.game.item.ItemAssigner;
+import com.team10.tetris.game.item.GameItem;
 import com.team10.tetris.game.item.RandomItemAssigner;
 import com.team10.tetris.game.item.SmallBomb;
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ public class GameEngine {
     private GameState stateBeforePause = GameState.PLAYING;
     private List<Integer> clearingRows = List.of();
     private int clearingElapsedMs;
+    private GameItem pendingEffect;
+    private CellPosition effectOrigin;
+    private List<CellPosition> effectCells = List.of();
+    private int effectElapsedMs;
     private int score;
     private int dropIntervalMs = INITIAL_DROP_INTERVAL_MS;
     private int totalClearedLines;
@@ -86,7 +91,8 @@ public class GameEngine {
                 || (state == GameState.PAUSED && stateBeforePause == GameState.PLAYING);
         return new GameSnapshot(cells, active ? PieceSnapshot.of(currentBlock) : null,
                 PieceSnapshot.of(nextBlock), config, state, score, totalClearedLines,
-                dropIntervalMs, clearingRows, cellTypes);
+                dropIntervalMs, clearingRows, cellTypes, effectCells,
+                !effectCells.isEmpty() && effectElapsedMs / 75 % 2 == 0);
     }
     private boolean moveHorizontal(int delta) {
         if (state != GameState.PLAYING) return false;
@@ -110,13 +116,26 @@ public class GameEngine {
     }
     private void resolveLanding() {
         board.lock(currentBlock);
-        // 현재 블록의 효과만 고정 직후 한 번 실행한다. 폭발 후 남은 완성 행을 검사한다.
+        lastClearedLines = 0;
+        // 연출 동안 고정된 보드를 유지하고, 끝난 뒤 효과와 완성 행 검사를 순서대로 수행한다.
         var attached = currentBlock.getItem();
         if (config.mode() == GameMode.ITEM && attached != null) {
-            attached.item().onLock(board, currentBlock.getRow() + attached.row(),
-                    currentBlock.getCol() + attached.col());
+            int row = currentBlock.getRow() + attached.row();
+            int col = currentBlock.getCol() + attached.col();
+            effectCells = List.copyOf(attached.item().previewCells(board, row, col));
+            if (!effectCells.isEmpty() && attached.item().effectDurationMs() > 0) {
+                pendingEffect = attached.item();
+                effectOrigin = new CellPosition(row, col);
+                effectElapsedMs = 0;
+                state = GameState.ITEM_EFFECT;
+                return;
+            }
+            effectCells = List.of();
+            attached.item().onLock(board, row, col);
         }
-        lastClearedLines = 0;
+        resolveLockedBoard();
+    }
+    private void resolveLockedBoard() {
         clearingRows = board.findFullRows();
         if (clearingRows.isEmpty()) {
             spawnAfterLanding();
@@ -124,6 +143,21 @@ public class GameEngine {
             clearingElapsedMs = 0;
             state = GameState.CLEARING;
         }
+    }
+
+    /** 아이템 깜빡임도 게임 시간으로 진행하므로 일시정지·설정 중에는 멈춘다. */
+    public void advanceItemEffect(int elapsedMs) {
+        if (elapsedMs < 0) throw new IllegalArgumentException("Negative elapsed time");
+        if (state != GameState.ITEM_EFFECT) return;
+        int duration = pendingEffect.effectDurationMs();
+        effectElapsedMs = (int) Math.min(duration, (long) effectElapsedMs + elapsedMs);
+        if (effectElapsedMs < duration) return;
+        pendingEffect.onLock(board, effectOrigin.row(), effectOrigin.col());
+        pendingEffect = null;
+        effectOrigin = null;
+        effectCells = List.of();
+        state = GameState.PLAYING;
+        resolveLockedBoard();
     }
     /** Controller가 경과시간을 전달한다. 일시정지는 삭제 시간도 멈춘다. */
     public void advanceClear(int elapsedMs) {

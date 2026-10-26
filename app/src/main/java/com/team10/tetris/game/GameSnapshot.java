@@ -8,10 +8,18 @@ import java.util.List;
 public record GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
         PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
         int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
-        List<List<TetrominoType>> cellTypes) {
+        List<List<TetrominoType>> cellTypes, List<CellPosition> effectCells, boolean effectFlashVisible) {
+    public GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
+            PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
+            int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
+            List<List<TetrominoType>> cellTypes) {
+        this(cells, currentBlock, nextBlock, config, state, score, totalClearedLines,
+                dropIntervalMs, clearingRows, cellTypes, List.of(), false);
+    }
     public GameSnapshot {
         cells = cells.stream().map(List::copyOf).toList();
         clearingRows = List.copyOf(clearingRows);
+        effectCells = List.copyOf(effectCells);
         // null을 담을 수 있도록 List.copyOf 대신 Stream.toList()로 복사
         cellTypes = cellTypes.stream().map(row -> row.stream().toList()).toList();
     }

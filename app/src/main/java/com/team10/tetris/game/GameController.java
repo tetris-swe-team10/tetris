@@ -19,7 +19,10 @@ public final class GameController {
     }
     public void advance(int elapsedMs) {
         if (elapsedMs < 0) throw new IllegalArgumentException("Negative elapsed time");
-        if (engine.getState() == GameState.CLEARING) {
+        if (engine.getState() == GameState.ITEM_EFFECT) {
+            engine.advanceItemEffect(elapsedMs);
+            fallElapsedMs = 0;
+        } else if (engine.getState() == GameState.CLEARING) {
             engine.advanceClear(elapsedMs);
             fallElapsedMs = 0;
         } else if (engine.getState() == GameState.PLAYING) {
