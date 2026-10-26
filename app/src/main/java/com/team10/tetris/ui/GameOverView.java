@@ -18,6 +18,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.application.Platform;
 
 /**
  * 게임 종료 화면.
@@ -52,6 +55,11 @@ public class GameOverView extends BorderPane {
     private final TextField nameField = new TextField();
     private final Button saveButton = new Button("저장");
     private final HBox nameInputRow = new HBox(12);
+    private final Button restartButton = new Button("다시 시작");
+    private final Button menuButton = new Button("시작 화면으로");
+    private final Button exitButton = new Button("게임 종료");
+    private final List<Button> actionButtons = List.of(restartButton, menuButton, exitButton);
+    private int focusedActionIndex;
 
     private Runnable onRestart = () -> {};
     private Runnable onMainMenu = () -> {};
@@ -71,6 +79,7 @@ public class GameOverView extends BorderPane {
         setPadding(new Insets(40, 48, 36, 48));
         setStyle("-fx-background-color: " + COLOR_BACKGROUND + ";"
                 + "-fx-font-family: " + FONT_FAMILY + ";");
+        installKeyboardNavigation();
     }
 
     // ---------------------------------------------------------------
@@ -120,7 +129,9 @@ public class GameOverView extends BorderPane {
 
         if (canRegister) {
             nameField.clear();
-            nameField.requestFocus();
+            Platform.runLater(nameField::requestFocus);
+        } else {
+            focusActionButton(0);
         }
     }
 
@@ -204,10 +215,6 @@ public class GameOverView extends BorderPane {
     }
 
     private HBox createButtonRow() {
-        Button restartButton = new Button("다시 시작");
-        Button menuButton = new Button("시작 화면으로");
-        Button exitButton = new Button("게임 종료");
-
         restartButton.setStyle(accentButtonStyle());
         menuButton.setStyle(plainButtonStyle());
         exitButton.setStyle(plainButtonStyle());
@@ -216,7 +223,13 @@ public class GameOverView extends BorderPane {
         menuButton.setOnAction(event -> onMainMenu.run());
         exitButton.setOnAction(event -> onExit.run());
 
-        for (Button button : List.of(restartButton, menuButton, exitButton)) {
+        for (int index = 0; index < actionButtons.size(); index++) {
+            Button button = actionButtons.get(index);
+            int buttonIndex = index;
+            button.focusedProperty().addListener((observable, oldValue, focused) -> {
+                if (focused) focusedActionIndex = buttonIndex;
+                updateActionButtonStyles();
+            });
             button.setPrefHeight(44);
             button.setMaxWidth(Double.MAX_VALUE);
             HBox.setHgrow(button, Priority.ALWAYS);
@@ -226,6 +239,51 @@ public class GameOverView extends BorderPane {
         row.setPadding(new Insets(24, 0, 0, 0));
 
         return row;
+    }
+
+    private void installKeyboardNavigation() {
+        addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            KeyCode key = event.getCode();
+            boolean nameEntryFocused = nameInputRow.isVisible()
+                    && (nameField.isFocused() || saveButton.isFocused());
+
+            if (nameEntryFocused) {
+                if (key == KeyCode.DOWN) {
+                    focusActionButton(0);
+                    event.consume();
+                }
+                return;
+            }
+
+            if (key == KeyCode.LEFT || key == KeyCode.UP || key == KeyCode.A || key == KeyCode.W) {
+                focusActionButton(focusedActionIndex - 1);
+            } else if (key == KeyCode.RIGHT || key == KeyCode.DOWN || key == KeyCode.D || key == KeyCode.S) {
+                focusActionButton(focusedActionIndex + 1);
+            } else if (key == KeyCode.ENTER || key == KeyCode.SPACE) {
+                actionButtons.get(focusedActionIndex).fire();
+            } else {
+                return;
+            }
+            event.consume();
+        });
+    }
+
+    private void focusActionButton(int index) {
+        focusedActionIndex = Math.floorMod(index, actionButtons.size());
+        Platform.runLater(actionButtons.get(focusedActionIndex)::requestFocus);
+    }
+
+    private void updateActionButtonStyles() {
+        for (int index = 0; index < actionButtons.size(); index++) {
+            Button button = actionButtons.get(index);
+            String base = button == restartButton ? accentButtonStyle() : plainButtonStyle();
+            if (button.isFocused()) {
+                base += "-fx-border-color: " + COLOR_ACCENT + ";"
+                        + "-fx-border-width: 2;"
+                        + "-fx-border-radius: 8;";
+            }
+            button.setStyle(base);
+        }
     }
 
     // ---------------------------------------------------------------
@@ -313,6 +371,7 @@ public class GameOverView extends BorderPane {
         }
 
         showScoreboard(rank);
+        focusActionButton(0);
     }
 
     private void showScoreboard(int highlightRank) {
