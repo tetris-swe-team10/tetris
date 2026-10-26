@@ -24,6 +24,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -50,8 +55,11 @@ public class GameView extends BorderPane {
     private final Label linesLabel = new Label();
     private final Label statusLabel = new Label();
     private final Label penaltyLabel = new Label();
+    private final Label demoLabel = new Label();
     private final Label itemLabel = new Label();
 
+    private final Button resultButton = new Button("결과 보기");
+    private VBox infoPanel;
     private final Button pauseButton = new Button("일시정지");
     private final Button settingsButton = new Button("설정");
 
@@ -98,37 +106,40 @@ public class GameView extends BorderPane {
 
         nextCanvas = new Canvas(120, 120);
 
-        VBox rightPanel = new VBox(
-                18,
-                new Label(engine.getConfig().mode() + " / " + engine.getConfig().difficulty()),
-                new Label("SCORE"),
-                scoreLabel,
-                new Label("LINES"),
-                linesLabel,
-                new Label("NEXT"),
-                nextCanvas,
-                itemLabel,
-                penaltyLabel,
-                statusLabel,
-                pauseButton,
-                settingsButton);
-
-        rightPanel.setSpacing(10);
-        rightPanel.setAlignment(Pos.TOP_CENTER);
-        rightPanel.setPadding(new Insets(20));
-        rightPanel.setPrefWidth(180);
+        VBox scoreCard = infoCard("SCORE", scoreLabel, "#3B82F6");
+        VBox linesCard = infoCard("LINES", linesLabel, "#21BED7");
+        HBox counters = new HBox(16, scoreCard, linesCard);
+        HBox.setHgrow(scoreCard, Priority.ALWAYS);
+        HBox.setHgrow(linesCard, Priority.ALWAYS);
+        scoreCard.setMaxWidth(Double.MAX_VALUE); linesCard.setMaxWidth(Double.MAX_VALUE);
+        VBox previewCard = infoCard("NEXT", new javafx.scene.layout.StackPane(nextCanvas), "#8B5CF6");
+        previewCard.getChildren().add(itemLabel);
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        HBox actions = new HBox(16, resultButton, settingsButton);
+        for (Button button : new Button[]{resultButton, settingsButton}) {
+            button.setMaxWidth(Double.MAX_VALUE);
+            button.setFocusTraversable(false);
+            HBox.setHgrow(button, Priority.ALWAYS);
+            button.setStyle("-fx-background-color: #111827; -fx-text-fill: #F5F7FB; "
+                    + "-fx-border-color: #334155; -fx-border-radius: 6; -fx-background-radius: 6; "
+                    + "-fx-font-weight: bold; -fx-padding: 12 16;");
+        }
+        infoPanel = new VBox(16, counters, previewCard, penaltyLabel, demoLabel, statusLabel, spacer, actions);
+        infoPanel.setMinWidth(0);
+        infoPanel.setPadding(new Insets(0));
         itemLabel.setId("next-item-description");
         itemLabel.setWrapText(true);
-        itemLabel.setMaxWidth(145);
-        itemLabel.setAlignment(Pos.CENTER);
-        for (var node : rightPanel.getChildren()) {
-            if (node instanceof Label label) label.setStyle("-fx-text-fill: #E8EEF2;");
+        itemLabel.setMaxWidth(Double.MAX_VALUE);
+        itemLabel.setStyle("-fx-text-fill: #98A2B3;");
+        for (Label label : new Label[]{penaltyLabel, statusLabel}) {
+            label.setWrapText(true); label.setStyle("-fx-text-fill: #E8EEF2;");
         }
-
         setCenter(boardCanvas);
-        setRight(rightPanel);
-        setPadding(new Insets(20));
-        setStyle("-fx-background-color: #030712;");
+        setRight(infoPanel);
+        setPadding(new Insets(32));
+        setStyle("-fx-background-color: #030712; -fx-border-color: transparent transparent transparent #7C3AED; -fx-border-width: 0 0 0 5;");
+        resultButton.setOnAction(event -> showCurrentResult());
 
         pauseButton.setFocusTraversable(false);
         settingsButton.setFocusTraversable(false);
@@ -145,6 +156,9 @@ public class GameView extends BorderPane {
                 return;
             }
             switch (event.getCode()) {
+                case DIGIT1, NUMPAD1 -> engine.requestDemoItem(1);
+                case DIGIT2, NUMPAD2 -> engine.requestDemoItem(2);
+                case DIGIT3, NUMPAD3 -> engine.requestDemoItem(3);
                 case LEFT -> controller.handle(GameCommand.LEFT);
                 case RIGHT -> controller.handle(GameCommand.RIGHT);
                 case DOWN -> controller.handle(GameCommand.DOWN);
@@ -295,6 +309,54 @@ public class GameView extends BorderPane {
         onGameOver.run();
     }
 
+    private static VBox infoCard(String title, javafx.scene.Node value, String accent) {
+        Label caption = new Label(title);
+        caption.setStyle("-fx-text-fill: #F5F7FB; -fx-font-size: 12px; -fx-font-weight: bold;");
+        if (value instanceof Label label) {
+            label.setStyle("-fx-text-fill: #F5F7FB; -fx-font-size: 28px; -fx-font-weight: bold;");
+        }
+        VBox card = new VBox(16, caption, value);
+        card.setMinWidth(0);
+        card.setPadding(new Insets(18));
+        card.setStyle("-fx-background-color: #0B1320; -fx-background-radius: 6; "
+                + "-fx-border-color: #202B3B #202B3B #202B3B " + accent
+                + "; -fx-border-width: 1 1 1 3; -fx-border-radius: 6;");
+        return card;
+    }
+
+    private void showCurrentResult() {
+        boolean resume = !engine.isPaused() && !engine.isGameOver();
+        controller.pause();
+        Alert result = new Alert(Alert.AlertType.INFORMATION,
+                "SCORE  " + engine.getScore() + "\nLINES  " + engine.getTotalClearedLines(), ButtonType.OK);
+        result.setTitle("현재 결과");
+        result.setHeaderText("현재 게임 기록");
+        if (getScene() != null && getScene().getWindow() != null) result.initOwner(getScene().getWindow());
+        result.showAndWait();
+        if (resume) controller.resume();
+        lastUpdateNanos = System.nanoTime();
+        redraw(); requestFocus();
+    }
+
+    @Override protected void layoutChildren() {
+        super.layoutChildren();
+        if (infoPanel == null) return;
+        double w = getWidth(), h = getHeight();
+        double pad = Math.max(16, Math.min(w * .03, 40));
+        double gap = Math.max(20, Math.min(w * .025, 36));
+        double available = Math.max(0, w - 2 * pad - gap);
+        // 보드는 높이를 최대한 활용하고, 정보 영역은 보조 패널 폭으로 제한한다.
+        double panelWidth = Math.min(300, Math.max(220, available * .32));
+        double scale = Math.max(.2, Math.min((h - 2 * pad) / (Board.HEIGHT * CELL_SIZE),
+                Math.max(0, available - panelWidth) / (Board.WIDTH * CELL_SIZE)));
+        double bw = Board.WIDTH * CELL_SIZE * scale, bh = Board.HEIGHT * CELL_SIZE * scale;
+        double left = (w - bw - gap - panelWidth) / 2;
+        boardCanvas.setScaleX(scale); boardCanvas.setScaleY(scale);
+        boardCanvas.relocate(left + (bw - boardCanvas.getWidth()) / 2,
+                (h - bh) / 2 + (bh - boardCanvas.getHeight()) / 2);
+        infoPanel.resizeRelocate(left + bw + gap, Math.max(pad, (h - bh) / 2), panelWidth, bh);
+    }
+
     public void redraw() {
         snapshot = controller.snapshot();
         drawBoard();
@@ -303,6 +365,12 @@ public class GameView extends BorderPane {
                 ? "B 암전 · 현재 블록 착지까지"
                 : snapshot.rotationLocked() ? "K 회전 잠금 · 현재 블록" : "");
 
+        demoLabel.setWrapText(true);
+        demoLabel.setStyle("-fx-text-fill: #98A2B3; -fx-font-size: 12px;");
+        demoLabel.setVisible(engine.isItemDemoEnabled());
+        demoLabel.setManaged(engine.isItemDemoEnabled());
+        demoLabel.setText("데모 · 1 폭탄 / 2 암전 / 3 회전 잠금\n새 NEXT에 지급 · 벌칙 중에는 해제 후 지급"
+                + (engine.demoRequestedSymbol().isEmpty() ? "" : "\n예약: " + engine.demoRequestedSymbol()));
         scoreLabel.setText(String.valueOf(snapshot.score()));
         linesLabel.setText(
                 String.valueOf(snapshot.totalClearedLines()));
@@ -425,7 +493,7 @@ public class GameView extends BorderPane {
     private void drawNextBlock() {
         GraphicsContext gc = nextCanvas.getGraphicsContext2D();
 
-        gc.setFill(Color.web("#060B16"));
+        gc.setFill(Color.web("#0B1320"));
         gc.fillRect(
                 0,
                 0,

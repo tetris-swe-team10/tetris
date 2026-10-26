@@ -1,6 +1,7 @@
 package com.team10.tetris.game;
 
 import com.team10.tetris.game.item.ItemAssigner;
+import com.team10.tetris.game.item.GameItem;
 import com.team10.tetris.game.item.RandomItemAssigner;
 import com.team10.tetris.game.item.SmallBomb;
 import com.team10.tetris.game.item.Blackout;
@@ -26,9 +27,29 @@ public class GameEngine {
     private int pendingItems;
     private int itemLineInterval = LINES_PER_ITEM;
     private int itemProgress;
+    private boolean demoMode;
+    private GameItem demoRequestedItem;
+
+    public boolean isItemDemoEnabled() { return demoMode && config.mode() == GameMode.ITEM; }
+    public String demoRequestedSymbol() { return demoRequestedItem == null ? "" : demoRequestedItem.symbol(); }
+    public boolean requestDemoItem(int number) {
+        if (!isItemDemoEnabled() || state != GameState.PLAYING) return false;
+        GameItem item = switch (number) {
+            case 1 -> new SmallBomb();
+            case 2 -> new Blackout();
+            case 3 -> new RotationLock();
+            default -> null;
+        };
+        if (item == null) return false;
+        demoRequestedItem = item;
+        return true;
+    }
+
 
     public void configureDemoItems(boolean enabled, int lines) {
         if (lines < 1 || lines > 100) throw new IllegalArgumentException("Expected 1..100 lines");
+        demoMode = enabled;
+        if (!enabled) demoRequestedItem = null;
         int interval = enabled ? lines : LINES_PER_ITEM;
         if (itemLineInterval != interval) {
             itemLineInterval = interval;
@@ -71,6 +92,7 @@ public class GameEngine {
         if (!board.canPlace(this.currentBlock)) {
             state = GameState.GAME_OVER;
             penalties.reset();
+            demoRequestedItem = null;
         }
     }
     public Board getBoard() { return board; }
@@ -168,6 +190,7 @@ public class GameEngine {
         if (!spawnBlock()) {
             state = GameState.GAME_OVER;
             penalties.reset();
+            demoRequestedItem = null;
         }
     }
     public boolean rotateClockwise() {
@@ -181,7 +204,11 @@ public class GameEngine {
     /** 10줄마다 새 NEXT에 공통 목록에서 선택한 아이템을 지급한다. */
     private Tetromino createNextTetromino() {
         Tetromino piece = createRandomTetromino();
-        if (config.mode() == GameMode.ITEM && pendingItems > 0) {
+        if (isItemDemoEnabled() && demoRequestedItem != null && demoRequestedItem.isAvailable(penalties)) {
+            new RandomItemAssigner(List.of(demoRequestedItem), new Random()).attachTo(piece);
+            demoRequestedItem.onAssigned(penalties);
+            demoRequestedItem = null;
+        } else if (config.mode() == GameMode.ITEM && pendingItems > 0) {
             itemAssigner.attachTo(piece, penalties);
             if (piece.getItem() != null) piece.getItem().item().onAssigned(penalties);
             pendingItems--;

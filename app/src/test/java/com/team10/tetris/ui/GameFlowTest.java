@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import static org.junit.jupiter.api.Assertions.*;
@@ -132,11 +133,19 @@ class GameFlowTest {
                 assertEquals(GameState.CLEARING, engine.getState());
                 assertTrue(view.lookupAll(".label").stream().anyMatch(n -> ((Label)n).getText().equals("LINE CLEAR")));
                 capture(scene, "line-clear");
-                button(view, "일시정지").fire();
-                assertEquals(GameState.PAUSED, engine.getState());
-                button(view, "계속하기").fire();
+                AtomicReference<Throwable> resultFailure = new AtomicReference<>();
+                Platform.runLater(() -> {
+                    try {
+                        assertEquals(GameState.PAUSED, engine.getState());
+                        DialogPane pane = Window.getWindows().stream().filter(Window::isShowing)
+                                .map(w -> w.getScene().getRoot()).filter(r -> r instanceof DialogPane)
+                                .map(r -> (DialogPane) r).findFirst().orElseThrow();
+                        ((Button) pane.lookupButton(ButtonType.OK)).fire();
+                    } catch (Throwable error) { resultFailure.set(error); }
+                });
+                button(view, "결과 보기").fire();
+                if (resultFailure.get() != null) throw new AssertionError(resultFailure.get());
                 assertEquals(GameState.CLEARING, engine.getState());
-                assertEquals("일시정지", button(view, "일시정지").getText());
                 engine.advanceClear(300); view.redraw();
                 assertEquals(1000, view.getScore());
                 assertTrue(view.lookupAll(".label").stream().anyMatch(n -> ((Label)n).getText().equals("1000")));
@@ -150,6 +159,11 @@ class GameFlowTest {
                 result.applyCss(); result.layout();
                 ((TextField)result.lookup(".text-field")).setText("HardPlayer");
                 button(result, "저장").fire();
+                AtomicBoolean mainMenuRequested = new AtomicBoolean();
+                result.setOnMainMenu(() -> mainMenuRequested.set(true));
+                result.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.RIGHT, false, false, false, false));
+                result.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ENTER, false, false, false, false));
+                assertTrue(mainMenuRequested.get(), "Game-over action buttons should support keyboard navigation");
                 assertEquals(1000, manager.getHighScore(GameMode.NORMAL, Difficulty.HARD));
                 assertEquals(10, manager.getRecords(GameMode.NORMAL, Difficulty.HARD).size());
                 assertEquals(0, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
