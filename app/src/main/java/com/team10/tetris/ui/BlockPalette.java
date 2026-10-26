@@ -36,7 +36,7 @@ public enum BlockPalette {
         NORMAL_STYLES.put(TetrominoType.L, BlockStyle.plain(Color.web("#F08A24")));
 
         COLOR_BLIND_STYLES.put(TetrominoType.I,
-                new BlockStyle(Color.web("#56B4E9"), BlockPattern.HORIZONTAL_LINES, DARK_PATTERN));
+                new BlockStyle(Color.web("#B3E5FC"), BlockPattern.HORIZONTAL_LINES, DARK_PATTERN));
         COLOR_BLIND_STYLES.put(TetrominoType.O,
                 new BlockStyle(Color.web("#F0E442"), BlockPattern.DOTS, DARK_PATTERN));
         COLOR_BLIND_STYLES.put(TetrominoType.T,
@@ -46,7 +46,7 @@ public enum BlockPalette {
         COLOR_BLIND_STYLES.put(TetrominoType.Z,
                 new BlockStyle(Color.web("#D55E00"), BlockPattern.DIAGONAL_LEFT, LIGHT_PATTERN));
         COLOR_BLIND_STYLES.put(TetrominoType.J,
-                new BlockStyle(Color.web("#0072B2"), BlockPattern.VERTICAL_LINES, LIGHT_PATTERN));
+                new BlockStyle(Color.web("#006BB4"), BlockPattern.VERTICAL_LINES, LIGHT_PATTERN));
         COLOR_BLIND_STYLES.put(TetrominoType.L,
                 new BlockStyle(Color.web("#E69F00"), BlockPattern.CROSS_DIAGONAL, DARK_PATTERN));
     }
