@@ -9,8 +9,8 @@ public final class GameKeyBindings {
     public static final List<GameCommand> ACTIONS = List.of(
             GameCommand.LEFT, GameCommand.RIGHT, GameCommand.ROTATE, GameCommand.DOWN);
     private static final Set<KeyCode> RESERVED = Set.of(KeyCode.ESCAPE, KeyCode.SPACE,
-            KeyCode.ENTER, KeyCode.TAB, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,KeyCode.DIGIT4,
-            KeyCode.NUMPAD1, KeyCode.NUMPAD2, KeyCode.NUMPAD3,KeyCode.NUMPAD4, KeyCode.UNDEFINED);
+            KeyCode.ENTER, KeyCode.TAB, KeyCode.DIGIT1, KeyCode.DIGIT2, KeyCode.DIGIT3,KeyCode.DIGIT4,KeyCode.DIGIT5,
+            KeyCode.NUMPAD1, KeyCode.NUMPAD2, KeyCode.NUMPAD3,KeyCode.NUMPAD4,KeyCode.NUMPAD5, KeyCode.UNDEFINED);
     private final Map<GameCommand, KeyCode> keys;
 
     public GameKeyBindings(Map<GameCommand, KeyCode> keys) {

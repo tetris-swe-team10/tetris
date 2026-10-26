@@ -44,6 +44,7 @@ public class GameEngine {
             case 2 -> new Blackout();
             case 3 -> new RotationLock();
             case 4 -> new WeightItem();
+            case 5 -> new LineClearItem();
             default -> null;
         };
         if (item == null) return false;
