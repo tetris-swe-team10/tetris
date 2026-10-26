@@ -391,6 +391,9 @@ public class GameView extends BorderPane {
         } else if (engine.isPaused()) {
             statusLabel.setText("PAUSED");
             pauseButton.setText("계속하기");
+        } else if (snapshot.state() == GameState.ITEM_EFFECT) {
+            statusLabel.setText("BOOM!");
+            pauseButton.setText("일시정지");
         } else if (snapshot.state() == GameState.CLEARING) {
             statusLabel.setText("LINE CLEAR");
             pauseButton.setText("일시정지");
@@ -474,6 +477,12 @@ public class GameView extends BorderPane {
         gc.setFill(Color.rgb(255, 255, 255, 0.75));
         for (int row : snapshot.clearingRows()) {
             gc.fillRect(0, row * CELL_SIZE, boardCanvas.getWidth(), CELL_SIZE);
+        }
+        // 줄 삭제와 같은 흰색 강조를 실제 폭발로 없어질 칸에만 두 번 깜빡인다.
+        if (snapshot.effectFlashVisible()) {
+            for (var cell : snapshot.effectCells()) {
+                gc.fillRect(cell.col() * CELL_SIZE, cell.row() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            }
         }
 
         // 격자

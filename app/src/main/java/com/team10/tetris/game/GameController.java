@@ -21,7 +21,12 @@ public final class GameController {
         if (elapsedMs < 0) throw new IllegalArgumentException("Negative elapsed time");
         int remaining = elapsedMs;
         while (remaining > 0) {
-            if (engine.getState() == GameState.CLEARING) {
+            if (engine.getState() == GameState.ITEM_EFFECT) {
+                int step = Math.min(remaining, engine.getItemEffectRemainingMs());
+                engine.advanceItemEffect(step);
+                fallElapsedMs = 0;
+                remaining -= step;
+            } else if (engine.getState() == GameState.CLEARING) {
                 int step = Math.min(remaining, engine.getClearRemainingMs());
                 engine.advanceClear(step);
                 fallElapsedMs = 0;

@@ -66,6 +66,13 @@ class GameFlowTest {
         Files.createDirectories(out.getParent());
         ImageIO.write(png, "png", out.toFile());
     }
+    private int boardPixel(javafx.scene.canvas.Canvas canvas, int row, int col) {
+        // 반응형 확대/축소가 적용된 캔버스 이미지에서도 같은 보드 칸을 확인한다.
+        WritableImage image = canvas.snapshot(null, null);
+        int x = (int) ((col + 0.5) * image.getWidth() / Board.WIDTH);
+        int y = (int) ((row + 0.5) * image.getHeight() / Board.HEIGHT);
+        return image.getPixelReader().getArgb(x, y);
+    }
     private void chooseDialog(Difficulty difficulty, boolean cancel, AtomicReference<Throwable> failure) {
         Platform.runLater(() -> {
             DialogPane pane = null;
@@ -240,6 +247,29 @@ class GameFlowTest {
                 capture(scene, "small-bomb-before");
                 int score = engine.getScore();
                 view.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.SPACE, false, false, false, false));
+                assertEquals(GameState.ITEM_EFFECT, engine.getState());
+                assertEquals(1, board.getCell(18, 4), "Wait for the flash before removing cells");
+                assertTrue(view.lookupAll(".label").stream().anyMatch(n -> ((Label)n).getText().equals("BOOM!")));
+                capture(scene, "small-bomb-flash-on");
+                var canvas = assertInstanceOf(javafx.scene.canvas.Canvas.class, view.getCenter());
+                int bright = boardPixel(canvas, 18, 4);
+                int outside = boardPixel(canvas, 17, 4);
+                GameController animation = new GameController(engine);
+                animation.pause(); view.redraw();
+                animation.advance(1000); view.redraw();
+                assertEquals(GameState.PAUSED, engine.getState());
+                assertEquals(bright, boardPixel(canvas, 18, 4));
+                animation.resume(); view.redraw();
+                assertEquals(GameState.ITEM_EFFECT, engine.getState());
+                animation.advance(75); view.redraw();
+                assertNotEquals(bright, boardPixel(canvas, 18, 4));
+                assertEquals(outside, boardPixel(canvas, 17, 4));
+                capture(scene, "small-bomb-flash-off");
+                animation.advance(75); view.redraw();
+                view.setColorBlindMode(true);
+                capture(scene, "small-bomb-flash-colorblind");
+                view.setColorBlindMode(false);
+                animation.advance(150); view.redraw();
                 assertEquals(score, engine.getScore());
                 assertEquals(1, board.getCell(17, 4));
                 assertEquals(0, board.getCell(18, 4));
