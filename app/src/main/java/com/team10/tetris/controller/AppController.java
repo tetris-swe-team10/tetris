@@ -155,7 +155,7 @@ public final class AppController {
         confirmation.setHeaderText("점수 초기화");
         styleDialog(confirmation.getDialogPane(), "score-reset-dialog");
         ButtonType selected = confirmation.showAndWait().orElse(cancelReset);
-        if (selected != confirmReset) return;
+        if (!isResetConfirmed(selected)) return;
         Alert result;
         try {
             scoreboardManager.clear();
@@ -169,6 +169,10 @@ public final class AppController {
         result.initOwner(stage);
         styleDialog(result.getDialogPane(), "score-reset-dialog");
         result.showAndWait();
+    }
+
+    static boolean isResetConfirmed(ButtonType selected) {
+        return selected != null && selected.getButtonData() == ButtonBar.ButtonData.OK_DONE;
     }
 
     private void styleDialog(DialogPane pane, String styleClass) {

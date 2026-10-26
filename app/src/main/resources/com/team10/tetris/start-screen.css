@@ -8,28 +8,28 @@
     -fx-border-width: 1px 0 0 5px;
 }
 
-.eyebrow {
+.start-screen .eyebrow {
     -fx-text-fill: #3b82f6;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
-.title {
+.start-screen .title {
     -fx-text-fill: #f5f7fb;
     -fx-font-size: 34px;
     -fx-font-weight: bold;
 }
 
-.subtitle,
-.guide {
+.start-screen .subtitle,
+.start-screen .guide {
     -fx-text-fill: #98a2b3;
 }
 
-.subtitle {
+.start-screen .subtitle {
     -fx-font-size: 13px;
 }
 
-.menu-button {
+.start-screen .menu-button {
     -fx-alignment: center;
     -fx-background-color: #111827;
     -fx-background-radius: 6px;
@@ -43,16 +43,27 @@
     -fx-font-weight: bold;
 }
 
-.menu-button:selected {
+.start-screen .menu-button:selected {
     -fx-background-color: #3b82f6;
     -fx-border-color: #3b82f6;
     -fx-text-fill: #030712;
 }
 
-.menu-button:disabled {
+.start-screen .menu-button:disabled {
     -fx-opacity: 0.45;
 }
 
-.guide {
+.start-screen .guide {
     -fx-font-size: 12px;
+}
+
+.start-screen .start-header {
+    -fx-background-color: #080E19;
+    -fx-border-color: transparent transparent #1C2433 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.start-screen .start-brand {
+    -fx-text-fill: #F5F7FB;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
 }

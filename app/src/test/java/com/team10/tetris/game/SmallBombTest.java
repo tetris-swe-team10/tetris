@@ -11,8 +11,7 @@ class SmallBombTest {
 
     private GameEngine game(Board board, Tetromino piece, GameMode mode) {
         return new GameEngine(board, piece, new GameConfig(mode, Difficulty.NORMAL),
-                () -> new Tetromino(TetrominoType.O, 0, 3), new StandardScoringPolicy(),
-                new RandomItemAssigner(List.of(bomb), new Random()));
+                () -> new Tetromino(TetrominoType.O, 0, 3), new StandardScoringPolicy(), new RandomItemAssigner(List.of(new SmallBomb()), new Random(42)));
     }
 
     @Test void explosionClearsExactlyNineCellsAndTheirTypesWithoutMovingOtherCells() {
@@ -58,6 +57,8 @@ class SmallBombTest {
         board.setCell(17, 4, 1); // blast 바로 위는 떠 있어야 한다.
         GameEngine game = game(board, piece, GameMode.ITEM);
         assertFalse(game.moveDown());
+        assertEquals(GameState.ITEM_EFFECT, game.getState());
+        game.advanceItemEffect(SmallBomb.FLASH_DURATION_MS);
         assertEquals(GameState.PLAYING, game.getState());
         assertEquals(0, game.getScore());
         assertEquals(0, game.getTotalClearedLines());
@@ -79,6 +80,7 @@ class SmallBombTest {
         piece.attachItem(bomb, 0, 1);
         GameEngine game = game(board, piece, GameMode.ITEM);
         game.moveDown();
+        game.advanceItemEffect(SmallBomb.FLASH_DURATION_MS);
         assertEquals(GameState.PLAYING, game.getState());
         assertTrue(game.getClearingRows().isEmpty());
         assertEquals(0, game.getScore());
@@ -94,6 +96,7 @@ class SmallBombTest {
         piece.attachItem(bomb, 0, 0); // 폭발은 16~18행, 19행은 유지
         GameEngine game = game(board, piece, GameMode.ITEM);
         game.moveDown();
+        game.advanceItemEffect(SmallBomb.FLASH_DURATION_MS);
         assertEquals(GameState.CLEARING, game.getState());
         assertEquals(List.of(19), game.getClearingRows());
         assertEquals(0, board.getCell(17, 3));
@@ -115,6 +118,7 @@ class SmallBombTest {
         assertEquals(0, board.getCell(18, 3));
         game.resume();
         game.moveDown();
+        game.advanceItemEffect(SmallBomb.FLASH_DURATION_MS);
         assertNull(board.getCellType(18, 3));
 
         Board blocked = new Board(); blocked.setCell(18, 3, 1);
@@ -189,6 +193,7 @@ class SmallBombTest {
         GameEngine game = game(board, piece, GameMode.ITEM);
         assertEquals(16, game.hardDrop());
         assertEquals(1600, game.getScore());
+        game.advanceItemEffect(SmallBomb.FLASH_DURATION_MS);
         assertEquals(0, board.getCell(19, 4));
         assertEquals(1, board.getCell(17, 3));
         assertEquals(0, board.getCell(18, 3));

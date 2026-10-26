@@ -21,6 +21,16 @@ public final class RandomItemAssigner implements ItemAssigner {
 
     @Override
     public void attachTo(Tetromino piece) {
+        attachFrom(piece, items);
+    }
+
+    @Override
+    public void attachTo(Tetromino piece, com.team10.tetris.game.PenaltyController penalties) {
+        attachFrom(piece, items.stream().filter(item -> item.isAvailable(penalties)).toList());
+    }
+
+    private void attachFrom(Tetromino piece, List<GameItem> eligible) {
+        if (eligible.isEmpty()) throw new IllegalStateException("No eligible items registered");
         int[][] shape = piece.getShape();
         List<int[]> occupied = new ArrayList<>();
         for (int row = 0; row < shape.length; row++) {
@@ -28,7 +38,7 @@ public final class RandomItemAssigner implements ItemAssigner {
                 if (shape[row][col] != 0) occupied.add(new int[] {row, col});
             }
         }
-        GameItem item = items.get(random.nextInt(items.size()));
+        GameItem item = eligible.get(random.nextInt(eligible.size()));
         int[] cell = occupied.get(random.nextInt(occupied.size()));
         piece.attachItem(item, cell[0], cell[1]);
     }
