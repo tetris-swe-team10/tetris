@@ -64,12 +64,12 @@ class BlockPaletteTest {
 
     @Test
     void colorBlindModeUsesDesignColors() {
-        assertColor("#56B4E9", BlockPalette.COLOR_BLIND, TetrominoType.I);
+        assertColor("#B3E5FC", BlockPalette.COLOR_BLIND, TetrominoType.I);
         assertColor("#F0E442", BlockPalette.COLOR_BLIND, TetrominoType.O);
         assertColor("#CC79A7", BlockPalette.COLOR_BLIND, TetrominoType.T);
         assertColor("#009E73", BlockPalette.COLOR_BLIND, TetrominoType.S);
         assertColor("#D55E00", BlockPalette.COLOR_BLIND, TetrominoType.Z);
-        assertColor("#0072B2", BlockPalette.COLOR_BLIND, TetrominoType.J);
+        assertColor("#006BB4", BlockPalette.COLOR_BLIND, TetrominoType.J);
         assertColor("#E69F00", BlockPalette.COLOR_BLIND, TetrominoType.L);
     }
 
