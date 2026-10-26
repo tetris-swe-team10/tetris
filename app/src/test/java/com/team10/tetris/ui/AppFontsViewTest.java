@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import java.util.Map;
@@ -30,12 +31,13 @@ class AppFontsViewTest {
                 root.applyCss();
                 Label title = (Label) root.lookup(".title");
                 Label guide = (Label) root.lookup(".guide");
-                assertEquals("Noto Sans KR", AppFonts.bold(18).getFamily(), "Registered font lookup");
+                Font canvasBold = AppFonts.bold(18);
+                assertEquals("Noto Sans KR", canvasBold.getFamily(), "Canvas font family");
+                assertEquals("Bold", canvasBold.getStyle(), "Canvas font weight");
                 assertEquals("Noto Sans KR", title.getFont().getFamily(), title.getStyle());
                 assertEquals("Bold", title.getFont().getStyle());
                 assertEquals("Noto Sans KR", guide.getFont().getFamily());
                 assertEquals("Regular", guide.getFont().getStyle());
-                assertEquals("Noto Sans KR", AppFonts.bold(18).getFamily());
                 assertNotNull(AppFonts.class.getResource("/com/team10/tetris/fonts/OFL.txt"));
                 scene.setRoot(new StackPane());
             } catch (Throwable error) { failure.set(error); }
