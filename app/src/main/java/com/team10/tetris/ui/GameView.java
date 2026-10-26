@@ -49,6 +49,7 @@ public class GameView extends BorderPane {
     private final Label scoreLabel = new Label();
     private final Label linesLabel = new Label();
     private final Label statusLabel = new Label();
+    private final Label penaltyLabel = new Label();
     private final Label itemLabel = new Label();
 
     private final Button pauseButton = new Button("일시정지");
@@ -59,6 +60,7 @@ public class GameView extends BorderPane {
     private long lastUpdateNanos;
 
     private boolean settingsOpen = false;
+    private GameSettings gameSettings;
     private boolean gameOverNotified = false;
 
     private BlockPalette palette = BlockPalette.NORMAL;
@@ -79,6 +81,8 @@ public class GameView extends BorderPane {
     public GameView(GameEngine engine, GameSettings settings) {
         this(engine);
 
+        this.gameSettings = settings;
+        engine.configureDemoItems(settings.isDemoMode(), settings.getDemoItemLines());
         setColorBlindMode(settings.isColorBlindMode());
         settings.colorBlindModeProperty().addListener(
                 new WeakChangeListener<>(colorBlindModeListener));
@@ -104,10 +108,12 @@ public class GameView extends BorderPane {
                 new Label("NEXT"),
                 nextCanvas,
                 itemLabel,
+                penaltyLabel,
                 statusLabel,
                 pauseButton,
                 settingsButton);
 
+        rightPanel.setSpacing(10);
         rightPanel.setAlignment(Pos.TOP_CENTER);
         rightPanel.setPadding(new Insets(20));
         rightPanel.setPrefWidth(180);
@@ -260,6 +266,9 @@ public class GameView extends BorderPane {
 
     // 설정 화면 담당자가 돌아가기 버튼에서 호출
     public void returnFromSettings() {
+        if (gameSettings != null) {
+            engine.configureDemoItems(gameSettings.isDemoMode(), gameSettings.getDemoItemLines());
+        }
         settingsOpen = false;
         if (!engine.isGameOver()) {
             controller.resume();
@@ -290,6 +299,8 @@ public class GameView extends BorderPane {
         snapshot = controller.snapshot();
         drawBoard();
         drawNextBlock();
+        penaltyLabel.setText(snapshot.blackoutActive()
+                ? "B 암전 · 현재 블록 착지까지" : "");
 
         scoreLabel.setText(String.valueOf(snapshot.score()));
         linesLabel.setText(
@@ -323,13 +334,35 @@ public class GameView extends BorderPane {
     private void drawBoard() {
         GraphicsContext gc = boardCanvas.getGraphicsContext2D();
 
-        gc.setFill(Color.web("#060B16"));
+        gc.setFill(Color.web(snapshot.blackoutActive() ? "#010205" : "#060B16"));
         gc.fillRect(
                 0,
                 0,
                 boardCanvas.getWidth(),
                 boardCanvas.getHeight());
 
+        // 고정 블록은 조작 블록의 실제 점유 영역 중심에서 지름 4칸만 보인다.
+        gc.save();
+        if (snapshot.blackoutActive() && snapshot.currentBlock() != null) {
+            PieceSnapshot focus = snapshot.currentBlock();
+            int minRow = Integer.MAX_VALUE, maxRow = -1, minCol = Integer.MAX_VALUE, maxCol = -1;
+            for (int r = 0; r < focus.shape().size(); r++) {
+                for (int c = 0; c < focus.shape().get(r).size(); c++) {
+                    if (focus.shape().get(r).get(c) != 0) {
+                        minRow = Math.min(minRow, r); maxRow = Math.max(maxRow, r);
+                        minCol = Math.min(minCol, c); maxCol = Math.max(maxCol, c);
+                    }
+                }
+            }
+            double cx = (focus.col() + (minCol + maxCol + 1) / 2.0) * CELL_SIZE;
+            double cy = (focus.row() + (minRow + maxRow + 1) / 2.0) * CELL_SIZE;
+            gc.beginPath();
+            gc.arc(cx, cy, 2 * CELL_SIZE, 2 * CELL_SIZE, 0, 360);
+            gc.closePath();
+            gc.clip();
+            gc.setFill(Color.web("#101D30"));
+            gc.fillRect(0, 0, boardCanvas.getWidth(), boardCanvas.getHeight());
+        }
         // 고정된 블록
         for (int row = 0; row < Board.HEIGHT; row++) {
             for (int col = 0; col < Board.WIDTH; col++) {
@@ -342,6 +375,8 @@ public class GameView extends BorderPane {
                 }
             }
         }
+
+        gc.restore();
 
         // 현재 블록
         if (snapshot.currentBlock() != null) {

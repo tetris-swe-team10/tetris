@@ -39,6 +39,10 @@ public final class SettingsPanel extends VBox {
         setMinWidth(0);
         setMinHeight(VBox.USE_PREF_SIZE);
 
+        VBox demoItems = createDemoItemSection();
+        demoItems.setVisible(settings.isDemoMode());
+        demoItems.setManaged(settings.isDemoMode());
+
         getChildren().addAll(
                 createDropSpeedSection(),
                 new Separator(),
@@ -53,11 +57,41 @@ public final class SettingsPanel extends VBox {
                         settings::setColorBlindMode),
                 createToggleSection(
                         "데모 모드",
-                        "게임 동작을 빠르게 확인하기 위한 상태를 저장합니다.",
+                        "ON이면 아래 지정한 줄 간격으로 아이템을 지급합니다.",
                         settings.isDemoMode(),
-                        settings::setDemoMode),
+                        enabled -> {
+                            settings.setDemoMode(enabled);
+                            demoItems.setVisible(enabled);
+                            demoItems.setManaged(enabled);
+                        }),
+                demoItems,
                 new Separator(),
                 createScoreSection());
+    }
+
+    private VBox createDemoItemSection() {
+        VBox section = createSection("데모 아이템 지급 간격",
+                "데모 ON · 아이템 모드에서만 적용됩니다. 변경 후 새로 지우는 줄부터 계산합니다.");
+        Label value = new Label(settings.getDemoItemLines() + "줄마다");
+        value.getStyleClass().add("settings-section-title");
+        Button less = new Button("−");
+        Button more = new Button("+");
+        less.setId("demo-item-lines-less");
+        more.setId("demo-item-lines-more");
+        less.setAccessibleText("아이템 지급 간격 줄이기");
+        more.setAccessibleText("아이템 지급 간격 늘리기");
+        less.setOnAction(event -> {
+            settings.setDemoItemLines(Math.max(1, settings.getDemoItemLines() - 1));
+            value.setText(settings.getDemoItemLines() + "줄마다");
+        });
+        more.setOnAction(event -> {
+            settings.setDemoItemLines(Math.min(100, settings.getDemoItemLines() + 1));
+            value.setText(settings.getDemoItemLines() + "줄마다");
+        });
+        HBox row = new HBox(12, less, value, more);
+        row.setAlignment(Pos.CENTER_LEFT);
+        section.getChildren().add(row);
+        return section;
     }
 
     private VBox createDropSpeedSection() {
