@@ -38,6 +38,9 @@ final class SettingsNavigation {
         });
         root.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.isAltDown() || event.isControlDown() || event.isMetaDown()) return;
+            controls.clear();
+            collect(content, controls);
+            if (root.getScene() == null) return;
             List<Control> available = controls.stream()
                     .filter(control -> !control.isDisabled() && isVisible(control)).toList();
             if (available.isEmpty()) return;

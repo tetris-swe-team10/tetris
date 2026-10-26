@@ -62,6 +62,8 @@ class SettingsInteractionTest {
             assertInstanceOf(ComboBox.class,stage.getScene().getFocusOwner());
             key(root,KeyCode.LEFT);
             assertEquals(DisplayMode.WINDOWED,settings.getDisplayMode());
+            key(root,KeyCode.DOWN);
+            assertEquals("키 변경", ((ButtonBase)stage.getScene().getFocusOwner()).getText());
             key(root,KeyCode.DOWN);key(root,KeyCode.ENTER);
             assertTrue(settings.isColorBlindMode());
             assertTrue(new SettingsManager(temp.resolve("settings.properties")).loadColorBlindMode());

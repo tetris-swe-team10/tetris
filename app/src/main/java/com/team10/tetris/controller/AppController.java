@@ -61,6 +61,7 @@ public final class AppController {
         stage.setMinHeight(560);
         stage.setScene(scene);
         stage.show();
+        applyDisplayMode(settings.getDisplayMode());
         startScreen.requestMenuFocus();
     }
 
@@ -139,8 +140,11 @@ public final class AppController {
     }
 
     private void applyDisplayMode(DisplayMode mode) {
+        stage.setFullScreenExitHint("");
+        stage.setFullScreenExitKeyCombination(javafx.scene.input.KeyCombination.NO_MATCH);
         stage.setFullScreen(mode == DisplayMode.FULL_SCREEN);
         if (mode == DisplayMode.FULL_SCREEN) return;
+        stage.setMinWidth(mode == DisplayMode.PORTRAIT ? 600 : 800);
         stage.setWidth(mode == DisplayMode.PORTRAIT ? 640 : WINDOW_WIDTH);
         stage.setHeight(mode == DisplayMode.PORTRAIT ? 900 : WINDOW_HEIGHT);
         stage.centerOnScreen();

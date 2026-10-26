@@ -48,12 +48,7 @@ public final class PauseSettingsPane extends StackPane {
         mainMenuButton.getStyleClass().add("secondary-button");
         mainMenuButton.setOnAction(event -> onMainMenu.run());
 
-        HBox actions = new HBox(10, resumeButton, mainMenuButton);
-        actions.getStyleClass().add("settings-actions");
-        resumeButton.setMaxWidth(Double.MAX_VALUE);
-        mainMenuButton.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(resumeButton, javafx.scene.layout.Priority.ALWAYS);
-        HBox.setHgrow(mainMenuButton, javafx.scene.layout.Priority.ALWAYS);
+        HBox actions = panel.createFooter(resumeButton, mainMenuButton);
 
         VBox content = new VBox(10, eyebrow, title, description, panel, actions);
         content.getStyleClass().add("pause-settings-dialog");
