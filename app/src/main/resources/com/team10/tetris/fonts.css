@@ -1,0 +1,4 @@
+/* Apply directly to text controls so local font-size/weight styles keep this family. */
+* {
+    -fx-font-family: "Noto Sans KR";
+}

@@ -32,6 +32,7 @@ public final class StartScreen extends BorderPane {
     public StartScreen(
             Map<StartMenuAction, Runnable> actionHandlers,
             MenuKeyBindings keyBindings) {
+        com.team10.tetris.ui.AppFonts.apply(this);
         this.actionHandlers = Map.copyOf(Objects.requireNonNull(actionHandlers));
         this.keyBindings = Objects.requireNonNull(keyBindings);
 
@@ -76,13 +77,13 @@ public final class StartScreen extends BorderPane {
                 double pad = Math.max(20, Math.min(w * .085, 120));
                 double usable = Math.max(0, w - 2 * pad);
                 double scale = Math.max(.72, Math.min(1.6, Math.min(w / 960, h / 620)));
-                title.setStyle("-fx-font-size: " + (64 * scale) + "px;");
-                eyebrow.setStyle("-fx-font-size: " + (11 * scale) + "px;");
-                guide.setStyle("-fx-font-size: " + (11 * scale) + "px;");
+                title.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-font-size: " + (64 * scale) + "px;");
+                eyebrow.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-font-size: " + (11 * scale) + "px;");
+                guide.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-font-size: " + (11 * scale) + "px;");
                 menu.setSpacing(10 * scale);
                 content.setSpacing(28 * scale);
                 for (Button button : menuButtons) {
-                    button.setStyle("-fx-font-size: " + (14 * scale) + "px; -fx-min-height: "
+                    button.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-font-size: " + (14 * scale) + "px; -fx-min-height: "
                             + (44 * scale) + "px; -fx-padding: " + (10 * scale) + "px 16px;");
                 }
                 double textWidth = portrait ? usable : usable * .44;

@@ -30,8 +30,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
@@ -98,6 +96,7 @@ public class GameView extends BorderPane {
     }
 
     public GameView(GameEngine engine) {
+        AppFonts.apply(this);
         this.engine = engine;
         controller = new GameController(engine);
 
@@ -122,7 +121,7 @@ public class GameView extends BorderPane {
             button.setMaxWidth(Double.MAX_VALUE);
             button.setFocusTraversable(false);
             HBox.setHgrow(button, Priority.ALWAYS);
-            button.setStyle("-fx-background-color: #111827; -fx-text-fill: #F5F7FB; "
+            button.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-background-color: #111827; -fx-text-fill: #F5F7FB; "
                     + "-fx-border-color: #334155; -fx-border-radius: 6; -fx-background-radius: 6; "
                     + "-fx-font-weight: bold; -fx-padding: 12 16;");
         }
@@ -139,7 +138,7 @@ public class GameView extends BorderPane {
         setCenter(boardCanvas);
         setRight(infoPanel);
         setPadding(new Insets(32));
-        setStyle("-fx-background-color: #030712; -fx-border-color: transparent transparent transparent #7C3AED; -fx-border-width: 0 0 0 5;");
+        setStyle("-fx-font-family: 'Noto Sans KR'; -fx-background-color: #030712; -fx-border-color: transparent transparent transparent #7C3AED; -fx-border-width: 0 0 0 5;");
         resultButton.setOnAction(event -> showCurrentResult());
 
         pauseButton.setFocusTraversable(false);
@@ -314,9 +313,9 @@ public class GameView extends BorderPane {
 
     private static VBox infoCard(String title, javafx.scene.Node value, String accent) {
         Label caption = new Label(title);
-        caption.setStyle("-fx-text-fill: #F5F7FB; -fx-font-size: 12px; -fx-font-weight: bold;");
+        caption.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-text-fill: #F5F7FB; -fx-font-size: 12px; -fx-font-weight: bold;");
         if (value instanceof Label label) {
-            label.setStyle("-fx-text-fill: #F5F7FB; -fx-font-size: 28px; -fx-font-weight: bold;");
+            label.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-text-fill: #F5F7FB; -fx-font-size: 28px; -fx-font-weight: bold;");
         }
         VBox card = new VBox(16, caption, value);
         card.setMinWidth(0);
@@ -332,6 +331,7 @@ public class GameView extends BorderPane {
         controller.pause();
         Alert result = new Alert(Alert.AlertType.INFORMATION,
                 "SCORE  " + engine.getScore() + "\nLINES  " + engine.getTotalClearedLines(), ButtonType.OK);
+        AppFonts.apply(result.getDialogPane());
         result.setTitle("현재 결과");
         result.setHeaderText("현재 게임 기록");
         if (getScene() != null && getScene().getWindow() != null) result.initOwner(getScene().getWindow());
@@ -369,7 +369,7 @@ public class GameView extends BorderPane {
                 : snapshot.rotationLocked() ? "K 회전 잠금 · 현재 블록" : "");
 
         demoLabel.setWrapText(true);
-        demoLabel.setStyle("-fx-text-fill: #98A2B3; -fx-font-size: 12px;");
+        demoLabel.setStyle("-fx-font-family: 'Noto Sans KR'; -fx-text-fill: #98A2B3; -fx-font-size: 12px;");
         demoLabel.setVisible(engine.isItemDemoEnabled());
         demoLabel.setManaged(engine.isItemDemoEnabled());
         demoLabel.setText("데모 · 1 폭탄 / 2 암전 / 3 회전 잠금\n새 NEXT에 지급 · 벌칙 중에는 해제 후 지급"
@@ -494,8 +494,8 @@ public class GameView extends BorderPane {
             }
         }
 
-        // 격자
-        gc.setStroke(Color.web("#1F2937"));
+        // 어두운 화면에서도 셀 경계를 구분할 수 있도록 밝기를 확보한다.
+        gc.setStroke(Color.web("#344155"));
 
         for (int row = 0; row < Board.HEIGHT; row++) {
             for (int col = 0; col < Board.WIDTH; col++) {
@@ -606,7 +606,7 @@ public class GameView extends BorderPane {
         gc.setLineWidth(1);
         gc.strokeRoundRect(x + inset, y + inset, size - 2 * inset, size - 2 * inset, 4, 4);
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("System", FontWeight.BOLD, size * 0.64));
+        gc.setFont(AppFonts.bold(size * 0.64));
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         gc.fillText(symbol, x + size / 2, y + size / 2, size - 6);

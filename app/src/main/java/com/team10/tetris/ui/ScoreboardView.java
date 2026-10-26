@@ -34,6 +34,7 @@ public final class ScoreboardView extends BorderPane {
     private Runnable onBackRequested = () -> {};
 
     public ScoreboardView(ScoreboardManager manager) {
+        com.team10.tetris.ui.AppFonts.apply(this);
         this.manager = manager;
         getStyleClass().add("scoreboard-screen");
         getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/team10/tetris/scoreboard.css")).toExternalForm());

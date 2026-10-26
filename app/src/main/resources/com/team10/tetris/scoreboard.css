@@ -2,7 +2,7 @@
     -fx-background-color: #030712;
     -fx-border-color: #1f2937 transparent transparent #7c3aed;
     -fx-border-width: 1px 0 0 5px;
-    -fx-font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    -fx-font-family: "Noto Sans KR";
 }
 .scoreboard-title { -fx-text-fill: #f5f7fb; -fx-font-size: 28px; -fx-font-weight: bold; }
 .scoreboard-filters { -fx-text-fill: #98a2b3; }

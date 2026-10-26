@@ -20,6 +20,7 @@ public final class SettingsScreen extends BorderPane {
             Consumer<DisplayMode> onDisplayModeChanged,
             Runnable onScoreReset,
             Runnable onBack) {
+        com.team10.tetris.ui.AppFonts.apply(this);
         Objects.requireNonNull(onBack);
         getStyleClass().addAll("settings-root", "settings-screen");
 
