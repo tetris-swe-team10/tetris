@@ -2,7 +2,7 @@
     -fx-background-color: #0b1220;
     -fx-border-color: #334155 #334155 #334155 #7c3aed;
     -fx-border-width: 1px 1px 1px 4px;
-    -fx-font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    -fx-font-family: "Noto Sans KR";
 }
 .tetris-dialog > .header-panel { -fx-background-color: #0b1220; }
 .tetris-dialog > .header-panel > .label {

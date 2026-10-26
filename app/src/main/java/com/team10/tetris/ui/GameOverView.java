@@ -31,7 +31,7 @@ public class GameOverView extends BorderPane {
     private static final int MAX_NAME_LENGTH = 10;
 
     private static final String FONT_FAMILY =
-            "'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif";
+            "'Noto Sans KR'";
 
     // 시안 색상
     private static final String COLOR_BACKGROUND = "#030712";
@@ -70,6 +70,7 @@ public class GameOverView extends BorderPane {
     private GameConfig config = GameConfig.DEFAULT;
 
     public GameOverView(ScoreboardManager manager) {
+        com.team10.tetris.ui.AppFonts.apply(this);
         this.manager = manager;
 
         setTop(createHeader());

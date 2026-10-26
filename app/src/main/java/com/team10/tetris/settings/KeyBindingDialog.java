@@ -18,6 +18,7 @@ public final class KeyBindingDialog extends Dialog<GameKeyBindings> {
     private GameCommand capturing;
 
     public KeyBindingDialog(Window owner, GameKeyBindings current) {
+        com.team10.tetris.ui.AppFonts.apply(getDialogPane());
         if (owner != null) initOwner(owner);
         setTitle("키 변경");
         getDialogPane().getStylesheets().add(java.util.Objects.requireNonNull(

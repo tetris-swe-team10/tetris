@@ -27,6 +27,7 @@ public final class ModeSelectionScreen extends BorderPane {
     private final Consumer<GameMode> onModeSelected;
 
     public ModeSelectionScreen(Consumer<GameMode> onModeSelected, Runnable onScoreboard, Runnable onBack) {
+        com.team10.tetris.ui.AppFonts.apply(this);
         this.onModeSelected = Objects.requireNonNull(onModeSelected);
         Objects.requireNonNull(onScoreboard);
         Objects.requireNonNull(onBack);

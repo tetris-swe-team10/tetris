@@ -21,6 +21,7 @@ public final class PauseSettingsPane extends StackPane {
             Runnable onScoreReset,
             Runnable onResume,
             Runnable onMainMenu) {
+        com.team10.tetris.ui.AppFonts.apply(this);
         Objects.requireNonNull(onResume);
         Objects.requireNonNull(onMainMenu);
         getStyleClass().addAll("settings-root", "pause-settings-overlay");
