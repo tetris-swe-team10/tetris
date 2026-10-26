@@ -50,6 +50,7 @@ public class GameView extends BorderPane {
     private final Label linesLabel = new Label();
     private final Label statusLabel = new Label();
     private final Label penaltyLabel = new Label();
+    private final Label demoLabel = new Label();
     private final Label itemLabel = new Label();
 
     private final Button pauseButton = new Button("일시정지");
@@ -109,6 +110,7 @@ public class GameView extends BorderPane {
                 nextCanvas,
                 itemLabel,
                 penaltyLabel,
+                demoLabel,
                 statusLabel,
                 pauseButton,
                 settingsButton);
@@ -145,6 +147,9 @@ public class GameView extends BorderPane {
                 return;
             }
             switch (event.getCode()) {
+                case DIGIT1, NUMPAD1 -> engine.requestDemoItem(1);
+                case DIGIT2, NUMPAD2 -> engine.requestDemoItem(2);
+                case DIGIT3, NUMPAD3 -> engine.requestDemoItem(3);
                 case LEFT -> controller.handle(GameCommand.LEFT);
                 case RIGHT -> controller.handle(GameCommand.RIGHT);
                 case DOWN -> controller.handle(GameCommand.DOWN);
@@ -303,6 +308,12 @@ public class GameView extends BorderPane {
                 ? "B 암전 · 현재 블록 착지까지"
                 : snapshot.rotationLocked() ? "K 회전 잠금 · 현재 블록" : "");
 
+        demoLabel.setWrapText(true);
+        demoLabel.setStyle("-fx-text-fill: #98A2B3; -fx-font-size: 12px;");
+        demoLabel.setVisible(engine.isItemDemoEnabled());
+        demoLabel.setManaged(engine.isItemDemoEnabled());
+        demoLabel.setText("데모 · 1 폭탄 / 2 암전 / 3 회전 잠금\n새 NEXT에 지급 · 벌칙 중에는 해제 후 지급"
+                + (engine.demoRequestedSymbol().isEmpty() ? "" : "\n예약: " + engine.demoRequestedSymbol()));
         scoreLabel.setText(String.valueOf(snapshot.score()));
         linesLabel.setText(
                 String.valueOf(snapshot.totalClearedLines()));
