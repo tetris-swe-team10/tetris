@@ -152,6 +152,23 @@ class SettingsAdditionsUiTest {
         });
     }
 
+    @Test void basicSpeedAppliesOnCreationAndSettingsReturnWithoutResettingAcceleration() throws Exception {
+        fx(() -> {
+            settings.setDropSpeed(DropSpeed.FAST);
+            GameEngine game = new GameEngine(new Board(),new Tetromino(TetrominoType.T,0,3),
+                    new GameConfig(GameMode.NORMAL,Difficulty.HARD),
+                    () -> new Tetromino(TetrominoType.O,0,3),new StandardScoringPolicy());
+            game.increaseSpeed();game.increaseSpeed();
+            GameView view = new GameView(game,settings);show(view);
+            assertEquals(510,game.getDropIntervalMs());
+            settings.setDropSpeed(DropSpeed.SLOW);view.returnFromSettings();
+            assertEquals(1010,game.getDropIntervalMs());
+            assertEquals(1010,game.snapshot().dropIntervalMs());
+            settings.setDropSpeed(DropSpeed.NORMAL);view.returnFromSettings();
+            assertEquals(760,game.getDropIntervalMs());
+        });
+    }
+
     @Test void startupAppliesPersistedDisplayMode() throws Exception {
         fx(() -> {
             settings.setDisplayMode(DisplayMode.PORTRAIT);
