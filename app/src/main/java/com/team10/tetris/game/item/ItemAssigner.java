@@ -6,4 +6,8 @@ import com.team10.tetris.game.Tetromino;
 @FunctionalInterface
 public interface ItemAssigner {
     void attachTo(Tetromino piece);
+
+    default void attachTo(Tetromino piece, com.team10.tetris.game.PenaltyController penalties) {
+        attachTo(piece);
+    }
 }

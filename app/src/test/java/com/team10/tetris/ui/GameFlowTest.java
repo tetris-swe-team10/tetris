@@ -34,7 +34,11 @@ class GameFlowTest {
     @TempDir Path temp;
     @BeforeAll static void startJavaFx() throws Exception {
         CountDownLatch started = new CountDownLatch(1);
-        Platform.startup(() -> { Platform.setImplicitExit(false); started.countDown(); });
+        try {
+            Platform.startup(() -> { Platform.setImplicitExit(false); started.countDown(); });
+        } catch (IllegalStateException alreadyStarted) {
+            Platform.runLater(started::countDown);
+        }
         assertTrue(started.await(15, TimeUnit.SECONDS));
     }
     private interface FxTask { void run() throws Exception; }

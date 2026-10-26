@@ -8,7 +8,14 @@ import java.util.List;
 public record GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
         PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
         int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
-        List<List<TetrominoType>> cellTypes) {
+        List<List<TetrominoType>> cellTypes, boolean blackoutActive) {
+    public GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
+            PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
+            int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
+            List<List<TetrominoType>> cellTypes) {
+        this(cells, currentBlock, nextBlock, config, state, score, totalClearedLines,
+                dropIntervalMs, clearingRows, cellTypes, false);
+    }
     public GameSnapshot {
         cells = cells.stream().map(List::copyOf).toList();
         clearingRows = List.copyOf(clearingRows);
