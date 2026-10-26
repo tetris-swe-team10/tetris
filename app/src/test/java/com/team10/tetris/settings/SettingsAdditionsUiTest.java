@@ -159,14 +159,52 @@ class SettingsAdditionsUiTest {
                     new GameConfig(GameMode.NORMAL,Difficulty.HARD),
                     () -> new Tetromino(TetrominoType.O,0,3),new StandardScoringPolicy());
             game.increaseSpeed();game.increaseSpeed();
-            GameView view = new GameView(game,settings);show(view);
+            GameView view = new GameView(game,settings);
+            StackPane host = new StackPane(view);
+            AtomicInteger settingsOpened = new AtomicInteger();
+            view.setOnSettingsRequested(() -> {
+                settingsOpened.incrementAndGet();
+                view.setDisable(true);
+                PauseSettingsPane pane = new PauseSettingsPane(settings, mode -> {}, () -> {}, () -> {
+                    host.getChildren().removeIf(node -> node instanceof PauseSettingsPane);
+                    view.setDisable(false);
+                    view.returnFromSettings();
+                }, () -> {});
+                host.getChildren().add(pane);
+                pane.applyCss();pane.layout();
+            });
+            show(host);
+            assertEquals(GameState.PLAYING,game.getState());
             assertEquals(510,game.getDropIntervalMs());
-            settings.setDropSpeed(DropSpeed.SLOW);view.returnFromSettings();
+
+            key(view,KeyCode.ESCAPE);
+            assertEquals(1,settingsOpened.get());
+            assertEquals(GameState.PAUSED,game.getState());
+            chooseSpeedAndContinue(host,"느리게");
+            assertEquals(GameState.PLAYING,game.getState());
+            assertEquals(1,host.getChildren().size());
             assertEquals(1010,game.getDropIntervalMs());
             assertEquals(1010,game.snapshot().dropIntervalMs());
-            settings.setDropSpeed(DropSpeed.NORMAL);view.returnFromSettings();
+
+            key(view,KeyCode.ESCAPE);
+            assertEquals(2,settingsOpened.get());
+            assertEquals(GameState.PAUSED,game.getState());
+            chooseSpeedAndContinue(host,"보통");
+            assertEquals(GameState.PLAYING,game.getState());
             assertEquals(760,game.getDropIntervalMs());
+            assertEquals(760,game.snapshot().dropIntervalMs());
         });
+    }
+
+    private void chooseSpeedAndContinue(StackPane host,String speedLabel) {
+        PauseSettingsPane pane = (PauseSettingsPane)host.getChildren().stream()
+                .filter(node -> node instanceof PauseSettingsPane).findFirst().orElseThrow();
+        pane.lookupAll(".toggle-button").stream()
+                .filter(node -> node instanceof ToggleButton button && button.getText().equals(speedLabel))
+                .map(node -> (ToggleButton)node).findFirst().orElseThrow().fire();
+        pane.lookupAll(".button").stream()
+                .filter(node -> node instanceof Button button && button.getText().equals("게임 계속"))
+                .map(node -> (Button)node).findFirst().orElseThrow().fire();
     }
 
     @Test void startupAppliesPersistedDisplayMode() throws Exception {
