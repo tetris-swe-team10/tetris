@@ -2,13 +2,17 @@ package com.team10.tetris.game;
 import java.util.Arrays;
 import java.util.List;
 public record PieceSnapshot(TetrominoType type, int row, int col, List<List<Integer>> shape,
-        ItemMarker item) {
+                            ItemMarker item) {
     /** 효과 객체 대신 화면에 필요한 값만 복사한다. */
     public record ItemMarker(String symbol, String description, int row, int col) {}
     public PieceSnapshot(TetrominoType type, int row, int col, List<List<Integer>> shape) {
         this(type, row, col, shape, null);
     }
     public PieceSnapshot { shape = shape.stream().map(List::copyOf).toList(); }
+    /** 블록 자체가 아이템(무게추 등)이면 true. 화면은 모든 칸에 아이템 문자를 그린다. */
+    public boolean isItemPiece() {
+        return type == null && item != null;
+    }
     public static PieceSnapshot of(Tetromino piece) {
         var attached = piece.getItem();
         ItemMarker marker = attached == null ? null : new ItemMarker(attached.item().symbol(),
