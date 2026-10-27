@@ -2,6 +2,12 @@
 
 Java21 / JavaFX21 / Gradle 기반 소프트웨어공학 팀 프로젝트.
 
+Windows 11 x64 배포 ZIP 생성: `./gradlew.bat :app:packageWindowsZip`
+
+결과: `app/build/distributions/Tetris-Windows-x64.zip`. 전체를 압축 해제한 후 `Tetris/Tetris.exe`를 실행합니다.
+아이콘과 전용 Java 21 런타임이 포함되므로 받는 사람은 Java를 설치하지 않아도 됩니다.
+패키지 자동 검증: `./gradlew.bat :app:verifyWindowsPackage`. [배포 방법](docs/distribution.md)
+
 ```powershell
 .\gradlew.bat :app:run
 .\gradlew.bat :app:test

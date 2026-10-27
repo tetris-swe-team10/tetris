@@ -77,3 +77,69 @@ tasks.named('jacocoTestReport') {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
+
+// Windows 배포: JDK 21의 jpackage로 Java 런타임을 포함한 실행 폴더를 만든다.
+def packageInput = layout.buildDirectory.dir('package-input')
+def windowsDestination = layout.buildDirectory.dir('native/windows')
+def windowsImage = windowsDestination.map { it.dir('Tetris') }
+def applicationIcon = layout.projectDirectory.file('src/main/resources/com/team10/tetris/icons/tetris.ico')
+def packagingJava = javaToolchains.launcherFor(java.toolchain)
+
+tasks.register('stageWindowsPackage', Sync) {
+    dependsOn tasks.named('jar')
+    from(tasks.named('jar'))
+    from(configurations.runtimeClasspath)
+    into(packageInput)
+}
+
+tasks.register('packageWindows', Exec) {
+    group = 'distribution'
+    description = 'Builds Tetris.exe with its icon, dependencies and a private Java 21 runtime (Windows x64).'
+    dependsOn tasks.named('stageWindowsPackage')
+    inputs.dir(packageInput)
+    inputs.file(applicationIcon)
+    outputs.dir(windowsImage)
+    doFirst {
+        if (!System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
+                || !(System.getProperty('os.arch') in ['amd64', 'x86_64'])) {
+            throw new GradleException('Windows x64에서 실행해 주세요. 다른 OS에서 Windows 패키지를 만들 수 없습니다.')
+        }
+        def jpackage = packagingJava.get().metadata.installationPath.file('bin/jpackage.exe').asFile
+        if (!jpackage.isFile()) throw new GradleException("JDK 21 jpackage를 찾을 수 없습니다: ${jpackage}")
+        def image = windowsImage.get().asFile
+        def expected = new File(layout.buildDirectory.get().asFile, 'native/windows/Tetris').canonicalFile
+        if (image.canonicalFile != expected) throw new GradleException('배포 출력 경로가 예상과 다릅니다.')
+        // 재빌드 때 이 작업이 생성한 이미지 폴더만 교체한다.
+        delete(image)
+        commandLine jpackage.absolutePath,
+                '--type', 'app-image', '--name', 'Tetris', '--app-version', '1.0.0',
+                '--vendor', 'Software Engineering Team 10',
+                '--description', 'Team 10 Tetris',
+                '--input', packageInput.get().asFile.absolutePath,
+                '--dest', windowsDestination.get().asFile.absolutePath,
+                '--main-jar', tasks.named('jar').get().archiveFileName.get(),
+                '--main-class', 'com.team10.tetris.Launcher',
+                '--icon', applicationIcon.asFile.absolutePath,
+                '--add-modules', 'java.base,java.desktop,java.logging,java.xml,jdk.unsupported,jdk.crypto.ec',
+                '--java-options', '-Dfile.encoding=UTF-8'
+    }
+}
+
+tasks.register('packageWindowsZip', Zip) {
+    group = 'distribution'
+    description = 'Creates the portable Windows ZIP; extract the whole Tetris folder before launching Tetris.exe.'
+    dependsOn tasks.named('packageWindows')
+    archiveFileName = 'Tetris-Windows-x64.zip'
+    destinationDirectory = layout.buildDirectory.dir('distributions')
+    from(windowsImage) { into 'Tetris' }
+    from(rootProject.file('packaging/README-Windows.txt')) { into 'Tetris' }
+}
+
+tasks.register('verifyWindowsPackage', Exec) {
+    group = 'verification'
+    description = 'Extracts the ZIP and checks its size, EXE icon, bundled runtime and actual startup.'
+    dependsOn tasks.named('packageWindowsZip')
+    workingDir rootProject.projectDir
+    commandLine 'powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass',
+            '-File', rootProject.file('tools/verify-windows-package.ps1').absolutePath
+}
