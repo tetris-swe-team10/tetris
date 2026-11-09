@@ -1,0 +1,441 @@
+{
+  "imported_on": "2026-11-09",
+  "source_file": "ExportBlock-aaf00280-a557-4650-bbeb-23a2c68bc045.zip",
+  "source_sha256": "f195a47ef8e9ed0e76017c6aeb8fae0a9bef51dbc969d3359a1b1e8b79e63951",
+  "note": "Export snapshot; page status is historical metadata, not current implementation or test evidence.",
+  "files": [
+    {
+      "path": "archive/source-view.csv",
+      "sha256": "32be7702cb0ccfdcfce6a80e45e71f1bdadfe39ca7fc248f80a5f96e23bab3da",
+      "bytes": 823
+    },
+    {
+      "path": "archive/source-index.csv",
+      "sha256": "3d8dbcd6609820dc9577ca137ffe81a99ab1d916c1c87c108f7baf4af908abb7",
+      "bytes": 1680
+    },
+    {
+      "path": "archive/1차 요구사항 분석 ⭐️ 3ddd09ed490a8087b7eed60edfc5e33c.md",
+      "sha256": "5c39d0967e3a8d86e58be8fc5673489fc0bc597c599e355a8d74e13104033c14",
+      "bytes": 1466
+    },
+    {
+      "path": "archive/1차 요구사항 분석 ⭐️/start.png",
+      "sha256": "98eaa514567f269afac8f839bedfe81120583e5a1cca03fc842074dfbee9c1d9",
+      "bytes": 35245
+    },
+    {
+      "path": "archive/1차 요구사항 분석 ⭐️/game.png",
+      "sha256": "ae726617d935cb58ffaa92996f183fb852ce7614d795c4f4d6ed4b0bb3e0ae76",
+      "bytes": 38644
+    },
+    {
+      "path": "archive/1차 요구사항 분석 ⭐️/end.png",
+      "sha256": "e1536b1c095f4af73ec0ac62b22ad906a310f6d5383ae512a73285fa0f11338f",
+      "bytes": 38299
+    },
+    {
+      "path": "archive/제목 없음 3ddd09ed490a80f3a2b2d9ea0d05f8b1.md",
+      "sha256": "e55224877a4a356690aa38299657b9ee8daeff8b5eccbd0920ca171f14e09704",
+      "bytes": 290
+    },
+    {
+      "path": "archive/개발 운영 방식 3dfd09ed490a8025aed5fadfc184ad35.md",
+      "sha256": "fb5ade949f330629af816b97dafc1ec7c1c278946f597b30fe1869edad532952",
+      "bytes": 1153
+    },
+    {
+      "path": "archive/개발 환경 초기 설정 3e1d09ed490a80489253db111eac35ff.md",
+      "sha256": "5670cdce5a23899ed94da9fedbdad38a2ac09c7824ebf3715397d84990975e32",
+      "bytes": 5479
+    },
+    {
+      "path": "archive/feature start-menu 3e2d09ed490a803a9747e710902295e9.md",
+      "sha256": "d845995c41349792aa17215ef56692e75c420c71236dcc6f17e89ab3d3c4258d",
+      "bytes": 1556
+    },
+    {
+      "path": "archive/2026-09-26 개발일지 3e7d09ed490a80a0aae7f2637315d3fb.md",
+      "sha256": "c3393f2cc9cd50b1ff18fcb18b400a14333fd5a37630f15600e60d8a849a3fdd",
+      "bytes": 4220
+    },
+    {
+      "path": "archive/테트리스 게임 조작법 3e9d09ed490a807dafbbebc486827a06.md",
+      "sha256": "caf28c1cea21ef80b3dc2fa6d21c375bc47316aa8ae5200318312a7d2aa74623",
+      "bytes": 1611
+    },
+    {
+      "path": "archive/테트리스 개발 현황 및 다음 작업 공유 (2026 10 02 기준) 3edd09ed490a8079aedbfbedf16f651f.md",
+      "sha256": "7b0e3c237c6ab7ab7fbd85fe6d4e77993904f10c95bfda2373ea89234cf97179",
+      "bytes": 7525
+    },
+    {
+      "path": "archive/Agile Planning (토론과제) 3efd09ed490a8002b7e6c6fe5a8bbfff.md",
+      "sha256": "299bc5bdcdf8d6004497f6d5f182b008631e5d64bdd5f086a0655281f3d73afc",
+      "bytes": 3765
+    },
+    {
+      "path": "archive/feature colorblind-mode 3efd09ed490a80519a82e9eee34a8dc2.md",
+      "sha256": "625e71ba0a7a9bbbe306793dcf04a36c7a8f78bd43ce11220c9a1d59acd0db73",
+      "bytes": 6324
+    },
+    {
+      "path": "archive/색맹 모드 디자인 설계 3efd09ed490a808d9959e3197321d726.md",
+      "sha256": "755a1b80305aa415907cc988bf788ea9fa32ec86083c637281d782cdf9ce3bc1",
+      "bytes": 1711
+    },
+    {
+      "path": "archive/색맹 모드 디자인 설계/image.png",
+      "sha256": "9f151be2e9b82583a850c77d7c25e4ca26e0f4cec761f53dc9e733d240f05741",
+      "bytes": 53893
+    },
+    {
+      "path": "archive/색맹 모드 디자인 설계/스크린샷_2026-10-04_22.22.33.png",
+      "sha256": "ac949654913459ff33cdf18f4efe58544aa6c69a9cbb3451a0f61b4726786945",
+      "bytes": 95559
+    },
+    {
+      "path": "archive/색맹 모드 디자인 설계/스크린샷_2026-10-04_22.22.41.png",
+      "sha256": "28a85a9f14a6429f06dd3f73dc8e92308f237200effc46e0c66b4b91ea968d6b",
+      "bytes": 59989
+    },
+    {
+      "path": "archive/Agile Planning 3efd09ed490a80e7a877f9dba3c9e2a9.md",
+      "sha256": "12fe260a73c59ce105fdc6fa4c9e55f1250f968465bc696fbe5659cc693595ad",
+      "bytes": 3325
+    },
+    {
+      "path": "archive/Agile Planning 3f0d09ed490a80f08708f7069ad7e702.md",
+      "sha256": "7735909d0d2723673c31e45748bbc7e7eefda1b339dbe2cf81b9c1736b914404",
+      "bytes": 4595
+    },
+    {
+      "path": "archive/2차 계획 3f2d09ed490a80f4a94ac1b7bdbea17a.md",
+      "sha256": "92b63f8291b3f4d04cfd9f3706265e67841d7ea5e7b07239798cd87cb0851cc3",
+      "bytes": 500
+    },
+    {
+      "path": "archive/2차 요구사항 분석 ⭐️ 3f3d09ed490a804aa726ec98450dd361.md",
+      "sha256": "64c9020426680a33796083e1a20c9ee6e13131a93a3e5aed5616e312fe033360",
+      "bytes": 29996
+    },
+    {
+      "path": "archive/Application of Architectural Patterns 3f3d09ed490a8053a0e4c7cdf5e0e720.md",
+      "sha256": "e779b4925c2ece929ca391725c1cbf55b2f8159a12c6cefee58174b0a16e6cbb",
+      "bytes": 2420
+    },
+    {
+      "path": "archive/색맹 모드 main으로 merge 3f4d09ed490a80939606c61f4303407d.md",
+      "sha256": "0d3356acf9cb76f2601d4ee3f6ee2958b7535e3f5b1cca99fe6c0fe7185efdb8",
+      "bytes": 4141
+    },
+    {
+      "path": "archive/아이템 모드 아이디어 3f4d09ed490a80b4852ac8b388068740.md",
+      "sha256": "1ce6ca7d681e67fc96912d8f6ce34a6df054b901c01fca04eb32ee6c6378b6b6",
+      "bytes": 1086
+    },
+    {
+      "path": "archive/feature scoring-difficulty 3f4d09ed490a80cf950fcff36ffe3aeb.md",
+      "sha256": "9cc417cbf14f9ef2e9fd02bd2f7db5a34193792c6eb4b2ae36b6a119da5dc1b5",
+      "bytes": 6738
+    },
+    {
+      "path": "archive/아이템 모드 아이디어 3f5d09ed490a80d48920d3aa57ba4788.md",
+      "sha256": "6602761e64e66c779d78d92988d7a09e26c0801e5f3792d42c5288345e1b1db3",
+      "bytes": 1827
+    },
+    {
+      "path": "archive/아이템 모드 아이디어 3f6d09ed490a8008aab4c89c91fe3bf2.md",
+      "sha256": "fe97892cc7157d396f3d7ca401d29cee0b3c3942d29d8c4ea25366f6534cceaf",
+      "bytes": 2753
+    },
+    {
+      "path": "archive/현재 이슈 + 구현할 것 3f6d09ed490a804ab69ce5559863d61d.md",
+      "sha256": "92039d6a7f42be3309b4b8cf2f1021ba63b1a49e070eeadb46e349d99164aa01",
+      "bytes": 647
+    },
+    {
+      "path": "archive/[10팀] Application of Architectural Patterns 3f6d09ed490a806296c3e6e8748d9495.md",
+      "sha256": "41f2c531262bfb423c10549e50258c85f763a658e28c034f61f4b019b35e3715",
+      "bytes": 5053
+    },
+    {
+      "path": "archive/[10팀] Application of Architectural Patterns/image.png",
+      "sha256": "1566d4643c90d9b8d43a4595691d44e292df97ef91add9409eceb286c1ec1ac2",
+      "bytes": 415016
+    },
+    {
+      "path": "archive/feature setting 3f6d09ed490a80f89e1fe33b93cc1664.md",
+      "sha256": "f7eb17b2a9a8720646b4ac30be76a71774f41bd0e2d6d05135eb478b5af92df8",
+      "bytes": 5260
+    },
+    {
+      "path": "archive/명세서 중간 점검 405d09ed490a803298c1f0fecbba7123.md",
+      "sha256": "26034a683c199051e0af4d515c4eae392cd40018d0653d59dd7cc6ddce99dc75",
+      "bytes": 2309
+    },
+    {
+      "path": "archive/feature itme_rotationLock 405d09ed490a8090b830c29aa8a5314f.md",
+      "sha256": "9f962771a15979af5740ed0a6ff71ac8012fbcc23255d244f3ac45be8e59bef1",
+      "bytes": 673
+    },
+    {
+      "path": "archive/feature line-clear-item 405d09ed490a80d7b6b1d9346a5c1960.md",
+      "sha256": "3835177f63b5223c9c37b548922ee5dd12541bdada78dd6324b188ec4f9a4459",
+      "bytes": 2339
+    },
+    {
+      "path": "archive/feature item_blackout 405d09ed490a80f39b83d480c6b743d5.md",
+      "sha256": "4f9a00d3e1d8d722ee8238ebaf477bc3162a0b0ecf363637bf85092ab5ca421d",
+      "bytes": 675
+    },
+    {
+      "path": "archive/item 명세서 406d09ed490a80d09f20d876d84eb3b5.md",
+      "sha256": "b8cd195174e957445320019da294d876ecd0744f339dbce266a3ec54b36151b7",
+      "bytes": 3307
+    }
+  ],
+  "pages": [
+    {
+      "title": "1차 요구사항 분석 ⭐️",
+      "path": "archive/1차 요구사항 분석 ⭐️ 3ddd09ed490a8087b7eed60edfc5e33c.md",
+      "id": "3ddd09ed490a8087b7eed60edfc5e33c",
+      "생성자": "박서현",
+      "우선순위": "높음",
+      "카테고리": "분석",
+      "상태": "완료"
+    },
+    {
+      "title": "제목 없음",
+      "path": "archive/제목 없음 3ddd09ed490a80f3a2b2d9ea0d05f8b1.md",
+      "id": "3ddd09ed490a80f3a2b2d9ea0d05f8b1",
+      "생성자": "박서현",
+      "상태": "시작 전"
+    },
+    {
+      "title": "개발 운영 방식",
+      "path": "archive/개발 운영 방식 3dfd09ed490a8025aed5fadfc184ad35.md",
+      "id": "3dfd09ed490a8025aed5fadfc184ad35",
+      "생성자": "박서현",
+      "우선순위": "높음",
+      "상태": "진행 중"
+    },
+    {
+      "title": "개발 환경 초기 설정",
+      "path": "archive/개발 환경 초기 설정 3e1d09ed490a80489253db111eac35ff.md",
+      "id": "3e1d09ed490a80489253db111eac35ff",
+      "생성자": "정혜원",
+      "우선순위": "높음",
+      "상태": "완료"
+    },
+    {
+      "title": "feature/start-menu",
+      "path": "archive/feature start-menu 3e2d09ed490a803a9747e710902295e9.md",
+      "id": "3e2d09ed490a803a9747e710902295e9",
+      "생성자": "박서현",
+      "우선순위": "보통",
+      "카테고리": "기능",
+      "상태": "완료"
+    },
+    {
+      "title": "2026-09-26 개발일지",
+      "path": "archive/2026-09-26 개발일지 3e7d09ed490a80a0aae7f2637315d3fb.md",
+      "id": "3e7d09ed490a80a0aae7f2637315d3fb",
+      "생성자": "정수연",
+      "우선순위": "보통",
+      "카테고리": "로그",
+      "상태": "완료"
+    },
+    {
+      "title": "테트리스 게임 조작법",
+      "path": "archive/테트리스 게임 조작법 3e9d09ed490a807dafbbebc486827a06.md",
+      "id": "3e9d09ed490a807dafbbebc486827a06",
+      "생성자": "정혜원",
+      "상태": "완료"
+    },
+    {
+      "title": "테트리스 개발 현황 및 다음 작업 공유 (2026.10.02 기준)",
+      "path": "archive/테트리스 개발 현황 및 다음 작업 공유 (2026 10 02 기준) 3edd09ed490a8079aedbfbedf16f651f.md",
+      "id": "3edd09ed490a8079aedbfbedf16f651f",
+      "생성자": "정혜원",
+      "우선순위": "높음",
+      "카테고리": "분석",
+      "상태": "진행 중"
+    },
+    {
+      "title": "Agile Planning (토론과제)",
+      "path": "archive/Agile Planning (토론과제) 3efd09ed490a8002b7e6c6fe5a8bbfff.md",
+      "id": "3efd09ed490a8002b7e6c6fe5a8bbfff",
+      "생성자": "박서현",
+      "카테고리": "과제",
+      "상태": "완료"
+    },
+    {
+      "title": "feature/colorblind-mode",
+      "path": "archive/feature colorblind-mode 3efd09ed490a80519a82e9eee34a8dc2.md",
+      "id": "3efd09ed490a80519a82e9eee34a8dc2",
+      "생성자": "정수연",
+      "카테고리": "기능",
+      "상태": "진행 중"
+    },
+    {
+      "title": "색맹 모드 디자인 설계",
+      "path": "archive/색맹 모드 디자인 설계 3efd09ed490a808d9959e3197321d726.md",
+      "id": "3efd09ed490a808d9959e3197321d726",
+      "생성자": "박서현",
+      "우선순위": "보통",
+      "카테고리": "분석",
+      "상태": "완료"
+    },
+    {
+      "title": "Agile Planning",
+      "path": "archive/Agile Planning 3efd09ed490a80e7a877f9dba3c9e2a9.md",
+      "id": "3efd09ed490a80e7a877f9dba3c9e2a9",
+      "생성자": "정수연",
+      "카테고리": "과제",
+      "상태": "완료"
+    },
+    {
+      "title": "Agile Planning",
+      "path": "archive/Agile Planning 3f0d09ed490a80f08708f7069ad7e702.md",
+      "id": "3f0d09ed490a80f08708f7069ad7e702",
+      "생성자": "정혜원",
+      "카테고리": "과제",
+      "상태": "완료"
+    },
+    {
+      "title": "2차 계획",
+      "path": "archive/2차 계획 3f2d09ed490a80f4a94ac1b7bdbea17a.md",
+      "id": "3f2d09ed490a80f4a94ac1b7bdbea17a",
+      "생성자": "박서현",
+      "우선순위": "높음",
+      "카테고리": "분석",
+      "상태": "진행 중"
+    },
+    {
+      "title": "2차 요구사항 분석 ⭐️",
+      "path": "archive/2차 요구사항 분석 ⭐️ 3f3d09ed490a804aa726ec98450dd361.md",
+      "id": "3f3d09ed490a804aa726ec98450dd361",
+      "생성자": "박서현",
+      "우선순위": "높음",
+      "카테고리": "분석",
+      "상태": "진행 중"
+    },
+    {
+      "title": "Application of Architectural Patterns",
+      "path": "archive/Application of Architectural Patterns 3f3d09ed490a8053a0e4c7cdf5e0e720.md",
+      "id": "3f3d09ed490a8053a0e4c7cdf5e0e720",
+      "생성자": "박서현",
+      "카테고리": "과제",
+      "상태": "완료"
+    },
+    {
+      "title": "색맹 모드 main으로 merge",
+      "path": "archive/색맹 모드 main으로 merge 3f4d09ed490a80939606c61f4303407d.md",
+      "id": "3f4d09ed490a80939606c61f4303407d",
+      "생성자": "정수연",
+      "카테고리": "로그",
+      "상태": "완료"
+    },
+    {
+      "title": "아이템 모드 아이디어",
+      "path": "archive/아이템 모드 아이디어 3f4d09ed490a80b4852ac8b388068740.md",
+      "id": "3f4d09ed490a80b4852ac8b388068740",
+      "생성자": "정수연",
+      "카테고리": "아이디어",
+      "상태": "완료"
+    },
+    {
+      "title": "feature/scoring-difficulty",
+      "path": "archive/feature scoring-difficulty 3f4d09ed490a80cf950fcff36ffe3aeb.md",
+      "id": "3f4d09ed490a80cf950fcff36ffe3aeb",
+      "생성자": "정혜원",
+      "우선순위": "보통",
+      "카테고리": "기능",
+      "상태": "완료"
+    },
+    {
+      "title": "아이템 모드 아이디어",
+      "path": "archive/아이템 모드 아이디어 3f5d09ed490a80d48920d3aa57ba4788.md",
+      "id": "3f5d09ed490a80d48920d3aa57ba4788",
+      "생성자": "박서현",
+      "카테고리": "아이디어",
+      "상태": "완료"
+    },
+    {
+      "title": "아이템 모드 아이디어",
+      "path": "archive/아이템 모드 아이디어 3f6d09ed490a8008aab4c89c91fe3bf2.md",
+      "id": "3f6d09ed490a8008aab4c89c91fe3bf2",
+      "생성자": "정혜원",
+      "카테고리": "아이디어",
+      "상태": "완료"
+    },
+    {
+      "title": "현재 이슈 + 구현할 것",
+      "path": "archive/현재 이슈 + 구현할 것 3f6d09ed490a804ab69ce5559863d61d.md",
+      "id": "3f6d09ed490a804ab69ce5559863d61d",
+      "생성자": "박서현",
+      "우선순위": "높음",
+      "카테고리": "이슈",
+      "상태": "진행 중"
+    },
+    {
+      "title": "[10팀] Application of Architectural Patterns",
+      "path": "archive/[10팀] Application of Architectural Patterns 3f6d09ed490a806296c3e6e8748d9495.md",
+      "id": "3f6d09ed490a806296c3e6e8748d9495",
+      "생성자": "정혜원",
+      "카테고리": "과제",
+      "상태": "완료"
+    },
+    {
+      "title": "feature/setting",
+      "path": "archive/feature setting 3f6d09ed490a80f89e1fe33b93cc1664.md",
+      "id": "3f6d09ed490a80f89e1fe33b93cc1664",
+      "생성자": "박서현",
+      "우선순위": "보통",
+      "카테고리": "기능",
+      "상태": "완료"
+    },
+    {
+      "title": "명세서 중간 점검",
+      "path": "archive/명세서 중간 점검 405d09ed490a803298c1f0fecbba7123.md",
+      "id": "405d09ed490a803298c1f0fecbba7123",
+      "생성자": "정혜원",
+      "우선순위": "높음",
+      "카테고리": "분석",
+      "상태": "진행 중"
+    },
+    {
+      "title": "feature/itme_rotationLock",
+      "path": "archive/feature itme_rotationLock 405d09ed490a8090b830c29aa8a5314f.md",
+      "id": "405d09ed490a8090b830c29aa8a5314f",
+      "생성자": "박서현",
+      "카테고리": "기능",
+      "상태": "완료"
+    },
+    {
+      "title": "feature/line-clear-item",
+      "path": "archive/feature line-clear-item 405d09ed490a80d7b6b1d9346a5c1960.md",
+      "id": "405d09ed490a80d7b6b1d9346a5c1960",
+      "생성자": "정수연",
+      "상태": "시작 전"
+    },
+    {
+      "title": "feature/item_blackout",
+      "path": "archive/feature item_blackout 405d09ed490a80f39b83d480c6b743d5.md",
+      "id": "405d09ed490a80f39b83d480c6b743d5",
+      "생성자": "박서현",
+      "카테고리": "기능",
+      "상태": "완료"
+    },
+    {
+      "title": "item 명세서",
+      "path": "archive/item 명세서 406d09ed490a80d09f20d876d84eb3b5.md",
+      "id": "406d09ed490a80d09f20d876d84eb3b5",
+      "생성자": "박서현",
+      "우선순위": "높음",
+      "카테고리": "분석",
+      "상태": "시작 전"
+    }
+  ]
+}
