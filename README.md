@@ -2,6 +2,9 @@
 
 Java21 / JavaFX21 / Gradle 기반 소프트웨어공학 팀 프로젝트.
 
+프로젝트 관리·AI 작업 기준은 [문서 지도](docs/README.md)에서 시작합니다.
+[AI 지침](docs/ai-guide.md), [품질·평가 근거](docs/quality-and-evaluation.md), [노션 정리·원문](docs/notion/README.md)을 확인할 수 있습니다.
+
 Windows 11 x64 배포 ZIP 생성: `./gradlew.bat :app:packageWindowsZip`
 
 결과: `app/build/distributions/Tetris-Windows-x64.zip`. 전체를 압축 해제한 후 `Tetris/Tetris.exe`를 실행합니다.
