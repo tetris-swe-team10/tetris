@@ -1,0 +1,2 @@
+# Keep imported source bytes and SHA-256 stable across Windows/macOS checkouts.
+archive/** -text
