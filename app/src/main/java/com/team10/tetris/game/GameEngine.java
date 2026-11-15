@@ -9,6 +9,8 @@ import com.team10.tetris.game.item.RotationLock;
 import com.team10.tetris.game.item.LineClearItem;
 import com.team10.tetris.game.item.WeightItem;
 import com.team10.tetris.game.item.WeightPiece;
+import com.team10.tetris.game.versus.AttackLines;
+import com.team10.tetris.game.versus.AttackListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -120,6 +122,31 @@ public class GameEngine {
     public int getTotalClearedLines() { return totalClearedLines; }
     public int getLastClearedLines() { return lastClearedLines; }
     public List<Integer> getClearingRows() { return clearingRows; }
+
+    // ---- 대전(3차) 인터페이스: 구현은 역할 A ----
+    private AttackListener attackListener = AttackListener.NONE;
+
+    /**
+     * 2줄 이상 삭제해 공격 줄이 생기면 호출할 대상을 등록한다.
+     * TODO(역할 A): 줄 삭제 시 마지막 블록 칸을 뺀 공격 줄을 만들어 호출.
+     */
+    public void setAttackListener(AttackListener listener) {
+        attackListener = listener == null ? AttackListener.NONE : listener;
+    }
+
+    /**
+     * 상대에게 받은 공격 줄을 대기열에 넣는다. 다음 블록 생성 전에 보드 아래에 추가된다.
+     * 대기 줄은 최대 10줄이며, 이미 10줄이면 무시, 넘치면 아래쪽을 잘라낸다.
+     * TODO(역할 A): 현재는 아무것도 하지 않는다.
+     */
+    public void receiveAttack(AttackLines lines) {
+        // 껍데기: 역할 A가 구현
+    }
+
+    /** 아직 보드에 들어오지 않은 대기 공격 줄. TODO(역할 A): 현재는 항상 비어 있다. */
+    public AttackLines getPendingAttack() {
+        return AttackLines.EMPTY;
+    }
 
     public GameSnapshot snapshot() {
         List<List<Integer>> cells = new ArrayList<>();

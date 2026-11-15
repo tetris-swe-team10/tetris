@@ -1,10 +1,11 @@
 package com.team10.tetris.game;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 public record PieceSnapshot(TetrominoType type, int row, int col, List<List<Integer>> shape,
-                            ItemMarker item) {
+                            ItemMarker item) implements Serializable {
     /** 효과 객체 대신 화면에 필요한 값만 복사한다. */
-    public record ItemMarker(String symbol, String description, int row, int col) {}
+    public record ItemMarker(String symbol, String description, int row, int col) implements Serializable {}
     public PieceSnapshot(TetrominoType type, int row, int col, List<List<Integer>> shape) {
         this(type, row, col, shape, null);
     }
