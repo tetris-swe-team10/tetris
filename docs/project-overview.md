@@ -1,6 +1,7 @@
 # 프로젝트 개요와 코드 지도
 
-> 확인 기준: main `c68d0fb` · 패키징은 PR #54로 별도 확인 · 정리일: 2026-11-09 · 이번 정리는 정적 확인이며 기능 재실행 결과가 아님
+> 확인 기준: main `c68d0fb` · 정리일: 2026-11-09 · 이번 정리는 정적 확인이며 기능 재실행 결과가 아님
+> 갱신: 2026-11-15 Windows 패키징(PR #54)이 main `e28985d`에 병합되어 배포 관련 문구를 수정함
 
 ## 목적·환경
 
@@ -18,7 +19,7 @@ JavaFX 테트리스에 일반/아이템 모드, 난이도, 기록, 설정, 색�
 
 | 기능 | 코드 |
 | --- | --- |
-| 실행·화면 연결 | `App`, `controller/AppController` (`Launcher`는 패키징 PR #54에 포함) |
+| 실행·화면 연결 | `App`, `Launcher`(배포 EXE 진입점), `controller/AppController` |
 | 시작 메뉴·선택·키 매핑 | `screen/StartScreen`, `MenuSelectionModel`, `input/MenuKeyBindings` |
 | 모드·난이도 선택 | `screen/ModeSelectionScreen`, `AppController.chooseDifficulty()` |
 | 게임 규칙·상태·착지·삭제·점수 반영 | `game/GameEngine`, `GameState`, `GameConfig` |
@@ -59,17 +60,17 @@ JavaFX 테트리스에 일반/아이템 모드, 난이도, 기록, 설정, 색�
 | 낙하 간격 전체에 설정 배율 적용 | 기본 간격과 난이도별 감소량 분리 |
 | E만 등록, B/K/L 미병합, W 미구현 | 로컬 코드에 E/B/K/L/W 등록 경로 존재 |
 | B 3초·K 다음 블록·3% 별도 추첨 | B는 다음 블록 착지까지, K는 자신, 공통 지급 후보에서 선택 |
-| 배포 패키지 없음 | PR #54 브랜치에 `packageWindowsZip`·`verifyWindowsPackage` 존재, main 미병합 |
+| 배포 패키지 없음 | `packageWindowsZip`·`verifyWindowsPackage` main 병합 (PR #54) |
 
 성장 주사·도박 상자·조작 반전·V/G/F는 원문 아이디어로 보존하며 구현된 기능 목록에 넣지 않는다. 법인차량 시스템과 지도 서비스 토론 과제는 테트리스 코드 설계·팀 스프린트와 구분한다.
 
 ## 배포
 
-아래 명령과 배포 문서는 **PR #54의 `feature/windows-package` 브랜치에 있는 구현**이다. main에서는 해당 PR 병합 전까지 사용할 수 없다.
+Windows 패키징은 PR #54로 main에 병합되었다. Windows x64 데스크톱에서만 실행할 수 있다.
 
 ```powershell
 .\gradlew.bat :app:packageWindowsZip
 .\gradlew.bat :app:verifyWindowsPackage
 ```
 
-산출물과 검증 범위는 [PR #54의 배포 문서](https://github.com/tetris-swe-team10/tetris/blob/feature/windows-package/docs/distribution.md)를 참고한다. ZIP 생성·로컬 실행 확인과 GitHub Release 업로드는 다른 작업이며 실제 업로드 전에는 배포 완료라고 적지 않는다.
+산출물과 검증 범위는 [배포 문서](distribution.md)를 참고한다. ZIP 생성·로컬 실행 확인과 GitHub Release 업로드는 다른 작업이며 실제 업로드 전에는 배포 완료라고 적지 않는다.

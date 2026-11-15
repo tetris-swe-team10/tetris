@@ -23,7 +23,7 @@
 | 고스트와 범위 안내선 | [ghost-block.md](ghost-block.md) |
 | 작은 폭탄 E / 줄 삭제 L | [small-bomb.md](small-bomb.md), [line-clear-item.md](line-clear-item.md) |
 | 암전 B / 회전 잠금 K / 무게추 W | [blackout.md](blackout.md), [rotation-lock.md](rotation-lock.md), [weight-item.md](weight-item.md) |
-| 폰트·격자 / Windows 패키징 | [fonts.md](fonts.md), [패키징 PR #54의 배포 문서](https://github.com/tetris-swe-team10/tetris/blob/feature/windows-package/docs/distribution.md) (main 미병합) |
+| 폰트·격자 / Windows 패키징 | [fonts.md](fonts.md), [distribution.md](distribution.md) |
 
 ## 자료를 판단하는 기준
 
