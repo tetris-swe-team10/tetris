@@ -1,4 +1,5 @@
 package com.team10.tetris.game;
+import java.io.Serializable;
 import java.util.List;
 
 import com.team10.tetris.game.versus.AttackLines;
@@ -9,13 +10,17 @@ import com.team10.tetris.game.versus.AttackLines;
  *
  * <p>대전용(3차): garbageCells는 cells와 같은 좌표에서 상대에게 받은 회색 줄 칸이면 true다.
  * 대전이 아니면 빈 목록이다. pendingAttack은 아직 보드에 들어오지 않은 대기 공격 줄이다.
+ *
+ * <p>P2P 전송 계약: 스냅샷과 구성 값은 모두 {@link Serializable}이다. 보내는 쪽은 자기 엔진의
+ * 스냅샷을 변환 없이 메시지에 담고, 받는 쪽은 역직렬화된 스냅샷을 그대로 렌더러에 넘긴다.
+ * 새 필드를 추가할 때도 직렬화 가능한 값만 넣는다.
  */
 public record GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
         PieceSnapshot nextBlock, GameConfig config, GameState state, int score,
         int totalClearedLines, int dropIntervalMs, List<Integer> clearingRows,
         List<List<TetrominoType>> cellTypes, boolean blackoutActive, boolean rotationLocked,
         List<CellPosition> effectCells, boolean effectFlashVisible,
-        List<List<Boolean>> garbageCells, AttackLines pendingAttack) {
+        List<List<Boolean>> garbageCells, AttackLines pendingAttack) implements Serializable {
     /** 대전 정보가 없는 기존 호출용. 회색 칸 없음, 대기 공격 없음. */
     public GameSnapshot(List<List<Integer>> cells, PieceSnapshot currentBlock,
             PieceSnapshot nextBlock, GameConfig config, GameState state, int score,

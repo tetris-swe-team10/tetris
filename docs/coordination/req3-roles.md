@@ -46,6 +46,9 @@
 
 - 인터페이스를 바꿔야 하면 사용하는 역할에게 먼저 알리고 같은 PR에서 함께 수정한다.
 - 상대 구현이 끝나기 전에는 가짜 구현으로 개발한다 (예: C는 가짜 `ConnectionChannel`).
+- 상대 보드 전송: `BoardStateMessage`에 `GameSnapshot`을 변환 없이 담고 받는 쪽은 그대로 `BoardRenderer`에 넘긴다. 공격 줄은 `AttackMessage`. 스냅샷에 새 필드를 넣을 때는 직렬화 가능한 값만 쓴다.
+- 대기실 → 게임 전환: B는 시작 메시지를 처리하는 핸들러 안에서 `P2pGameLauncher.start`를 동기 호출하고, C는 `start`가 끝나기 전에 게임 핸들러를 설치한다. 채널은 메시지를 도착 순서대로 하나씩 전달한다 (`ConnectionChannel` 주석, `P2pContractTest`).
+- 테스트용 가짜 채널: `app/src/test/.../net/FakeConnectionChannel`
 
 ## 맞춰야 하는 시점
 
