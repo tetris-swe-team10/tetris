@@ -19,7 +19,7 @@
 | 설정·키 변경·저장·복구 | `settings/`, `GameKeyBindings` | `SettingsPersistenceTest`, `SettingsAdditionsUiTest`, `GameKeyBindingsTest` | 모델 계산과 실제 화면 반영은 별도 경로 |
 | 화면 크기 대응·사용성 | 화면 layout | `StartScreenLayoutTest`, `ModeSelectionLayoutTest`, `SettingsGameLayoutTest` | 비기능 요구사항과 연결 가능. CPU/RAM 증거로 사용 불가 |
 | 색맹 표시·폰트 일관성 | `BlockPalette`, `AppFonts` | `BlockPaletteTest`, `AppFontsViewTest` | 모든 OS의 동일 렌더링을 보장하는 시험은 아님 |
-| 아이콘·실행 패키지·배포물 용량 | PR #54의 Gradle packaging, `tools/verify-windows-package.ps1` | PR #54 브랜치의 `:app:verifyWindowsPackage` | main 미병합. Windows 데스크톱 필요. 전체 CPU/RAM 최소 사양 검증은 아님 |
+| 아이콘·실행 패키지·배포물 용량 | `app/build.gradle`의 Windows packaging, `tools/verify-windows-package.ps1` | `:app:verifyWindowsPackage` | PR #54로 main 병합. Windows 데스크톱 필요. 전체 CPU/RAM 최소 사양 검증은 아님 |
 | CPU·RAM 최소 사양, 입력 3회/초·1초 미만 표시 | 환경 제한과 측정 계획 필요 | 전용 검증 근거 추가 필요 | 노션 중간 점검에서 미비로 기록. 현재 통과 증거를 이번 작업에서 확인하지 않음 |
 | 이슈·PR·리뷰·기여도 | GitHub와 작업 기록 | PR/Issue/리뷰 URL, 스프린트 기록 | 원격 최신 현황 전수 감사는 이번 범위가 아님 |
 
@@ -65,7 +65,7 @@
 | UI 테스트 HTML / XML | `app/build/reports/tests/uiTest/index.html`, `app/build/test-results/uiTest/` |
 | 전체 LINE HTML / XML | `app/build/reports/jacoco/test/html/index.html`, `app/build/reports/jacoco/test/jacocoTestReport.xml` |
 | UI 확인 PNG | `app/build/ui-smoke/` |
-| Windows 패키지 자동 검증 JSON | PR #54 브랜치에서 생성하는 `app/build/reports/packaging/windows.json` |
+| Windows 패키지 자동 검증 JSON | `:app:verifyWindowsPackage`가 생성하는 `app/build/reports/packaging/windows.json` |
 
 커버리지는 `covered / (covered + missed) × 100`으로 계산하고 분자·분모·대상 코드·제외 범위·커밋·환경·명령·날짜를 같이 기록한다. 과거 노션의 70.00%·70.65%·테스트 개수를 오늘의 결과로 옮기지 않는다. 숫자를 높이려고 GUI나 어려운 코드를 임의로 제외하지 않는다.
 
