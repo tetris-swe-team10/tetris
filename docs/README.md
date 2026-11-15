@@ -11,6 +11,7 @@
 | 평가 항목·테스트·커버리지 증빙 | [품질·평가 관리](quality-and-evaluation.md) |
 | 기존 결정·해석·미결정 사항 | [결정 기록](coordination/decisions.md), [열린 질문](coordination/questions.md) |
 | 팀원 기록·다음 작업·인수인계 | [작업 현황](coordination/status.md) |
+| 3차 대전 모드 역할·담당 범위·인터페이스 | [3차 역할 분담](coordination/req3-roles.md) |
 | 노션 내용 요약·29개 본문·이미지·CSV | [노션 자료 정리](notion/README.md) |
 
 ## 기능별 상세 명세
