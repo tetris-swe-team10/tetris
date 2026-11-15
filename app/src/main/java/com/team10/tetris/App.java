@@ -12,6 +12,8 @@ import javafx.stage.Stage;
 public class App extends Application {
     @Override
     public void start(Stage stage) {
+        stage.getIcons().add(new javafx.scene.image.Image(java.util.Objects.requireNonNull(
+                App.class.getResource("/com/team10/tetris/icons/tetris.png")).toExternalForm()));
         new AppController(stage, new GameSettings(new SettingsManager()),
                 new ScoreboardManager()).start();
     }
