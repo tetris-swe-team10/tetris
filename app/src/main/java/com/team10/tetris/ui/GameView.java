@@ -9,8 +9,6 @@ import com.team10.tetris.game.GameSnapshot;
 import com.team10.tetris.game.GameState;
 import com.team10.tetris.settings.GameSettings;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
@@ -26,7 +24,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.util.Duration;
 
 public class GameView extends BorderPane {
 
@@ -50,9 +47,7 @@ public class GameView extends BorderPane {
     private VBox infoPanel;
     private final Button settingsButton = new Button("설정");
 
-    private final Timeline dropTimer;
-
-    private long lastUpdateNanos;
+    private final GameLoop gameLoop;
 
     private boolean settingsOpen = false;
     private GameSettings gameSettings;
@@ -179,22 +174,17 @@ public class GameView extends BorderPane {
             event.consume();
         });
 
-        dropTimer = new Timeline(
-                new KeyFrame(
-                        Duration.millis(TIMER_STEP_MS),
-                        event -> updateGame()));
-
-        dropTimer.setCycleCount(Timeline.INDEFINITE);
+        gameLoop = new GameLoop(TIMER_STEP_MS, this::updateGame);
 
         sceneProperty().addListener(
                 (observable, oldScene, newScene) -> {
                     if (newScene == null) {
-                        dropTimer.stop();
+                        gameLoop.stop();
                     } else {
-                        lastUpdateNanos = System.nanoTime();
+                        gameLoop.resetClock();
 
                         if (!engine.isGameOver() && !settingsOpen) {
-                            dropTimer.play();
+                            gameLoop.start();
                         }
 
                         Platform.runLater(() -> {
@@ -242,10 +232,7 @@ public class GameView extends BorderPane {
                 };
     }
 
-    private void updateGame() {
-        long now = System.nanoTime();
-        int elapsed = (int) Math.min(Integer.MAX_VALUE, (now - lastUpdateNanos) / 1_000_000L);
-        lastUpdateNanos = now;
+    private void updateGame(int elapsed) {
         controller.advance(elapsed);
         redraw();
         checkGameOver();
@@ -257,9 +244,9 @@ public class GameView extends BorderPane {
         }
 
         settingsOpen = true;
-        dropTimer.stop();
+        gameLoop.stop();
         controller.pause();
-        lastUpdateNanos = System.nanoTime();
+        gameLoop.resetClock();
 
         redraw();
         onSettingsRequested.run();
@@ -274,10 +261,10 @@ public class GameView extends BorderPane {
         settingsOpen = false;
         if (!engine.isGameOver()) {
             controller.resume();
-            if (getScene() != null) dropTimer.play();
+            if (getScene() != null) gameLoop.start();
         }
 
-        lastUpdateNanos = System.nanoTime();
+        gameLoop.resetClock();
         redraw();
 
         Platform.runLater(() -> {
@@ -291,7 +278,7 @@ public class GameView extends BorderPane {
         }
 
         gameOverNotified = true;
-        dropTimer.stop();
+        gameLoop.stop();
 
         redraw();
         onGameOver.run();
@@ -333,7 +320,7 @@ public class GameView extends BorderPane {
         if (getScene() != null && getScene().getWindow() != null) result.initOwner(getScene().getWindow());
         result.showAndWait();
         if (resume) controller.resume();
-        lastUpdateNanos = System.nanoTime();
+        gameLoop.resetClock();
         redraw(); requestFocus();
     }
 
