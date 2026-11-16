@@ -437,5 +437,41 @@
       "카테고리": "분석",
       "상태": "시작 전"
     }
+  ],
+  "supplements": [
+    {
+      "imported_on": "2026-11-16",
+      "source_file": "ExportBlock-a37644f4-c739-4978-8722-5e38b9bf4470.zip",
+      "source_sha256": "a9d78e6e3c05a8d73d7327795c4588175310d0f59af048eb734afb5ad6a9a432",
+      "note": "Same database export as the original import plus one new page. All other pages/images matched existing archive bytes, so only new files are added; existing CSVs are kept unchanged.",
+      "files": [
+        {
+          "path": "archive/source-view-2026-11-16.csv",
+          "sha256": "d748cbc6a643b1ad0a1e3606e15e6a05f73f6078cfdbf5a80586b3351fcc3b33",
+          "bytes": 1772
+        },
+        {
+          "path": "archive/source-index-2026-11-16.csv",
+          "sha256": "883561b8c6079a70b35ec03f711ee85ca4e5567956d8b7ca6a4a37a24ed1bfb0",
+          "bytes": 1772
+        },
+        {
+          "path": "archive/🎮 3차 요구사항 (대전 모드) 역할 분담 · 2주 계획 419d09ed490a807c8d17f5e12f4022b4.md",
+          "sha256": "3b703f6445b993aecac058fa508eff6308f73ca05e4416bb8024215ecced0a83",
+          "bytes": 10547
+        }
+      ],
+      "pages": [
+        {
+          "title": "🎮 3차 요구사항 (대전 모드) 역할 분담 · 2주 계획",
+          "path": "archive/🎮 3차 요구사항 (대전 모드) 역할 분담 · 2주 계획 419d09ed490a807c8d17f5e12f4022b4.md",
+          "id": "419d09ed490a807c8d17f5e12f4022b4",
+          "생성자": "정수연",
+          "우선순위": "",
+          "카테고리": "",
+          "상태": "시작 전"
+        }
+      ]
+    }
   ]
 }

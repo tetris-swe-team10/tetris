@@ -14,6 +14,8 @@
 
 첨부 `ExportBlock-aaf00280-a557-4650-bbeb-23a2c68bc045.zip`의 Markdown·CSV·이미지를 `archive/`에 원본 바이트 그대로 보존했다.
 파일별 SHA-256과 원래 페이지 ID는 [출처 목록](source-manifest.json)에 있다. 이전에 제공된 CSV 전용 ZIP 대신 본문이 포함된 이번 ZIP을 사용했다.
+2026-11-16 추가: 첨부 `ExportBlock-a37644f4-c739-4978-8722-5e38b9bf4470.zip`에서 새 페이지 「🎮 3차 요구사항 (대전 모드) 역할 분담 · 2주 계획」과 그 시점 CSV 두 개(`source-index-2026-11-16.csv`, `source-view-2026-11-16.csv`)를 원본 바이트로 추가했다.
+나머지 페이지·이미지는 기존 보관본과 바이트가 같아 다시 넣지 않았고, 기존 CSV도 수정하지 않았다. 해시는 출처 목록의 `supplements`에 있다. 원문의 체크박스·「결정 필요」 표는 작성 당시 상태이며, 이후 결정은 [결정 기록](../coordination/decisions.md)을 따른다.
 제공된 사본을 정리한 것이며 실시간 Notion 전체를 동기화한 결과는 아니다. 공개 URL과 연결된 Notion에서는 해당 데이터베이스 본문을 읽지 못했다.
 
 원문의 생성자는 작성자이지 새 작업의 자동 담당자가 아니다. `완료`, `리뷰 대기`, 체크박스, 커버리지 숫자는 원문 작성 당시의 기록이며 현재 main의 통과 증거로 재사용하지 않는다.
@@ -65,5 +67,6 @@
 | [feature/line-clear-item](archive/feature%20line-clear-item%20405d09ed490a80d7b6b1d9346a5c1960.md) | 정수연 | 시작 전 | 미기재 |
 | [feature/item_blackout](archive/feature%20item_blackout%20405d09ed490a80f39b83d480c6b743d5.md) | 박서현 | 완료 | 기능 |
 | [item 명세서](archive/item%20%EB%AA%85%EC%84%B8%EC%84%9C%20406d09ed490a80d09f20d876d84eb3b5.md) | 박서현 | 시작 전 | 분석 |
+| [🎮 3차 요구사항 (대전 모드) 역할 분담 · 2주 계획](archive/%F0%9F%8E%AE%203%EC%B0%A8%20%EC%9A%94%EA%B5%AC%EC%82%AC%ED%95%AD%20%28%EB%8C%80%EC%A0%84%20%EB%AA%A8%EB%93%9C%29%20%EC%97%AD%ED%95%A0%20%EB%B6%84%EB%8B%B4%20%C2%B7%202%EC%A3%BC%20%EA%B3%84%ED%9A%8D%20419d09ed490a807c8d17f5e12f4022b4.md) | 정수연 | 시작 전 | 미기재 |
 
 원문은 증거 보존용이다. 새 합의나 현황 변경은 원문을 덮어쓰지 말고 요약 문서와 결정·질문 기록에 추가한다.
