@@ -125,27 +125,38 @@ public class GameEngine {
 
     // ---- 대전(3차) 인터페이스: 구현은 역할 A ----
     private AttackListener attackListener = AttackListener.NONE;
+    private final List<List<Boolean>> pendingAttack = new ArrayList<>();
+    private boolean versusEnabled;
+    private List<CellPosition> lastLockedCells = List.of();
+    private AttackLines outgoingAttack = AttackLines.EMPTY;
+    private boolean naturalAttackEligible;
+
+    public void enableVersus() { versusEnabled = true; }
 
     /**
      * 2줄 이상 삭제해 공격 줄이 생기면 호출할 대상을 등록한다.
-     * TODO(역할 A): 줄 삭제 시 마지막 블록 칸을 뺀 공격 줄을 만들어 호출.
+     * 자연 완성 줄의 삭제 연출 완료 시 마지막 블록 칸을 뺀 공격 줄을 전달한다.
      */
     public void setAttackListener(AttackListener listener) {
+        versusEnabled = true;
         attackListener = listener == null ? AttackListener.NONE : listener;
     }
 
     /**
      * 상대에게 받은 공격 줄을 대기열에 넣는다. 다음 블록 생성 전에 보드 아래에 추가된다.
      * 대기 줄은 최대 10줄이며, 이미 10줄이면 무시, 넘치면 아래쪽을 잘라낸다.
-     * TODO(역할 A): 현재는 아무것도 하지 않는다.
      */
     public void receiveAttack(AttackLines lines) {
-        // 껍데기: 역할 A가 구현
+        Objects.requireNonNull(lines);
+        if (state == GameState.GAME_OVER) return;
+        versusEnabled = true;
+        int available = AttackLines.MAX_PENDING_LINES - pendingAttack.size();
+        pendingAttack.addAll(lines.rows().subList(0, Math.min(available, lines.size())));
     }
 
-    /** 아직 보드에 들어오지 않은 대기 공격 줄. TODO(역할 A): 현재는 항상 비어 있다. */
+    /** 아직 보드에 들어오지 않은 대기 공격 줄의 읽기 전용 복사본. */
     public AttackLines getPendingAttack() {
-        return AttackLines.EMPTY;
+        return new AttackLines(pendingAttack);
     }
 
     public GameSnapshot snapshot() {
@@ -166,7 +177,9 @@ public class GameEngine {
         return new GameSnapshot(cells, active ? PieceSnapshot.of(currentBlock) : null,
                 PieceSnapshot.of(nextBlock), config, state, score, totalClearedLines,
                 dropIntervalMs, clearingRows, cellTypes, penalties.blackoutActive(), penalties.rotationLocked(),
-                effectCells, !effectCells.isEmpty() && effectElapsedMs / 75 % 2 == 0);
+                effectCells, !effectCells.isEmpty() && effectElapsedMs / 75 % 2 == 0,
+                versusEnabled ? cells.stream().map(line -> line.stream().map(value -> value == Board.GARBAGE).toList()).toList() : List.of(),
+                getPendingAttack());
     }
     private boolean moveHorizontal(int delta) {
         if (state != GameState.PLAYING) return false;
@@ -221,10 +234,20 @@ public class GameEngine {
     }
     /** 바닥 도달: 보드에 남기지 않고 다음 블록으로 넘어간다. 생성 자리가 막히면 게임 오버. */
     private void finishWeight() {
+        naturalAttackEligible = false;
         lastClearedLines = 0;
         resolveLockedBoard(Set.of());
     }
     private void resolveLanding() {
+        naturalAttackEligible = currentBlock.getItem() == null
+                || currentBlock.getItem().item() instanceof Blackout
+                || currentBlock.getItem().item() instanceof RotationLock;
+        List<CellPosition> locked = new ArrayList<>();
+        int[][] shape = currentBlock.getShape();
+        for (int r = 0; r < shape.length; r++)
+            for (int c = 0; c < shape[r].length; c++)
+                if (shape[r][c] != 0) locked.add(new CellPosition(currentBlock.getRow() + r, currentBlock.getCol() + c));
+        lastLockedCells = List.copyOf(locked);
         penalties.finishActive();
         board.lock(currentBlock);
         lastClearedLines = 0;
@@ -249,6 +272,16 @@ public class GameEngine {
         resolveLockedBoard(requestedRows);
     }
     private void resolveLockedBoard(Set<Integer> requestedRows) {
+        List<Integer> fullRows = board.findFullRows();
+        outgoingAttack = AttackLines.EMPTY;
+        if (versusEnabled && naturalAttackEligible && fullRows.size() >= 2) {
+            outgoingAttack = new AttackLines(fullRows.stream().map(row -> {
+                List<Boolean> line = new ArrayList<>();
+                for (int col = 0; col < Board.WIDTH; col++)
+                    line.add(board.getCell(row, col) != 0 && !lastLockedCells.contains(new CellPosition(row, col)));
+                return line;
+            }).toList());
+        }
         Set<Integer> rows = new TreeSet<>(requestedRows);
         rows.addAll(board.findFullRows());
         clearingRows = List.copyOf(rows);
@@ -283,6 +316,9 @@ public class GameEngine {
         if (state != GameState.CLEARING) return;
         clearingElapsedMs = (int) Math.min(LINE_CLEAR_DURATION_MS, (long) clearingElapsedMs + elapsedMs);
         if (clearingElapsedMs < LINE_CLEAR_DURATION_MS) return;
+        AttackLines attack = outgoingAttack;
+        outgoingAttack = AttackLines.EMPTY;
+        if (!attack.isEmpty()) attackListener.onAttack(attack);
         int previousLevel = totalClearedLines / LINES_PER_SPEED_UP;
         lastClearedLines = board.removeRows(clearingRows);
         totalClearedLines += lastClearedLines;
@@ -299,7 +335,10 @@ public class GameEngine {
         spawnAfterLanding();
     }
     private void spawnAfterLanding() {
-        if (!spawnBlock()) {
+        boolean fits = board.insertGarbage(getPendingAttack());
+        pendingAttack.clear();
+        lastLockedCells = List.of();
+        if (!fits || !spawnBlock()) {
             state = GameState.GAME_OVER;
             penalties.reset();
             demoRequestedItem = null;

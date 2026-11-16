@@ -1,0 +1,19 @@
+.local-versus {
+    -fx-background-color: #09111e;
+    -fx-padding: 12;
+}
+.local-versus .scroll-pane, .local-versus .viewport {
+    -fx-background-color: #09111e;
+}
+.local-versus .label {
+    -fx-text-fill: #e2e8f0;
+}
+.local-versus .button {
+    -fx-background-color: #162338;
+    -fx-text-fill: #e2e8f0;
+    -fx-border-color: #405470;
+    -fx-padding: 8 12;
+}
+.local-versus .button:focused, .local-versus .button:hover {
+    -fx-border-color: #22c7e8;
+}

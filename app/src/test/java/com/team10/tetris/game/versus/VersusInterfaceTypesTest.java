@@ -75,11 +75,22 @@ class VersusInterfaceTypesTest {
     @Test
     void singlePlayerSnapshotHasNoVersusData() {
         GameEngine engine = new GameEngine(GameConfig.DEFAULT);
-        engine.receiveAttack(new AttackLines(List.of(row(1))));
         var snapshot = engine.snapshot();
         assertTrue(snapshot.garbageCells().isEmpty());
         assertTrue(snapshot.pendingAttack().isEmpty());
         assertFalse(snapshot.isGarbage(Board.HEIGHT - 1, 0));
+    }
+
+    @Test
+    void implementedVersusSnapshotSurvivesNetworkRoundTrip() throws Exception {
+        GameEngine engine = new GameEngine(GameConfig.DEFAULT);
+        engine.receiveAttack(new AttackLines(List.of(row(1))));
+        engine.hardDrop();
+        engine.receiveAttack(new AttackLines(List.of(row(2))));
+        var snapshot = engine.snapshot();
+        assertTrue(snapshot.isGarbage(Board.HEIGHT - 1, 0));
+        assertEquals(1, snapshot.pendingAttack().size());
+        assertEquals(snapshot, roundTrip(snapshot));
     }
 
     private static Object roundTrip(Object value) throws Exception {

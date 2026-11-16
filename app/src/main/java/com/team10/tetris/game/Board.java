@@ -10,6 +10,7 @@ import java.util.Set;
 public class Board {
     public static final int WIDTH = 10;
     public static final int HEIGHT = 20;
+    public static final int GARBAGE = 2;
     private final int[][] cells = new int[HEIGHT][WIDTH];
 
     // 고정된 칸의 블록 종류 (색상 표시용, 종류를 모르는 칸은 null)
@@ -52,6 +53,26 @@ public class Board {
     }
 
     public int clearLines() { return removeRows(findFullRows()); }
+
+    /** 위쪽 넘침을 검사한 뒤 받은 줄을 아래에 순서대로 삽입한다. */
+    public boolean insertGarbage(com.team10.tetris.game.versus.AttackLines attack) {
+        int count = attack.size();
+        if (count == 0) return true;
+        if (count > HEIGHT) throw new IllegalArgumentException("Too many rows");
+        boolean fits = true;
+        for (int r = 0; r < count; r++)
+            for (int c = 0; c < WIDTH; c++) if (cells[r][c] != 0) fits = false;
+        for (int r = 0; r < HEIGHT - count; r++) {
+            System.arraycopy(cells[r + count], 0, cells[r], 0, WIDTH);
+            System.arraycopy(cellTypes[r + count], 0, cellTypes[r], 0, WIDTH);
+        }
+        for (int r = 0; r < count; r++) {
+            Arrays.fill(cellTypes[HEIGHT - count + r], null);
+            for (int c = 0; c < WIDTH; c++)
+                cells[HEIGHT - count + r][c] = attack.rows().get(r).get(c) ? GARBAGE : 0;
+        }
+        return fits;
+    }
 
     /** 압축 전 좌표. 보드를 변경하지 않아 UI 연출과 아이템에서 재사용 가능. */
     public List<Integer> findFullRows() {

@@ -73,6 +73,7 @@ public final class AppController {
     private StartScreen createStartScreen() {
         return new StartScreen(Map.of(
                 StartMenuAction.START_GAME, this::showModeSelection,
+                StartMenuAction.LOCAL_VERSUS, this::showVersusSelection,
                 StartMenuAction.OPEN_SETTINGS, this::showSettingsScreen,
                 StartMenuAction.OPEN_SCOREBOARD, this::showScoreboard,
                 StartMenuAction.EXIT, Platform::exit), MenuKeyBindings.defaults());
@@ -82,6 +83,38 @@ public final class AppController {
         StartScreen view = createStartScreen();
         showScreen(view);
         view.requestMenuFocus();
+    }
+
+    private void showVersusSelection() {
+        var rules = com.team10.tetris.game.versus.VersusRule.values();
+        var dialog = new ChoiceDialog<>(rules[0], rules);
+        dialog.initOwner(stage); dialog.setTitle("같은 PC 대전"); dialog.setHeaderText("대전 모드를 선택하세요.");
+        styleDialog(dialog.getDialogPane(), "difficulty-dialog");
+        dialog.showAndWait().ifPresent(rule -> {
+            var difficulty = new ChoiceDialog<>(lastSelectedDifficulty, Difficulty.values());
+            difficulty.initOwner(stage); difficulty.setTitle("대전 난이도"); difficulty.setHeaderText("두 플레이어에게 같은 난이도를 적용합니다.");
+            styleDialog(difficulty.getDialogPane(), "difficulty-dialog");
+            difficulty.showAndWait().ifPresent(selected -> {
+                lastSelectedDifficulty = selected;
+                showVersus(com.team10.tetris.game.versus.VersusConfig.of(rule, selected));
+            });
+        });
+    }
+
+    private void showVersus(com.team10.tetris.game.versus.VersusConfig config) {
+        var renderer = new com.team10.tetris.ui.VersusBoardRenderer();
+        renderer.setPalette(com.team10.tetris.ui.BlockPalette.of(settings.isColorBlindMode()));
+        showScreen(new com.team10.tetris.ui.LocalVersusView(
+                new com.team10.tetris.game.versus.LocalVersusMatch(config, createVersusEngine(config), createVersusEngine(config)), renderer,
+                () -> showVersus(config), this::showStartMenu));
+    }
+
+    private GameEngine createVersusEngine(com.team10.tetris.game.versus.VersusConfig config) {
+        GameEngine engine = new GameEngine(new GameConfig(config.rule() == com.team10.tetris.game.versus.VersusRule.ITEM
+                ? GameMode.ITEM : GameMode.NORMAL, config.difficulty()));
+        engine.setBaseDropIntervalMs(settings.adjustDropInterval(GameEngine.INITIAL_DROP_INTERVAL_MS));
+        engine.configureDemoItems(settings.isDemoMode(), settings.getDemoItemLines());
+        return engine;
     }
 
     private void showModeSelection() {
