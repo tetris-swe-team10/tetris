@@ -282,4 +282,35 @@ class GameFlowTest {
             }
         });
     }
+
+    @Test void unreadableScoreFileShowsErrorAndKeepsSaveRetry() throws Exception {
+        Path file = temp.resolve("scores.tsv");
+        Files.write(file, new byte[] {(byte) 0xC3, (byte) 0x28}); // UTF-8로 읽을 수 없는 바이트
+        onFx(() -> {
+            ScoreboardManager manager = new ScoreboardManager(file);
+            GameOverView result = new GameOverView(manager);
+            new Scene(result, 960, 640);
+            result.showResult(1000, 1, GameConfig.DEFAULT);
+            result.applyCss(); result.layout();
+            TextField name = (TextField) result.lookup(".text-field");
+            assertTrue(name.getParent().isVisible(), "읽기 실패를 순위 미달로 처리하면 저장 기회가 사라진다");
+            assertTrue(labels(result).stream().anyMatch(text -> text.contains("기록 파일을 읽지 못했습니다")));
+            assertTrue(labels(result).contains("-"), "최고 점수를 0이 아니라 알 수 없음으로 표시");
+            assertFalse(labels(result).contains("0"));
+
+            name.setText("Retry");
+            button(result, "저장").fire();
+            assertTrue(labels(result).stream().anyMatch(text -> text.contains("저장하지 못했습니다")));
+            assertTrue(name.getParent().isVisible());
+
+            Files.writeString(file, ""); // 사용자가 파일 문제를 해결한 뒤 같은 화면에서 다시 저장
+            button(result, "저장").fire();
+            assertFalse(name.getParent().isVisible());
+            assertEquals(1000, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
+        });
+    }
+
+    private static java.util.List<String> labels(Parent root) {
+        return root.lookupAll(".label").stream().map(node -> ((Label) node).getText()).toList();
+    }
 }
