@@ -7,6 +7,7 @@
 | 필요 | 문서 |
 | --- | --- |
 | AI와 작업 시작·이슈·브랜치·리뷰 운영 | [AI 작업 지침](ai-guide.md), 루트 [AGENTS.md](../AGENTS.md) |
+| 시작·종료 요청 문장과 실행 절차 | [시작·종료 루틴](session-routines.md) |
 | 전체 기능·코드 위치·개발 환경 | [프로젝트 개요](project-overview.md) |
 | 평가 항목·테스트·커버리지 증빙 | [품질·평가 관리](quality-and-evaluation.md) |
 | 기존 결정·해석·미결정 사항 | [결정 기록](coordination/decisions.md), [열린 질문](coordination/questions.md) |

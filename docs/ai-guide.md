@@ -4,6 +4,8 @@
 
 ## 1. 작업 시작
 
+“시작 루틴”·새 세션 동기화의 상세 절차와 보고 양식은 [시작·종료 루틴](session-routines.md)을 따른다.
+
 1. 사용자의 목표와 범위를 확인한다. 명확한 요청은 바로 진행하고 이미 허용한 일을 다시 승인받지 않는다.
 2. `git branch --show-current`, `git status --short`와 현재 작업의 변경 내용을 확인한다.
 3. [프로젝트 개요](project-overview.md), 관련 기능 명세, [열린 질문](coordination/questions.md)과 [작업 현황](coordination/status.md) 중 해당 부분만 읽는다. 노션 원문 전체를 매번 읽지 않는다.
@@ -75,6 +77,8 @@ PR에는 문제와 바뀐 동작, 이슈 연결, 실제 실행 명령·결과·�
 - 사용자가 병합을 요청한 때 대상 PR·base·HEAD·의존 관계를 확인한다. 충돌 해결로 구현이 달라지면 직접 영향받는 기능을 다시 검증한다.
 
 ## 7. 작업 종료와 인수인계
+
+“종료 루틴” 요청의 검증·기록·게시 범위와 최종 보고는 [시작·종료 루틴](session-routines.md)을 따른다.
 
 완료한 변경·다음 작업·막힌 점을 [작업 현황](coordination/status.md)에 짧게 남긴다. 새 합의는 [결정 기록](coordination/decisions.md), 열린 문제는 [질문 목록](coordination/questions.md)에 출처와 상태를 기록한다.
 
