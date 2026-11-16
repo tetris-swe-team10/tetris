@@ -58,7 +58,6 @@ public class GameView extends BorderPane {
 
     private final Button resultButton = new Button("결과 보기");
     private VBox infoPanel;
-    private final Button pauseButton = new Button("일시정지");
     private final Button settingsButton = new Button("설정");
 
     private final Timeline dropTimer;
@@ -147,11 +146,9 @@ public class GameView extends BorderPane {
         setStyle("-fx-font-family: 'Noto Sans KR'; -fx-background-color: #030712; -fx-border-color: transparent transparent transparent #7C3AED; -fx-border-width: 0 0 0 5;");
         resultButton.setOnAction(event -> showCurrentResult());
 
-        pauseButton.setFocusTraversable(false);
         settingsButton.setFocusTraversable(false);
         settingsButton.setDisable(true);
 
-        pauseButton.setOnAction(event -> togglePause());
         settingsButton.setOnAction(event -> requestSettings());
 
         setFocusTraversable(true);
@@ -260,22 +257,6 @@ public class GameView extends BorderPane {
         controller.advance(elapsed);
         redraw();
         checkGameOver();
-    }
-
-    private void togglePause() {
-        if (engine.isGameOver()) {
-            return;
-        }
-
-        if (engine.isPaused()) {
-            controller.resume();
-        } else {
-            controller.pause();
-        }
-
-        lastUpdateNanos = System.nanoTime();
-        redraw();
-        requestFocus();
     }
 
     private void requestSettings() {
@@ -412,20 +393,15 @@ public class GameView extends BorderPane {
 
         if (engine.isGameOver()) {
             statusLabel.setText("GAME OVER");
-            pauseButton.setDisable(true);
             settingsButton.setDisable(true);
         } else if (engine.isPaused()) {
             statusLabel.setText("PAUSED");
-            pauseButton.setText("계속하기");
         } else if (snapshot.state() == GameState.ITEM_EFFECT) {
             statusLabel.setText("BOOM!");
-            pauseButton.setText("일시정지");
         } else if (snapshot.state() == GameState.CLEARING) {
             statusLabel.setText("LINE CLEAR");
-            pauseButton.setText("일시정지");
         } else {
             statusLabel.setText("PLAYING");
-            pauseButton.setText("일시정지");
         }
     }
 
