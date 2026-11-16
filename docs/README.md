@@ -6,6 +6,10 @@
 
 | 필요 | 문서 |
 | --- | --- |
+| AI 세션 읽는 순서·현재 리뷰 조건 | 루트 [read.md](../read.md) |
+| 제안서·요청서·질문·동료 리뷰 절차 | [협업 안내](coordination/README.md) |
+| A/B/C 담당별 할 일·연동·현재 규칙 | [역할별 작업 시작점](tasks/README.md) |
+| 2차 아이템 평가용 요구사항 | [아이템 요구사항 명세](item-requirements.md) |
 | AI와 작업 시작·이슈·브랜치·리뷰 운영 | [AI 작업 지침](ai-guide.md), 루트 [AGENTS.md](../AGENTS.md) |
 | 시작·종료 요청 문장과 실행 절차 | [시작·종료 루틴](session-routines.md) |
 | 전체 기능·코드 위치·개발 환경 | [프로젝트 개요](project-overview.md) |

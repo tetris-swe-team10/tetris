@@ -30,6 +30,10 @@ git log -1 --oneline
 
 ### 3. 인수인계와 결정 읽기
 
+`read.md`와 [협업 안내](coordination/README.md)를 읽고 `requests/`에서 내 역할 앞으로 온 미완료 요청, `proposals/`의 내 의견이 필요한 항목, `questions.md`의 열린 질문을 확인한다. 아직 main에 없는 요청은 해당 PR 브랜치에서 읽는다.
+
+대전 작업은 먼저 [역할별 시작점](tasks/README.md)에서 지정된 A/B/C 문서를 읽는다. 사용자가 “A파트”라고 지정하면 배정표의 A 범위를 이어간다.
+
 1. [작업 현황](coordination/status.md)의 다음 작업·막힌 점·관련 이슈/PR.
 2. [결정 기록](coordination/decisions.md)의 해당 작업 관련 변경과 [열린 질문](coordination/questions.md).
 3. 작업할 기능 명세와 필요한 코드·테스트. [문서 지도](README.md)에서 찾는다.
