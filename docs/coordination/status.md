@@ -8,7 +8,8 @@
 - A: 공격 큐·회색 보드·2인 대전 모델·시간제한·시작 메뉴·두 보드 화면·2인 키 저장·아이템 명세서 구현. [A 상세와 검증](../tasks/A-local-versus.md).
 - 사용자 승인 기본값은 D-009. C 최종 목업·B 공용 렌더러 연동과 동료 리뷰는 후속 작업.
 - 대전·키·직렬화·직접 영향 엔진/아이템 및 대전 UI/시작 메뉴 선별 검증 통과. 전체 테스트·공식 커버리지 미실행.
-- Issue [#58](https://github.com/tetris-swe-team10/tetris/issues/58). 사용자 승인으로 커밋·push·PR·B/C 요청 전달 진행. 즉시 병합은 철회되어 D-010에 따라 동료 리뷰 대기.
+- Issue [#58](https://github.com/tetris-swe-team10/tetris/issues/58), PR [#59](https://github.com/tetris-swe-team10/tetris/pull/59). 기능 `f3aafd4`·문서 `3d992f5` 커밋과 push 완료. 즉시 병합은 철회되어 D-010에 따라 동료 리뷰 대기, 자동 병합 미설정.
+- B `pepcsy` / C `xeohyun` 공식 리뷰 요청과 [요청서 전달 댓글](https://github.com/tetris-swe-team10/tetris/pull/59#issuecomment-6904853696) 등록. 응답·동료 검증 완료로 표기하지 않음.
 - B 리팩토링 리뷰·C 디자인·B 공용 렌더러 최종 연동은 대기. Q-A-001에서 렌더러 생성 진입점 문의.
 
 > 갱신일: 2026-11-09 · 기준: 원격 main `c68d0fb`와 첨부 Notion 사본 · 이번 문서 병합에서 원격을 확인했으며 기능은 재실행하지 않음

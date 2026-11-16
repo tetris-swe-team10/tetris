@@ -10,7 +10,7 @@
 
 ## 현재 진행
 
-- A의 같은 PC 대전 구현은 `feature/local-versus`에서 리뷰받는다. [A 할 일](docs/tasks/A-local-versus.md).
+- A의 같은 PC 대전 구현은 `feature/local-versus`의 [PR #59](https://github.com/tetris-swe-team10/tetris/pull/59)에서 리뷰받는다. [A 할 일](docs/tasks/A-local-versus.md).
 - **이번 PR은 바로 병합하지 않는다.** B/C에게 요청서를 보내고 다른 사람의 실질적인 리뷰 코멘트를 확인한 뒤 지적을 처리한다. 작성자·AI의 자체 코멘트는 동료 리뷰로 인정하지 않는다.
 - 관련 요청: [R-A-001 B 리뷰·렌더러](docs/coordination/requests/R-A-001.md), [R-A-002 C 리뷰·P2P 연동](docs/coordination/requests/R-A-002.md).
 - 운영 방식 제안: [P-A-001](docs/coordination/proposals/P-A-001.md). 사용자 도입 승인은 받았지만 B/C 의견은 아직 수집 전이다.
