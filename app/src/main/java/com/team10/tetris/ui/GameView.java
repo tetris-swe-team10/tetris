@@ -7,6 +7,8 @@ import com.team10.tetris.game.GameController;
 import com.team10.tetris.game.GameCommand;
 import com.team10.tetris.game.GameSnapshot;
 import com.team10.tetris.game.GameState;
+import com.team10.tetris.input.GameKeyBindings;
+import com.team10.tetris.input.GameKeyInput;
 import com.team10.tetris.settings.GameSettings;
 
 import javafx.application.Platform;
@@ -144,29 +146,14 @@ public class GameView extends BorderPane {
                 event.consume();
                 return;
             }
-            if (event.isAltDown() || event.isControlDown() || event.isMetaDown() || event.isShiftDown()) return;
-            var key = event.getCode();
-            if (key == javafx.scene.input.KeyCode.ESCAPE) {
-                requestSettings();
-            } else if (key == javafx.scene.input.KeyCode.DIGIT1 || key == javafx.scene.input.KeyCode.NUMPAD1) {
-                engine.requestDemoItem(1);
-            } else if (key == javafx.scene.input.KeyCode.DIGIT2 || key == javafx.scene.input.KeyCode.NUMPAD2) {
-                engine.requestDemoItem(2);
-            } else if (key == javafx.scene.input.KeyCode.DIGIT3 || key == javafx.scene.input.KeyCode.NUMPAD3) {
-                engine.requestDemoItem(3);
-            }  else if (engine.isItemDemoEnabled()
-                    && (key == javafx.scene.input.KeyCode.DIGIT4 || key == javafx.scene.input.KeyCode.NUMPAD4)) {
-                engine.requestDemoItem(4);
-            }  else if (engine.isItemDemoEnabled()
-                    && (key == javafx.scene.input.KeyCode.DIGIT5 || key == javafx.scene.input.KeyCode.NUMPAD5)) {
-                engine.requestDemoItem(5);
-            }
-            else {
-                var bindings = gameSettings == null ? com.team10.tetris.input.GameKeyBindings.defaults()
-                        : gameSettings.getKeyBindings();
-                var command = bindings.commandFor(key);
-                if (command.isEmpty()) return;
-                controller.handle(command.get());
+            boolean modifierDown = event.isAltDown() || event.isControlDown() || event.isMetaDown() || event.isShiftDown();
+            var bindings = gameSettings == null ? GameKeyBindings.defaults() : gameSettings.getKeyBindings();
+            var action = GameKeyInput.resolve(event.getCode(), modifierDown, bindings, engine.isItemDemoEnabled());
+            if (action.isEmpty()) return;
+            switch (action.get()) {
+                case GameKeyInput.Action.OpenSettings open -> requestSettings();
+                case GameKeyInput.Action.DemoItem demo -> engine.requestDemoItem(demo.number());
+                case GameKeyInput.Action.Command command -> controller.handle(command.command());
             }
 
             redraw();
