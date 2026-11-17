@@ -1,5 +1,13 @@
 # 팀 작업 현황과 인수인계
 
+## 2026-11-17 · A/Codex 리뷰 후속 (로컬 미커밋)
+
+- 현재 `C:/GitHub/tetris`의 `feature/local-versus`에서 작업. 별도 worktree는 생성되지 않았으며 기존 `app/bin` 변경을 보존했다.
+- B의 PR #64 HEAD `1f0bd5f` 리뷰 완료: [리뷰 댓글](https://github.com/tetris-swe-team10/tetris/pull/64#pullrequestreview-5931179778). 차단 문제를 찾지 못함. 새 루프·입력 11건 + 직접 영향 UI 16건 선별 통과. 전체 테스트·공식 커버리지·두 PC 실측 미실행.
+- #59 B 리뷰의 비차단 제안인 완성 행 결과 재사용·AppController import 정리를 로컬 반영. `LocalVersusMatchTest`·`GameEngineTest`·`LineClearItemTest` 선별 통과.
+- R-A-001은 B 응답 확인, Q-A-001은 답변 확인·종료로 기록. 공용 렌더러 실제 교체는 두 PR 병합 후 B 후속 작업이며 완료되지 않음.
+- 이번 보완은 커밋·push하지 않았다. main/PR 병합도 실행하지 않음. C 리뷰 및 후속 연동 상태는 별도 확인 필요.
+
 ## 2026-11-16 · A파트 로컬 구현
 
 - 시작 루틴: fetch 후 원격 main `33026c7` 확인. PR #56/#54 병합을 확인하고 `feature/local-versus` 생성.

@@ -15,9 +15,9 @@ AI는 질문을 임의로 해결된 것으로 바꾸지 않는다. 새 정보를
 
 ## Q-A-001 · 공용 렌더러 교체 진입점
 
-- 상태: 열림 / 작성: A/Codex / 받는 역할: B / 날짜: 2026-11-16
+- 상태: 답변 확인·종료 / 작성: A/Codex / 받는 역할: B / 날짜: 2026-11-16
 - 질문: B의 `BoardRenderer` 구현을 만들 때 사용할 클래스명·생성자와 팔레트 설정 시점을 알려 주세요. A의 `AppController.showVersus`에서 현재 `VersusBoardRenderer` 대신 주입하려고 합니다.
 - 이유: 임시 대전 렌더러와 공용 렌더러가 중복 유지되는 것을 피하려고 합니다. 현재 인터페이스 변경은 요청하지 않습니다.
 - 관련: Issue #58, [R-A-001](requests/R-A-001.md).
 - 답변: (B 작성)
-- 결정·완료 근거: 미정
+- 결정·완료 근거: B의 [PR #59 리뷰](https://github.com/tetris-swe-team10/tetris/pull/59#pullrequestreview-5915641970), 2026-11-17 A 확인. `CanvasBoardRenderer()` 생성 직후 `setPalette(BlockPalette.of(...))` 사용. 실제 교체는 두 PR 병합 후 B 후속 작업.

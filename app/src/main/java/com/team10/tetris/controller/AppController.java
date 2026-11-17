@@ -9,6 +9,9 @@ import com.team10.tetris.game.Difficulty;
 import com.team10.tetris.game.GameConfig;
 import com.team10.tetris.game.GameEngine;
 import com.team10.tetris.game.GameMode;
+import com.team10.tetris.game.versus.LocalVersusMatch;
+import com.team10.tetris.game.versus.VersusConfig;
+import com.team10.tetris.game.versus.VersusRule;
 import com.team10.tetris.input.MenuKeyBindings;
 import com.team10.tetris.score.ScoreboardManager;
 import com.team10.tetris.screen.ModeSelectionScreen;
@@ -20,7 +23,10 @@ import com.team10.tetris.settings.PauseSettingsPane;
 import com.team10.tetris.settings.SettingsScreen;
 import com.team10.tetris.ui.GameOverView;
 import com.team10.tetris.ui.GameView;
+import com.team10.tetris.ui.BlockPalette;
+import com.team10.tetris.ui.LocalVersusView;
 import com.team10.tetris.ui.ScoreboardView;
+import com.team10.tetris.ui.VersusBoardRenderer;
 
 import javafx.application.Platform;
 import javafx.scene.Parent;
@@ -86,7 +92,7 @@ public final class AppController {
     }
 
     private void showVersusSelection() {
-        var rules = com.team10.tetris.game.versus.VersusRule.values();
+        var rules = VersusRule.values();
         var dialog = new ChoiceDialog<>(rules[0], rules);
         dialog.initOwner(stage); dialog.setTitle("같은 PC 대전"); dialog.setHeaderText("대전 모드를 선택하세요.");
         styleDialog(dialog.getDialogPane(), "difficulty-dialog");
@@ -96,21 +102,21 @@ public final class AppController {
             styleDialog(difficulty.getDialogPane(), "difficulty-dialog");
             difficulty.showAndWait().ifPresent(selected -> {
                 lastSelectedDifficulty = selected;
-                showVersus(com.team10.tetris.game.versus.VersusConfig.of(rule, selected));
+                showVersus(VersusConfig.of(rule, selected));
             });
         });
     }
 
-    private void showVersus(com.team10.tetris.game.versus.VersusConfig config) {
-        var renderer = new com.team10.tetris.ui.VersusBoardRenderer();
-        renderer.setPalette(com.team10.tetris.ui.BlockPalette.of(settings.isColorBlindMode()));
-        showScreen(new com.team10.tetris.ui.LocalVersusView(
-                new com.team10.tetris.game.versus.LocalVersusMatch(config, createVersusEngine(config), createVersusEngine(config)), renderer,
+    private void showVersus(VersusConfig config) {
+        var renderer = new VersusBoardRenderer();
+        renderer.setPalette(BlockPalette.of(settings.isColorBlindMode()));
+        showScreen(new LocalVersusView(
+                new LocalVersusMatch(config, createVersusEngine(config), createVersusEngine(config)), renderer,
                 () -> showVersus(config), this::showStartMenu));
     }
 
-    private GameEngine createVersusEngine(com.team10.tetris.game.versus.VersusConfig config) {
-        GameEngine engine = new GameEngine(new GameConfig(config.rule() == com.team10.tetris.game.versus.VersusRule.ITEM
+    private GameEngine createVersusEngine(VersusConfig config) {
+        GameEngine engine = new GameEngine(new GameConfig(config.rule() == VersusRule.ITEM
                 ? GameMode.ITEM : GameMode.NORMAL, config.difficulty()));
         engine.setBaseDropIntervalMs(settings.adjustDropInterval(GameEngine.INITIAL_DROP_INTERVAL_MS));
         engine.configureDemoItems(settings.isDemoMode(), settings.getDemoItemLines());

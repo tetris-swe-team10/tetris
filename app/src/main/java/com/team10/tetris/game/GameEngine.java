@@ -283,7 +283,7 @@ public class GameEngine {
             }).toList());
         }
         Set<Integer> rows = new TreeSet<>(requestedRows);
-        rows.addAll(board.findFullRows());
+        rows.addAll(fullRows);
         clearingRows = List.copyOf(rows);
         if (clearingRows.isEmpty()) {
             spawnAfterLanding();
