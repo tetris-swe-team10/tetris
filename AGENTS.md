@@ -1,7 +1,13 @@
 # AI 작업 시작점
 
 이 저장소는 Java 21·JavaFX 21·Gradle·JUnit·JaCoCo 기반 소프트웨어공학 테트리스 팀 프로젝트다.
+세션 문맥은 [read.md](read.md), 역할 간 제안·요청·질문 규칙은 [협업 안내](docs/coordination/README.md)를 읽는다.
 상세 운영 지침은 [docs/ai-guide.md](docs/ai-guide.md), 문서 지도는 [docs/README.md](docs/README.md)에 있다.
+
+대전 작업은 [역할별 시작점](docs/tasks/README.md)에서 A(혜원)·B(수연)·C(서현)의 해당 문서를 먼저 읽는다.
+
+“시작 루틴”·“동기화하고 이어서”·새 세션의 첫 작업은 [시작 루틴](docs/session-routines.md)을,
+“종료 루틴”·“오늘 작업 정리” 요청은 같은 문서의 종료 루틴을 따른다. 루틴 작성 요청과 루틴 실행 요청은 구분한다.
 
 - 한국어로 작업 목적·변경·검증 범위를 간결하게 설명한다. 현재 사용자의 지시와 이미 받은 승인을 우선한다.
 - 시작할 때 현재 브랜치, `git status`, 작업에 해당하는 문서·최근 결정을 확인한다. 다른 사람의 미커밋 변경을 되돌리거나 섞어 커밋하지 않는다.

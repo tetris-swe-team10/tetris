@@ -1,5 +1,25 @@
 # 팀 작업 현황과 인수인계
 
+## 2026-11-17 · A/Codex 리뷰 후속 (로컬 미커밋)
+
+- 현재 `C:/GitHub/tetris`의 `feature/local-versus`에서 작업. 별도 worktree는 생성되지 않았으며 기존 `app/bin` 변경을 보존했다.
+- B의 PR #64 HEAD `1f0bd5f` 리뷰 완료: [리뷰 댓글](https://github.com/tetris-swe-team10/tetris/pull/64#pullrequestreview-5931179778). 차단 문제를 찾지 못함. 새 루프·입력 11건 + 직접 영향 UI 16건 선별 통과. 전체 테스트·공식 커버리지·두 PC 실측 미실행.
+- #59 B 리뷰의 비차단 제안인 완성 행 결과 재사용·AppController import 정리를 로컬 반영. `LocalVersusMatchTest`·`GameEngineTest`·`LineClearItemTest` 선별 통과.
+- R-A-001은 B 응답 확인, Q-A-001은 답변 확인·종료로 기록. 공용 렌더러 실제 교체는 두 PR 병합 후 B 후속 작업이며 완료되지 않음.
+- 이번 보완은 커밋·push하지 않았다. main/PR 병합도 실행하지 않음. C 리뷰 및 후속 연동 상태는 별도 확인 필요.
+
+## 2026-11-16 · A파트 로컬 구현
+
+- 시작 루틴: fetch 후 원격 main `33026c7` 확인. PR #56/#54 병합을 확인하고 `feature/local-versus` 생성.
+- 기존 루틴 수정은 `084f999`로 보존한 뒤 이 브랜치에 `c3071a0`로 적용. 기존 `app/bin` 변경은 보존·제외.
+- [역할별 작업](../tasks/README.md)에 A/B/C 할 일·연동·평가 범위를 분리. 교수님 PDF 3~6쪽과 노션을 대조.
+- A: 공격 큐·회색 보드·2인 대전 모델·시간제한·시작 메뉴·두 보드 화면·2인 키 저장·아이템 명세서 구현. [A 상세와 검증](../tasks/A-local-versus.md).
+- 사용자 승인 기본값은 D-009. C 최종 목업·B 공용 렌더러 연동과 동료 리뷰는 후속 작업.
+- 대전·키·직렬화·직접 영향 엔진/아이템 및 대전 UI/시작 메뉴 선별 검증 통과. 전체 테스트·공식 커버리지 미실행.
+- Issue [#58](https://github.com/tetris-swe-team10/tetris/issues/58), PR [#59](https://github.com/tetris-swe-team10/tetris/pull/59). 기능 `f3aafd4`·문서 `3d992f5` 커밋과 push 완료. 즉시 병합은 철회되어 D-010에 따라 동료 리뷰 대기, 자동 병합 미설정.
+- B `pepcsy` / C `xeohyun` 공식 리뷰 요청과 [요청서 전달 댓글](https://github.com/tetris-swe-team10/tetris/pull/59#issuecomment-6904853696) 등록. 응답·동료 검증 완료로 표기하지 않음.
+- B 리팩토링 리뷰·C 디자인·B 공용 렌더러 최종 연동은 대기. Q-A-001에서 렌더러 생성 진입점 문의.
+
 > 갱신일: 2026-11-09 · 기준: 원격 main `c68d0fb`와 첨부 Notion 사본 · 이번 문서 병합에서 원격을 확인했으며 기능은 재실행하지 않음
 
 ## 노션에서 확인되는 기여 분야
@@ -26,6 +46,8 @@
 - 3차 대전 모드 역할과 인터페이스는 [3차 역할 분담](req3-roles.md)과 PR #56을 따른다.
 
 ## 다음 확인 순서
+
+후속 문서 작업(2026-11-09): `docs/session-routines`에서 [시작·종료 루틴](../session-routines.md)을 추가했다. AI 진입점·문서 지도에 연결했으며, 문서 링크 검증만 수행하고 게임 테스트는 실행하지 않았다. 루틴 작성 완료와 실제 루틴 실행·커밋·원격 반영은 구분한다.
 
 1. [열린 질문](questions.md)에 적힌 원문·e-class 해석과 평가 증거를 확인한다.
 2. 최신 GitHub 이슈·PR에서 해결된 과거 점검 항목을 찾아 중복 작업을 줄인다.
