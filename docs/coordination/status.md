@@ -1,5 +1,14 @@
 # 팀 작업 현황과 인수인계
 
+## 2026-11-17 · PR #59·#64 병합 완료
+
+- 사용자 최종 지시로 보완 커밋 `589fc87`·main 반영 `06c280e`를 push하고 [답글](https://github.com/tetris-swe-team10/tetris/pull/59#issuecomment-6935240709)을 등록했다.
+- #59는 `d05fd53`, #64는 `f1ad236`으로 main 병합 완료. B의 #59 리뷰와 A/Codex의 [#64 리뷰](https://github.com/tetris-swe-team10/tetris/pull/64#pullrequestreview-5931179778)를 확인했다. C 리뷰 완료를 대신 주장하지 않는다.
+- 검증: #64 관련 27건 통과, #59 보완 관련 엔진·줄 삭제 테스트 통과, main 반영 후 대전·결과 저장 흐름 선별 통과. 전체 테스트·공식 커버리지는 이번에 측정하지 않았다.
+- 후속: 두 PR이 병합되었으므로 B의 공용 렌더러 교체·`VersusBoardRenderer` 삭제 연동을 진행할 수 있다. 현재 대전 화면은 아직 임시 렌더러를 사용한다.
+- 병합된 main `f1ad236`에서 `LocalVersusViewTest`·`GameFlowTest`·`CanvasBoardRendererTest` 선별 UI 검증도 통과했다.
+- 아래의 ‘로컬 미커밋/병합 대기’는 이전 작업 시점 기록이며 현재 상태가 아니다. `app/bin` 변경은 끝까지 보존·커밋 제외.
+
 ## 2026-11-17 · A/Codex 리뷰 후속 (로컬 미커밋)
 
 - 현재 `C:/GitHub/tetris`의 `feature/local-versus`에서 작업. 별도 worktree는 생성되지 않았으며 기존 `app/bin` 변경을 보존했다.
