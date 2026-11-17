@@ -7,19 +7,16 @@ import com.team10.tetris.game.GameController;
 import com.team10.tetris.game.GameCommand;
 import com.team10.tetris.game.GameSnapshot;
 import com.team10.tetris.game.GameState;
-import com.team10.tetris.game.PieceSnapshot;
+import com.team10.tetris.input.GameKeyBindings;
+import com.team10.tetris.input.GameKeyInput;
 import com.team10.tetris.settings.GameSettings;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -29,19 +26,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
-import javafx.util.Duration;
 
 public class GameView extends BorderPane {
 
     private static final int CELL_SIZE = 28;
     private static final int TIMER_STEP_MS = 50;
-
-    // 무늬 간격은 칸 폭의 약 22%, 선 굵기는 1.75px
-    private static final double PATTERN_SPACING_RATIO = 0.22;
-    private static final double PATTERN_LINE_WIDTH = 1.75;
-    private static final double OUTLINE_WIDTH = 1.5;
 
     private final GameEngine engine;
     private final GameController controller;
@@ -60,15 +49,14 @@ public class GameView extends BorderPane {
     private VBox infoPanel;
     private final Button settingsButton = new Button("설정");
 
-    private final Timeline dropTimer;
-
-    private long lastUpdateNanos;
+    private final GameLoop gameLoop;
 
     private boolean settingsOpen = false;
     private GameSettings gameSettings;
     private boolean gameOverNotified = false;
 
     private BlockPalette palette = BlockPalette.NORMAL;
+    private final BoardRenderer renderer = new CanvasBoardRenderer();
 
     // 설정이 바뀌면 즉시 다시 그림 (설정 쪽은 약한 참조로 들고 있어 끝난 게임 화면이 남지 않음)
     private final ChangeListener<Boolean> colorBlindModeListener =
@@ -158,29 +146,14 @@ public class GameView extends BorderPane {
                 event.consume();
                 return;
             }
-            if (event.isAltDown() || event.isControlDown() || event.isMetaDown() || event.isShiftDown()) return;
-            var key = event.getCode();
-            if (key == javafx.scene.input.KeyCode.ESCAPE) {
-                requestSettings();
-            } else if (key == javafx.scene.input.KeyCode.DIGIT1 || key == javafx.scene.input.KeyCode.NUMPAD1) {
-                engine.requestDemoItem(1);
-            } else if (key == javafx.scene.input.KeyCode.DIGIT2 || key == javafx.scene.input.KeyCode.NUMPAD2) {
-                engine.requestDemoItem(2);
-            } else if (key == javafx.scene.input.KeyCode.DIGIT3 || key == javafx.scene.input.KeyCode.NUMPAD3) {
-                engine.requestDemoItem(3);
-            }  else if (engine.isItemDemoEnabled()
-                    && (key == javafx.scene.input.KeyCode.DIGIT4 || key == javafx.scene.input.KeyCode.NUMPAD4)) {
-                engine.requestDemoItem(4);
-            }  else if (engine.isItemDemoEnabled()
-                    && (key == javafx.scene.input.KeyCode.DIGIT5 || key == javafx.scene.input.KeyCode.NUMPAD5)) {
-                engine.requestDemoItem(5);
-            }
-            else {
-                var bindings = gameSettings == null ? com.team10.tetris.input.GameKeyBindings.defaults()
-                        : gameSettings.getKeyBindings();
-                var command = bindings.commandFor(key);
-                if (command.isEmpty()) return;
-                controller.handle(command.get());
+            boolean modifierDown = event.isAltDown() || event.isControlDown() || event.isMetaDown() || event.isShiftDown();
+            var bindings = gameSettings == null ? GameKeyBindings.defaults() : gameSettings.getKeyBindings();
+            var action = GameKeyInput.resolve(event.getCode(), modifierDown, bindings, engine.isItemDemoEnabled());
+            if (action.isEmpty()) return;
+            switch (action.get()) {
+                case GameKeyInput.Action.OpenSettings open -> requestSettings();
+                case GameKeyInput.Action.DemoItem demo -> engine.requestDemoItem(demo.number());
+                case GameKeyInput.Action.Command command -> controller.handle(command.command());
             }
 
             redraw();
@@ -188,22 +161,17 @@ public class GameView extends BorderPane {
             event.consume();
         });
 
-        dropTimer = new Timeline(
-                new KeyFrame(
-                        Duration.millis(TIMER_STEP_MS),
-                        event -> updateGame()));
-
-        dropTimer.setCycleCount(Timeline.INDEFINITE);
+        gameLoop = new GameLoop(TIMER_STEP_MS, this::updateGame);
 
         sceneProperty().addListener(
                 (observable, oldScene, newScene) -> {
                     if (newScene == null) {
-                        dropTimer.stop();
+                        gameLoop.stop();
                     } else {
-                        lastUpdateNanos = System.nanoTime();
+                        gameLoop.resetClock();
 
                         if (!engine.isGameOver() && !settingsOpen) {
-                            dropTimer.play();
+                            gameLoop.start();
                         }
 
                         Platform.runLater(() -> {
@@ -232,6 +200,7 @@ public class GameView extends BorderPane {
     // 설정 화면 담당자가 색맹 모드 토글에서 호출
     public void setColorBlindMode(boolean colorBlindMode) {
         palette = BlockPalette.of(colorBlindMode);
+        renderer.setPalette(palette);
         redraw();
     }
 
@@ -250,10 +219,7 @@ public class GameView extends BorderPane {
                 };
     }
 
-    private void updateGame() {
-        long now = System.nanoTime();
-        int elapsed = (int) Math.min(Integer.MAX_VALUE, (now - lastUpdateNanos) / 1_000_000L);
-        lastUpdateNanos = now;
+    private void updateGame(int elapsed) {
         controller.advance(elapsed);
         redraw();
         checkGameOver();
@@ -265,9 +231,9 @@ public class GameView extends BorderPane {
         }
 
         settingsOpen = true;
-        dropTimer.stop();
+        gameLoop.stop();
         controller.pause();
-        lastUpdateNanos = System.nanoTime();
+        gameLoop.resetClock();
 
         redraw();
         onSettingsRequested.run();
@@ -282,10 +248,10 @@ public class GameView extends BorderPane {
         settingsOpen = false;
         if (!engine.isGameOver()) {
             controller.resume();
-            if (getScene() != null) dropTimer.play();
+            if (getScene() != null) gameLoop.start();
         }
 
-        lastUpdateNanos = System.nanoTime();
+        gameLoop.resetClock();
         redraw();
 
         Platform.runLater(() -> {
@@ -299,7 +265,7 @@ public class GameView extends BorderPane {
         }
 
         gameOverNotified = true;
-        dropTimer.stop();
+        gameLoop.stop();
 
         redraw();
         onGameOver.run();
@@ -341,7 +307,7 @@ public class GameView extends BorderPane {
         if (getScene() != null && getScene().getWindow() != null) result.initOwner(getScene().getWindow());
         result.showAndWait();
         if (resume) controller.resume();
-        lastUpdateNanos = System.nanoTime();
+        gameLoop.resetClock();
         redraw(); requestFocus();
     }
 
@@ -366,8 +332,8 @@ public class GameView extends BorderPane {
 
     public void redraw() {
         snapshot = controller.snapshot();
-        drawBoard();
-        drawNextBlock();
+        renderer.drawBoard(boardCanvas, snapshot);
+        renderer.drawNext(nextCanvas, snapshot);
         penaltyLabel.setText(snapshot.blackoutActive()
                 ? "B 암전 · 현재 블록 착지까지"
                 : snapshot.rotationLocked() ? "K 회전 잠금 · 현재 블록" : "");
@@ -402,357 +368,6 @@ public class GameView extends BorderPane {
             statusLabel.setText("LINE CLEAR");
         } else {
             statusLabel.setText("PLAYING");
-        }
-    }
-
-    private void drawBoard() {
-        GraphicsContext gc = boardCanvas.getGraphicsContext2D();
-
-        gc.setFill(Color.web(snapshot.blackoutActive() ? "#010205" : "#060B16"));
-        gc.fillRect(
-                0,
-                0,
-                boardCanvas.getWidth(),
-                boardCanvas.getHeight());
-
-        // 안내선은 고정 블록 뒤에 그려 쌓인 블록을 가리지 않는다.
-        PieceSnapshot ghost = snapshot.ghostBlock();
-        if (ghost != null) drawDropGuides(gc, snapshot.currentBlock(), ghost);
-
-        // 고정 블록은 조작 블록의 실제 점유 영역 중심에서 지름 4칸만 보인다.
-        gc.save();
-        if (snapshot.blackoutActive() && snapshot.currentBlock() != null) {
-            PieceSnapshot focus = snapshot.currentBlock();
-            int minRow = Integer.MAX_VALUE, maxRow = -1, minCol = Integer.MAX_VALUE, maxCol = -1;
-            for (int r = 0; r < focus.shape().size(); r++) {
-                for (int c = 0; c < focus.shape().get(r).size(); c++) {
-                    if (focus.shape().get(r).get(c) != 0) {
-                        minRow = Math.min(minRow, r); maxRow = Math.max(maxRow, r);
-                        minCol = Math.min(minCol, c); maxCol = Math.max(maxCol, c);
-                    }
-                }
-            }
-            double cx = (focus.col() + (minCol + maxCol + 1) / 2.0) * CELL_SIZE;
-            double cy = (focus.row() + (minRow + maxRow + 1) / 2.0) * CELL_SIZE;
-            gc.beginPath();
-            gc.arc(cx, cy, 2 * CELL_SIZE, 2 * CELL_SIZE, 0, 360);
-            gc.closePath();
-            gc.clip();
-            gc.setFill(Color.web("#101D30"));
-            gc.fillRect(0, 0, boardCanvas.getWidth(), boardCanvas.getHeight());
-        }
-        // 고정된 블록
-        for (int row = 0; row < Board.HEIGHT; row++) {
-            for (int col = 0; col < Board.WIDTH; col++) {
-                if (snapshot.cells().get(row).get(col) != 0) {
-                    drawCell(
-                            gc,
-                            row,
-                            col,
-                            palette.styleOf(snapshot.cellTypes().get(row).get(col)));
-                }
-            }
-        }
-
-        gc.restore();
-
-        if (ghost != null && ghost.row() > snapshot.currentBlock().row()) drawGhost(gc, ghost);
-
-        // 현재 블록
-        if (snapshot.currentBlock() != null) {
-            PieceSnapshot block = snapshot.currentBlock();
-            var shape = block.shape();
-            BlockStyle style = palette.styleOf(block.type());
-
-            for (int row = 0; row < shape.size(); row++) {
-                for (int col = 0; col < shape.get(row).size(); col++) {
-                    if (shape.get(row).get(col) == 1) {
-                        drawCell(
-                                gc,
-                                block.row() + row,
-                                block.col() + col,
-                                style);
-                    }
-                }
-            }
-            drawItemMarkers(gc, block, block.col() * CELL_SIZE, block.row() * CELL_SIZE, CELL_SIZE);
-        }
-
-        // 삭제 예정 행은 압축 전 위치에 밝은 색으로 표시한다.
-        gc.setFill(Color.rgb(255, 255, 255, 0.75));
-        for (int row : snapshot.clearingRows()) {
-            gc.fillRect(0, row * CELL_SIZE, boardCanvas.getWidth(), CELL_SIZE);
-        }
-        // 줄 삭제와 같은 흰색 강조를 실제 폭발로 없어질 칸에만 두 번 깜빡인다.
-        if (snapshot.effectFlashVisible()) {
-            for (var cell : snapshot.effectCells()) {
-                gc.fillRect(cell.col() * CELL_SIZE, cell.row() * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-            }
-        }
-
-        // 어두운 화면에서도 셀 경계를 구분할 수 있도록 밝기를 확보한다.
-        gc.setStroke(Color.web("#344155"));
-
-        for (int row = 0; row < Board.HEIGHT; row++) {
-            for (int col = 0; col < Board.WIDTH; col++) {
-                gc.strokeRect(
-                        col * CELL_SIZE,
-                        row * CELL_SIZE,
-                        CELL_SIZE,
-                        CELL_SIZE);
-            }
-        }
-    }
-
-    /** 좌우 끝 열의 실제 점유 칸을 기준으로 현재 블록 아래와 착지 위치 위를 연결한다. */
-    private void drawDropGuides(GraphicsContext gc, PieceSnapshot current, PieceSnapshot ghost) {
-        if (ghost.row() <= current.row()) return;
-        int left = Integer.MAX_VALUE, right = -1;
-        for (var row : current.shape()) {
-            for (int col = 0; col < row.size(); col++) {
-                if (row.get(col) != 0) { left = Math.min(left, col); right = Math.max(right, col); }
-            }
-        }
-        gc.save();
-        gc.setStroke(Color.web("#CBD5E1", 0.42));
-        gc.setLineWidth(1);
-        gc.setLineDashes(5, 5);
-        for (int side = 0; side < 2; side++) {
-            int col = side == 0 ? left : right;
-            int top = -1, bottom = -1;
-            for (int row = 0; row < current.shape().size(); row++) {
-                if (current.shape().get(row).get(col) != 0) {
-                    if (top < 0) top = row;
-                    bottom = row;
-                }
-            }
-            double start = (current.row() + bottom + 1) * CELL_SIZE;
-            double end = (ghost.row() + top) * CELL_SIZE;
-            double x = (current.col() + col + side) * CELL_SIZE + (side == 0 ? 2 : -2);
-            if (end > start) gc.strokeLine(x, start, x, end);
-        }
-        gc.restore();
-    }
-
-    private void drawGhost(GraphicsContext gc, PieceSnapshot ghost) {
-        gc.save();
-        gc.setFill(Color.web("#CBD5E1", 0.08));
-        gc.setStroke(Color.web("#CBD5E1", 0.8));
-        gc.setLineWidth(1.5);
-        for (int row = 0; row < ghost.shape().size(); row++) {
-            for (int col = 0; col < ghost.shape().get(row).size(); col++) {
-                if (ghost.shape().get(row).get(col) == 0) continue;
-                double x = (ghost.col() + col) * CELL_SIZE + 3;
-                double y = (ghost.row() + row) * CELL_SIZE + 3;
-                gc.fillRect(x, y, CELL_SIZE - 6, CELL_SIZE - 6);
-                gc.strokeRect(x, y, CELL_SIZE - 6, CELL_SIZE - 6);
-            }
-        }
-        gc.restore();
-    }
-
-    private void drawNextBlock() {
-        GraphicsContext gc = nextCanvas.getGraphicsContext2D();
-
-        gc.setFill(Color.web("#0B1320"));
-        gc.fillRect(
-                0,
-                0,
-                nextCanvas.getWidth(),
-                nextCanvas.getHeight());
-
-        PieceSnapshot nextBlock = snapshot.nextBlock();
-        var shape = nextBlock.shape();
-        BlockStyle style = palette.styleOf(nextBlock.type());
-
-        int previewCellSize = 24;
-
-        int startX = ((int) nextCanvas.getWidth()
-                - shape.get(0).size() * previewCellSize) / 2;
-
-        int startY = ((int) nextCanvas.getHeight()
-                - shape.size() * previewCellSize) / 2;
-
-        for (int row = 0; row < shape.size(); row++) {
-            for (int col = 0; col < shape.get(row).size(); col++) {
-                if (shape.get(row).get(col) == 1) {
-                    drawBlock(
-                            gc,
-                            startX + col * previewCellSize,
-                            startY + row * previewCellSize,
-                            previewCellSize - 2,
-                            style);
-                }
-            }
-        }
-        drawItemMarkers(gc, nextBlock, startX, startY, previewCellSize);
-    }
-    /** 부착형은 한 칸, 블록형 아이템(무게추)은 모든 칸에 문자를 그린다. */
-    private void drawItemMarkers(GraphicsContext gc, PieceSnapshot piece, double x, double y, double size) {
-        var item = piece.item();
-        if (item == null) return;
-        for (int r = 0; r < piece.shape().size(); r++) {
-            for (int c = 0; c < piece.shape().get(r).size(); c++) {
-                boolean marked = piece.isItemPiece()
-                        ? piece.shape().get(r).get(c) != 0
-                        : r == item.row() && c == item.col();
-                if (marked) drawItemMarker(gc, x + c * size, y + r * size, size, item.symbol());
-            }
-        }
-    }
-
-    /** 문자와 명암 테두리로 구분해 일반·색맹 팔레트 모두에서 읽을 수 있게 한다. */
-    private void drawItemMarker(GraphicsContext gc, double x, double y, double size, String symbol) {
-        gc.save();
-        double inset = 3;
-        gc.setFill(Color.web("#111827"));
-        gc.fillRoundRect(x + inset, y + inset, size - 2 * inset, size - 2 * inset, 4, 4);
-        gc.setStroke(Color.WHITE);
-        gc.setLineWidth(1);
-        gc.strokeRoundRect(x + inset, y + inset, size - 2 * inset, size - 2 * inset, 4, 4);
-        gc.setFill(Color.WHITE);
-        gc.setFont(AppFonts.bold(size * 0.64));
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.fillText(symbol, x + size / 2, y + size / 2, size - 6);
-        gc.restore();
-    }
-
-    private void drawCell(
-            GraphicsContext gc,
-            int row,
-            int col,
-            BlockStyle style) {
-        drawBlock(
-                gc,
-                col * CELL_SIZE + 1,
-                row * CELL_SIZE + 1,
-                CELL_SIZE - 2,
-                style);
-    }
-
-    // 블록 한 칸: 채우기 → 무늬 → 외곽선
-    private void drawBlock(
-            GraphicsContext gc,
-            double x,
-            double y,
-            double size,
-            BlockStyle style) {
-        gc.setFill(style.fill());
-        gc.fillRect(x, y, size, size);
-
-        if (style.pattern() != BlockPattern.NONE) {
-            // 무늬가 칸 밖으로 나가지 않도록 칸 영역으로 자름
-            gc.save();
-            gc.beginPath();
-            gc.rect(x, y, size, size);
-            gc.closePath();
-            gc.clip();
-
-            drawPattern(gc, x, y, size, style);
-
-            gc.restore();
-        }
-
-        gc.setStroke(BlockPalette.OUTLINE);
-        gc.setLineWidth(OUTLINE_WIDTH);
-        gc.strokeRect(
-                x + OUTLINE_WIDTH / 2,
-                y + OUTLINE_WIDTH / 2,
-                size - OUTLINE_WIDTH,
-                size - OUTLINE_WIDTH);
-        gc.setLineWidth(1);
-    }
-
-    // 무늬는 화면 기준으로 그려서 블록이 회전해도 방향이 바뀌지 않음
-    private void drawPattern(
-            GraphicsContext gc,
-            double x,
-            double y,
-            double size,
-            BlockStyle style) {
-        double spacing = size * PATTERN_SPACING_RATIO;
-
-        gc.setStroke(style.patternColor());
-        gc.setFill(style.patternColor());
-        gc.setLineWidth(PATTERN_LINE_WIDTH);
-
-        switch (style.pattern()) {
-            case HORIZONTAL_LINES -> drawHorizontalLines(gc, x, y, size, spacing);
-            case VERTICAL_LINES -> drawVerticalLines(gc, x, y, size, spacing);
-            case GRID -> {
-                drawHorizontalLines(gc, x, y, size, spacing);
-                drawVerticalLines(gc, x, y, size, spacing);
-            }
-            case DIAGONAL_RIGHT -> drawDiagonalLines(gc, x, y, size, spacing, true);
-            case DIAGONAL_LEFT -> drawDiagonalLines(gc, x, y, size, spacing, false);
-            case CROSS_DIAGONAL -> {
-                drawDiagonalLines(gc, x, y, size, spacing, true);
-                drawDiagonalLines(gc, x, y, size, spacing, false);
-            }
-            case DOTS -> drawDots(gc, x, y, size);
-            case NONE -> {
-            }
-        }
-    }
-
-    private void drawHorizontalLines(
-            GraphicsContext gc,
-            double x,
-            double y,
-            double size,
-            double spacing) {
-        for (double offset = spacing; offset < size; offset += spacing) {
-            gc.strokeLine(x, y + offset, x + size, y + offset);
-        }
-    }
-
-    private void drawVerticalLines(
-            GraphicsContext gc,
-            double x,
-            double y,
-            double size,
-            double spacing) {
-        for (double offset = spacing; offset < size; offset += spacing) {
-            gc.strokeLine(x + offset, y, x + offset, y + size);
-        }
-    }
-
-    // rising == true 이면 '/', false 이면 '\'
-    private void drawDiagonalLines(
-            GraphicsContext gc,
-            double x,
-            double y,
-            double size,
-            double spacing,
-            boolean rising) {
-        // 선 사이의 수직 거리가 spacing이 되도록 가로 방향 간격을 넓힘
-        double step = spacing * Math.sqrt(2);
-
-        for (double offset = step; offset < size * 2; offset += step) {
-            if (rising) {
-                gc.strokeLine(x + offset - size, y + size, x + offset, y);
-            } else {
-                gc.strokeLine(x + offset - size, y, x + offset, y + size);
-            }
-        }
-    }
-
-    private void drawDots(
-            GraphicsContext gc,
-            double x,
-            double y,
-            double size) {
-        double radius = size * 0.11;
-
-        for (double cy : new double[] {0.3, 0.7}) {
-            for (double cx : new double[] {0.3, 0.7}) {
-                gc.fillOval(
-                        x + size * cx - radius,
-                        y + size * cy - radius,
-                        radius * 2,
-                        radius * 2);
-            }
         }
     }
 }
