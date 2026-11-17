@@ -54,6 +54,21 @@
 3. 제출용으로 필요한 시점에만 같은 커밋에서 전체 커버리지를 새로 측정하고 보고서를 연결한다.
 4. 스프린트별 실제 스토리 담당, 완료 조건, PR·리뷰·이월 사유를 기록한다. 과거에 없던 스프린트·승인·리뷰를 만들어 넣지 않는다.
 
+## 2026-11-16 · A/Claude 세션 종료 기록
+
+- 기준: main `ceae0d4`. PR #59(`feature/local-versus`, HEAD `05c8c41`) 구현·협업 문서는 아직 main에 없음.
+- 열린 PR(모두 B `pepcsy`·C `xeohyun` 리뷰 요청만 완료, 동료 리뷰 0건, 병합 전, 자동 병합 미설정):
+  - #59 같은 PC 대전 구현. 이번 세션에 협업 안내에 D-011 반영 문서 커밋 추가.
+  - #60 `docs/req3-notion-source` 3차 역할 분담 노션 원문 보존(원본 바이트·SHA-256 확인).
+  - #61 `fix/remove-unused-pause-button` 화면에 붙지 않은 일시정지 버튼 코드 제거. GameView 사용 UI 테스트 9개 클래스 19건 통과.
+  - #62 `fix/remove-unused-guava` 미사용 Guava 제거. `:app:test` 232건, `verifyWindowsPackage` 통과.
+  - #63 `fix/score-read-error` 기록 파일 읽기 실패 안내·저장 재시도. `GameFlowTest` 4건 통과, 새 테스트는 수정 전 코드에서 실패 확인.
+- main 직접 반영: [P-A-002](proposals/P-A-002.md) 리디자인 제안(B/C 의견 수집 전), [D-011](decisions.md) 협업 기록 문서는 PR 없이 main 반영(사용자 지시).
+- 점검 출처: ponytail-audit(Claude)·Codex 점검은 AI 자체 점검이며 동료 리뷰가 아니다. 점검 1번(일시정지 복귀 버그)은 오탐으로 정정했다.
+- 미실행: 전체 `uiTest`, 공식 Line Coverage, 두 PC 실측.
+- 다음 사람이 먼저 할 일: PR #59~#63 리뷰 코멘트 확인 → 차단 지적 수정·답글 → 리뷰 조건 충족 후 병합. 리뷰 부담이 크면 #59를 우선 요청한다. #59 병합 후 `docs/tasks/source-req3-plan.md`의 "원문 보존 못 함" 문구를 #60 기준으로 갱신한다.
+- 로컬 `app/bin` 변경은 커밋하지 않고 보존했다.
+
 ## 작업 단위 인수인계 양식
 
 ```text

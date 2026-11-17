@@ -116,12 +116,14 @@ public class GameOverView extends BorderPane {
         headlineLabel.setText("수고했어요!");
         descriptionLabel.setText(config.mode() + " / " + config.difficulty() + " 기록을 확인해 보세요.");
 
-        boolean canRegister = false;
+        boolean canRegister;
 
         try {
             canRegister = manager.isHighScore(this.score, config.mode(), config.difficulty());
         } catch (IOException exception) {
-            // 기록을 읽지 못하면 등록 단계를 건너뛴다
+            // 순위를 판단할 수 없으므로 저장 기회를 남기고, 저장 시 다시 읽어 순위를 확인한다
+            canRegister = this.score > 0;
+            descriptionLabel.setText("기록 파일을 읽지 못했습니다. 이름을 입력해 저장을 다시 시도할 수 있습니다.");
         }
 
         showScorePanel();
@@ -292,12 +294,13 @@ public class GameOverView extends BorderPane {
     // ---------------------------------------------------------------
 
     private void showScorePanel() {
-        int highScore = 0;
+        String highScore;
 
         try {
-            highScore = manager.getHighScore(config.mode(), config.difficulty());
+            highScore = String.valueOf(manager.getHighScore(config.mode(), config.difficulty()));
         } catch (IOException exception) {
-            // 최고 점수를 읽지 못하면 0으로 표시
+            // 0으로 보이면 기록이 없는 것으로 오해하므로 값을 알 수 없음으로 표시
+            highScore = "-";
         }
 
         Label caption = new Label("FINAL SCORE");
@@ -312,7 +315,7 @@ public class GameOverView extends BorderPane {
         VBox right = new VBox(
                 16,
                 createStatRow("지운 줄", String.valueOf(clearedLines)),
-                createStatRow("최고 점수", String.valueOf(highScore))
+                createStatRow("최고 점수", highScore)
         );
         right.setMinWidth(240);
         right.setAlignment(Pos.CENTER_LEFT);
@@ -359,7 +362,7 @@ public class GameOverView extends BorderPane {
         try {
             rank = manager.saveAndGetRank(playerName, score, clearedLines, config.mode(), config.difficulty());
         } catch (IOException exception) {
-            descriptionLabel.setText("기록을 저장하지 못했습니다.");
+            descriptionLabel.setText("기록을 저장하지 못했습니다. 저장을 다시 눌러 재시도할 수 있습니다.");
             return;
         }
 
