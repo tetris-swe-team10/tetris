@@ -91,6 +91,7 @@ public class GameView extends BorderPane {
                 Board.WIDTH * CELL_SIZE,
                 Board.HEIGHT * CELL_SIZE);
 
+        boardCanvas.setId("game-board");
         nextCanvas = new Canvas(120, 120);
 
         Label modeBadge = sessionBadge(engine.getConfig().mode() + " 모드", "current-mode", "#60A5FA");

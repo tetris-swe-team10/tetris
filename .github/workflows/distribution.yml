@@ -1,0 +1,35 @@
+name: Native distribution
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths: ['app/**', 'packaging/**', '.github/workflows/distribution.yml', 'tools/**', 'gradle/**', '*.gradle']
+jobs:
+  package:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Test and build native app
+        shell: bash
+        run: bash ./gradlew :app:test :app:packageZip --no-configuration-cache
+      - name: Verify bundled runtime launch
+        run: python packaging/smoke.py app/build/native/${{ runner.os == 'Windows' && 'windows' || 'macos' }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tetris-${{ runner.os }}-${{ runner.arch }}
+          path: app/build/distributions/*.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-${{ runner.os }}
+          path: app/build/reports/tests/test
