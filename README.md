@@ -12,6 +12,16 @@ Windows 11 x64 배포 ZIP 생성: `./gradlew.bat :app:packageWindowsZip`
 사람과 AI의 읽는 순서·역할별 요청·리뷰 후 병합 기준은 [read.md](read.md)에 있습니다.
 [AI 지침](docs/ai-guide.md), [품질·평가 근거](docs/quality-and-evaluation.md), [노션 정리·원문](docs/notion/README.md)을 확인할 수 있습니다.
 
+## 프로젝트 관리
+
+진행 관리는 GitHub 이슈·마일스톤·PR로 하고, 계획·회의 기록은 노션에서 작성해 [저장소에 보관](docs/notion/README.md)합니다.
+
+- 개발 주기별 할 일: [마일스톤](https://github.com/tetris-swe-team10/tetris/milestones?state=all) — 1차 기본 게임, 2차 아이템 모드, 3차 대전 모드
+- 팀원별 업무: 역할 라벨 [A·혜원](https://github.com/tetris-swe-team10/tetris/issues?q=label%3A%22%EC%97%AD%ED%95%A0+A%C2%B7%ED%98%9C%EC%9B%90%22), [B·수연](https://github.com/tetris-swe-team10/tetris/issues?q=label%3A%22%EC%97%AD%ED%95%A0+B%C2%B7%EC%88%98%EC%97%B0%22), [C·서현](https://github.com/tetris-swe-team10/tetris/issues?q=label%3A%22%EC%97%AD%ED%95%A0+C%C2%B7%EC%84%9C%ED%98%84%22)과 이슈 담당자
+- 역할 배분과 이유: [역할별 시작점](docs/tasks/README.md), 노션 「Agile Planning」·「3차 요구사항 역할 분담 · 2주 계획」([노션 정리](docs/notion/README.md))
+- 코드 리뷰: [병합된 PR](https://github.com/tetris-swe-team10/tetris/pulls?q=is%3Apr+is%3Amerged)의 리뷰 기록
+- 최종 평가 점검: [시연 체크리스트](docs/tasks/demo-checklist.md)
+
 ```powershell
 .\gradlew.bat :app:run
 .\gradlew.bat :app:test
