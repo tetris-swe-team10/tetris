@@ -9,6 +9,7 @@
 | B 수연 | [B 할 일](B-network-lobby.md) | 공용 렌더러·입력 리팩토링, 두 PC 연결·대기실 |
 | C 서현 | [C 할 일](C-design-p2p-game.md) | 화면 디자인, 연결된 두 PC의 게임 진행·복귀 |
 
+최종 평가 대비 전체 점검은 [시연 체크리스트](demo-checklist.md)를 본다.
 공통 계약은 [역할·인터페이스](../coordination/req3-roles.md), 운영은 [시작·종료 루틴](../session-routines.md)을 따른다.
 자기 역할 문서 → 필요한 인터페이스 → 관련 코드·테스트 순서로 읽는다. 다른 역할의 전체 원문을 매번 읽지 않는다.
 
