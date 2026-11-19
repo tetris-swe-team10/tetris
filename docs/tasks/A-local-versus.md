@@ -26,7 +26,7 @@
 | 공격 | `GameEngine.receiveAttack`, `AttackListener`, `AttackLines`, `Board.insertGarbage` |
 | 한 판 | `LocalVersusMatch implements VersusMatch` |
 | 화면·키 | `LocalVersusView`, `VersusKeyBindings`, `AppController` |
-| 그리기 | `BoardRenderer` 주입. B 구현 전 `VersusBoardRenderer` 사용 |
+| 그리기 | `BoardRenderer` 주입. 1인 게임과 같은 `CanvasBoardRenderer` 사용(임시 `VersusBoardRenderer`는 2026-11-19 삭제) |
 | C에게 제공 | 공격 콜백·수신 진입점, `GameSnapshot.garbageCells/pendingAttack` |
 
 2인 키는 1인 키 설정을 덮어쓰지 않고 `~/.team10-tetris/versus-keys.properties`에 저장한다.

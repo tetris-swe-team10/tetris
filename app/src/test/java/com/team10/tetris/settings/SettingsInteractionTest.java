@@ -66,7 +66,7 @@ class SettingsInteractionTest {
             assertEquals("키 변경", ((ButtonBase)stage.getScene().getFocusOwner()).getText());
             key(root,KeyCode.DOWN);key(root,KeyCode.ENTER);
             assertTrue(settings.isColorBlindMode());
-            assertTrue(new SettingsManager(temp.resolve("settings.properties")).loadColorBlindMode());
+            assertTrue(new SettingsManager(temp.resolve("settings.properties")).loadSettings().colorBlindMode());
             Node plus=root.lookup("#demo-item-lines-more");
             assertFalse(visible(plus));
             key(root,KeyCode.DOWN);key(root,KeyCode.ENTER);

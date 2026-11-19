@@ -19,7 +19,7 @@ class LocalVersusViewTest {
         CountDownLatch done=new CountDownLatch(1); AtomicReference<Throwable> failure=new AtomicReference<>();
         Platform.runLater(()->{try {
             var match=new LocalVersusMatch(VersusConfig.of(VersusRule.NORMAL,Difficulty.NORMAL));
-            var root=new LocalVersusView(match,new VersusBoardRenderer(),()->{},()->{},com.team10.tetris.input.VersusKeyBindings.defaults());
+            var root=new LocalVersusView(match,new CanvasBoardRenderer(),()->{},()->{},com.team10.tetris.input.VersusKeyBindings.defaults());
             Scene scene=new Scene(root,960,640); root.applyCss(); root.layout();
             int first=match.snapshot(PlayerSide.PLAYER1).currentBlock().col();
             int second=match.snapshot(PlayerSide.PLAYER2).currentBlock().col();
@@ -45,10 +45,10 @@ class LocalVersusViewTest {
             var board=new Board(); var engine=new GameEngine(board,new Tetromino(TetrominoType.O,0,3));
             engine.receiveAttack(com.team10.tetris.game.versus.AttackLines.EMPTY);
             board.setCell(19,1,Board.GARBAGE);
-            var renderer=new VersusBoardRenderer(); var canvas=new javafx.scene.canvas.Canvas(100,200);
+            var renderer=new CanvasBoardRenderer(); var canvas=new javafx.scene.canvas.Canvas(100,200);
             renderer.drawBoard(canvas,engine.snapshot());
             var gray=canvas.snapshot(null,null).getPixelReader().getColor(15,195);
-            assertEquals(javafx.scene.paint.Color.GRAY,gray);
+            assertEquals(CanvasBoardRenderer.GARBAGE.fill(),gray);
             var image=scene.snapshot(null);
             java.nio.file.Path out=java.nio.file.Path.of("build/ui-smoke/local-versus.png"); java.nio.file.Files.createDirectories(out.getParent());
             var png=new java.awt.image.BufferedImage(960,640,java.awt.image.BufferedImage.TYPE_INT_ARGB);

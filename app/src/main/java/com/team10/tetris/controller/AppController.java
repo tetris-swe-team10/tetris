@@ -26,7 +26,7 @@ import com.team10.tetris.ui.GameView;
 import com.team10.tetris.ui.BlockPalette;
 import com.team10.tetris.ui.LocalVersusView;
 import com.team10.tetris.ui.ScoreboardView;
-import com.team10.tetris.ui.VersusBoardRenderer;
+import com.team10.tetris.ui.CanvasBoardRenderer;
 
 import javafx.application.Platform;
 import javafx.scene.Parent;
@@ -108,7 +108,7 @@ public final class AppController {
     }
 
     private void showVersus(VersusConfig config) {
-        var renderer = new VersusBoardRenderer();
+        var renderer = new CanvasBoardRenderer();
         renderer.setPalette(BlockPalette.of(settings.isColorBlindMode()));
         showScreen(new LocalVersusView(
                 new LocalVersusMatch(config, createVersusEngine(config), createVersusEngine(config)), renderer,
