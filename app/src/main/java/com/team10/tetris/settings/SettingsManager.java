@@ -34,21 +34,6 @@ public class SettingsManager {
         this.filePath = filePath;
     }
 
-    public Path getFilePath() {
-        return filePath;
-    }
-
-    /** 저장된 색맹 모드 값. 파일이 없거나 읽을 수 없으면 false. */
-    public boolean loadColorBlindMode() {
-        try {
-            String value = load().getProperty(COLOR_BLIND_MODE_KEY);
-
-            return value != null && Boolean.parseBoolean(value.trim());
-        } catch (IOException | IllegalArgumentException exception) {
-            return false;
-        }
-    }
-
     /** 색맹 모드 값을 저장한다. 파일에 있던 다른 설정은 그대로 둔다. */
     public void saveColorBlindMode(boolean colorBlindMode) throws IOException {
         Properties properties;

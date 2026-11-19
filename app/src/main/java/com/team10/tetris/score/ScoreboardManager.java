@@ -39,9 +39,6 @@ public class ScoreboardManager {
         Files.writeString(filePath, encode(record), StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
-    public void save(String playerName, int score, int clearedLines) throws IOException {
-        save(new GameRecord(playerName, score, clearedLines, LocalDateTime.now()));
-    }
 
     public List<GameRecord> getRecords() throws IOException {
         List<GameRecord> records = new ArrayList<>();
@@ -77,14 +74,8 @@ public class ScoreboardManager {
         if (limit < 0) throw new IllegalArgumentException("조회 개수는 음수일 수 없습니다.");
         return getRecords(mode, difficulty).stream().limit(limit).toList();
     }
-    public int getHighScore() throws IOException {
-        return getRecords().stream().findFirst().map(GameRecord::score).orElse(0);
-    }
     public int getHighScore(GameMode mode, Difficulty difficulty) throws IOException {
         return getRecords(mode, difficulty).stream().findFirst().map(GameRecord::score).orElse(0);
-    }
-    public boolean isHighScore(int score) throws IOException {
-        return isHighScore(score, GameMode.NORMAL, Difficulty.NORMAL);
     }
     public boolean isHighScore(int score, GameMode mode, Difficulty difficulty) throws IOException {
         if (score <= 0) return false;
@@ -100,9 +91,6 @@ public class ScoreboardManager {
         List<GameRecord> records = getRecords(record.mode(), record.difficulty());
         int index = records.indexOf(record);
         return index < 0 ? UNRANKED : index + 1;
-    }
-    public int saveAndGetRank(String playerName, int score, int clearedLines) throws IOException {
-        return saveAndGetRank(new GameRecord(playerName, score, clearedLines, LocalDateTime.now()));
     }
     public int saveAndGetRank(String playerName, int score, int clearedLines,
             GameMode mode, Difficulty difficulty) throws IOException {

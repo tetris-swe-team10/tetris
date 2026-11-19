@@ -23,7 +23,7 @@ class SettingsManagerTest {
     void colorBlindModeIsOffWhenFileDoesNotExist() {
         SettingsManager manager = new SettingsManager(settingsFile());
 
-        assertFalse(manager.loadColorBlindMode());
+        assertFalse(manager.loadSettings().colorBlindMode());
     }
 
     @Test
@@ -33,10 +33,10 @@ class SettingsManagerTest {
         SettingsManager manager = new SettingsManager(settingsFile());
 
         manager.saveColorBlindMode(true);
-        assertTrue(manager.loadColorBlindMode());
+        assertTrue(manager.loadSettings().colorBlindMode());
 
         manager.saveColorBlindMode(false);
-        assertFalse(manager.loadColorBlindMode());
+        assertFalse(manager.loadSettings().colorBlindMode());
     }
 
     @Test
@@ -48,7 +48,7 @@ class SettingsManagerTest {
         // 다음 실행을 흉내 내기 위해 새 객체로 다시 읽음
         SettingsManager nextRun = new SettingsManager(settingsFile());
 
-        assertTrue(nextRun.loadColorBlindMode());
+        assertTrue(nextRun.loadSettings().colorBlindMode());
     }
 
     @Test
@@ -61,7 +61,7 @@ class SettingsManagerTest {
         manager.saveColorBlindMode(true);
 
         assertTrue(Files.exists(file));
-        assertTrue(manager.loadColorBlindMode());
+        assertTrue(manager.loadSettings().colorBlindMode());
     }
 
     @Test
@@ -74,7 +74,7 @@ class SettingsManagerTest {
                 StandardCharsets.UTF_8
         );
 
-        assertTrue(new SettingsManager(settingsFile()).loadColorBlindMode());
+        assertTrue(new SettingsManager(settingsFile()).loadSettings().colorBlindMode());
     }
 
     @Test
@@ -87,7 +87,7 @@ class SettingsManagerTest {
                 StandardCharsets.UTF_8
         );
 
-        assertFalse(new SettingsManager(settingsFile()).loadColorBlindMode());
+        assertFalse(new SettingsManager(settingsFile()).loadSettings().colorBlindMode());
     }
 
     @Test
@@ -97,7 +97,7 @@ class SettingsManagerTest {
         // 파일 자리에 폴더가 있으면 읽을 수 없음
         Files.createDirectories(settingsFile());
 
-        assertFalse(new SettingsManager(settingsFile()).loadColorBlindMode());
+        assertFalse(new SettingsManager(settingsFile()).loadSettings().colorBlindMode());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package com.team10.tetris.score;
 
+import com.team10.tetris.game.Difficulty;
+import com.team10.tetris.game.GameMode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -26,7 +28,7 @@ class ScoreboardManagerTest {
             throws IOException {
 
         for (int index = 1; index <= ScoreboardManager.MAX_RECORDS; index++) {
-            manager.save("Player" + index, index * 100, index);
+            manager.save(new GameRecord("Player" + index, index * 100, index, LocalDateTime.now()));
         }
     }
 
@@ -37,7 +39,7 @@ class ScoreboardManagerTest {
         ScoreboardManager manager = createManager();
 
         assertEquals(0, manager.getRecords().size());
-        assertEquals(0, manager.getHighScore());
+        assertEquals(0, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -67,9 +69,9 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 300, 2);
-        manager.save("B", 1200, 5);
-        manager.save("C", 700, 3);
+        manager.save(new GameRecord("A", 300, 2, LocalDateTime.now()));
+        manager.save(new GameRecord("B", 1200, 5, LocalDateTime.now()));
+        manager.save(new GameRecord("C", 700, 3, LocalDateTime.now()));
 
         List<GameRecord> records = manager.getRecords();
 
@@ -84,9 +86,9 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 100, 1);
-        manager.save("B", 200, 2);
-        manager.save("C", 300, 3);
+        manager.save(new GameRecord("A", 100, 1, LocalDateTime.now()));
+        manager.save(new GameRecord("B", 200, 2, LocalDateTime.now()));
+        manager.save(new GameRecord("C", 300, 3, LocalDateTime.now()));
 
         List<GameRecord> records =
                 manager.getTopRecords(2);
@@ -102,11 +104,11 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 500, 2);
-        manager.save("B", 1800, 6);
-        manager.save("C", 900, 4);
+        manager.save(new GameRecord("A", 500, 2, LocalDateTime.now()));
+        manager.save(new GameRecord("B", 1800, 6, LocalDateTime.now()));
+        manager.save(new GameRecord("C", 900, 4, LocalDateTime.now()));
 
-        assertEquals(1800, manager.getHighScore());
+        assertEquals(1800, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -117,7 +119,7 @@ class ScoreboardManagerTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> manager.save("A", -100, 1)
+                () -> manager.save(new GameRecord("A", -100, 1, LocalDateTime.now()))
         );
     }
 
@@ -142,12 +144,12 @@ class ScoreboardManagerTest {
         ScoreboardManager first =
                 new ScoreboardManager(file);
 
-        first.save("Player", 2500, 10);
+        first.save(new GameRecord("Player", 2500, 10, LocalDateTime.now()));
 
         ScoreboardManager second =
                 new ScoreboardManager(file);
 
-        assertEquals(2500, second.getHighScore());
+        assertEquals(2500, second.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
     }
     // ---------------------------------------------------------------
     // isHighScore
@@ -159,7 +161,7 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        assertTrue(manager.isHighScore(1));
+        assertTrue(manager.isHighScore(1, GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -168,7 +170,7 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        assertFalse(manager.isHighScore(0));
+        assertFalse(manager.isHighScore(0, GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -177,9 +179,9 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 5000, 20);
+        manager.save(new GameRecord("A", 5000, 20, LocalDateTime.now()));
 
-        assertTrue(manager.isHighScore(10));
+        assertTrue(manager.isHighScore(10, GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -190,7 +192,7 @@ class ScoreboardManagerTest {
         fillScoreboard(manager);
 
         // 최하위 기록은 100점
-        assertTrue(manager.isHighScore(150));
+        assertTrue(manager.isHighScore(150, GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -200,7 +202,7 @@ class ScoreboardManagerTest {
         ScoreboardManager manager = createManager();
         fillScoreboard(manager);
 
-        assertFalse(manager.isHighScore(50));
+        assertFalse(manager.isHighScore(50, GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -210,7 +212,7 @@ class ScoreboardManagerTest {
         ScoreboardManager manager = createManager();
         fillScoreboard(manager);
 
-        assertFalse(manager.isHighScore(100));
+        assertFalse(manager.isHighScore(100, GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     // ---------------------------------------------------------------
@@ -223,10 +225,10 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 500, 2);
-        manager.save("B", 900, 4);
+        manager.save(new GameRecord("A", 500, 2, LocalDateTime.now()));
+        manager.save(new GameRecord("B", 900, 4, LocalDateTime.now()));
 
-        assertEquals(1, manager.saveAndGetRank("C", 1500, 7));
+        assertEquals(1, manager.saveAndGetRank(new GameRecord("C", 1500, 7, LocalDateTime.now())));
     }
 
     @Test
@@ -235,10 +237,10 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 1500, 7);
-        manager.save("B", 500, 2);
+        manager.save(new GameRecord("A", 1500, 7, LocalDateTime.now()));
+        manager.save(new GameRecord("B", 500, 2, LocalDateTime.now()));
 
-        assertEquals(2, manager.saveAndGetRank("C", 900, 4));
+        assertEquals(2, manager.saveAndGetRank(new GameRecord("C", 900, 4, LocalDateTime.now())));
     }
 
     @Test
@@ -250,7 +252,7 @@ class ScoreboardManagerTest {
 
         assertEquals(
                 ScoreboardManager.UNRANKED,
-                manager.saveAndGetRank("Late", 10, 0)
+                manager.saveAndGetRank(new GameRecord("Late", 10, 0, LocalDateTime.now()))
         );
     }
 
@@ -261,13 +263,13 @@ class ScoreboardManagerTest {
         ScoreboardManager manager = createManager();
         fillScoreboard(manager);
 
-        manager.saveAndGetRank("Best", 99999, 50);
+        manager.saveAndGetRank(new GameRecord("Best", 99999, 50, LocalDateTime.now()));
 
         assertEquals(
                 ScoreboardManager.MAX_RECORDS,
                 manager.getRecords().size()
         );
-        assertEquals(99999, manager.getHighScore());
+        assertEquals(99999, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -277,7 +279,7 @@ class ScoreboardManagerTest {
         ScoreboardManager manager = createManager();
         fillScoreboard(manager);
 
-        manager.saveAndGetRank("Best", 99999, 50);
+        manager.saveAndGetRank(new GameRecord("Best", 99999, 50, LocalDateTime.now()));
 
         List<GameRecord> records = manager.getRecords();
         GameRecord lowest = records.get(records.size() - 1);
@@ -296,13 +298,13 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 500, 2);
-        manager.save("B", 900, 4);
+        manager.save(new GameRecord("A", 500, 2, LocalDateTime.now()));
+        manager.save(new GameRecord("B", 900, 4, LocalDateTime.now()));
 
         manager.clear();
 
         assertEquals(0, manager.getRecords().size());
-        assertEquals(0, manager.getHighScore());
+        assertEquals(0, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
@@ -311,12 +313,12 @@ class ScoreboardManagerTest {
 
         ScoreboardManager manager = createManager();
 
-        manager.save("A", 500, 2);
+        manager.save(new GameRecord("A", 500, 2, LocalDateTime.now()));
         manager.clear();
-        manager.save("B", 300, 1);
+        manager.save(new GameRecord("B", 300, 1, LocalDateTime.now()));
 
         assertEquals(1, manager.getRecords().size());
-        assertEquals(300, manager.getHighScore());
+        assertEquals(300, manager.getHighScore(GameMode.NORMAL, Difficulty.NORMAL));
     }
 
     @Test
