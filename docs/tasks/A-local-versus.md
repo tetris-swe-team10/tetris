@@ -1,7 +1,8 @@
 # A · 혜원 · 같은 PC 대전
 
 목표: V-1~V-10 전체 흐름과 N-3 아이템 요구사항 명세서를 책임진다.
-브랜치: `feature/local-versus`. B/C의 기능까지 구현 완료로 표시하지 않는다.
+상태: 2026-11-17 기준 핵심 구현·리뷰·main 병합 완료. 구현 PR #59, B 리팩토링 리뷰 PR #64.
+사용자 지시: B/C 구현·디자인·공용 렌더러 연동은 각 담당자가 전담한다. A는 평가 자료·자기 코드 점검·자기 코드의 오류 수정만 진행한다.
 
 ## 요구사항과 할 일
 
@@ -17,7 +18,7 @@
 - [x] V-10 120초·점수 비교·무승부·양쪽 일시정지
 - [x] 2인 키 변경·저장·전체 충돌 검사, 재시작·메인 복귀
 - [x] N-3 [아이템 요구사항 명세](../item-requirements.md)
-- [ ] B 리팩토링 PR 리뷰(실제 PR 확인 후 기록)
+- [x] B 리팩토링 PR 리뷰: [#64 A 리뷰](https://github.com/tetris-swe-team10/tetris/pull/64#pullrequestreview-5931179778), 관련 27건 선별 통과
 
 ## 코드와 연동
 
@@ -26,7 +27,7 @@
 | 공격 | `GameEngine.receiveAttack`, `AttackListener`, `AttackLines`, `Board.insertGarbage` |
 | 한 판 | `LocalVersusMatch implements VersusMatch` |
 | 화면·키 | `LocalVersusView`, `VersusKeyBindings`, `AppController` |
-| 그리기 | `BoardRenderer` 주입. B 구현 전 `VersusBoardRenderer` 사용 |
+| 그리기 | `BoardRenderer` 주입, 현재 `VersusBoardRenderer` 사용. B 공용 구현은 #64로 병합됐으며 실제 교체는 B 후속 작업 |
 | C에게 제공 | 공격 콜백·수신 진입점, `GameSnapshot.garbageCells/pendingAttack` |
 
 2인 키는 1인 키 설정을 덮어쓰지 않고 `~/.team10-tetris/versus-keys.properties`에 저장한다.
@@ -36,7 +37,7 @@
 
 2026-11-16 로컬 선별 검증 통과: 대전 엔진·키·인터페이스 직렬화, 기존 보드·엔진·폭탄 연출·L·W 직접 영향 범위, 대전 UI·시작 메뉴 레이아웃.
 공용 엔진에 추가한 수신 로직 때문에 기존 ‘빈 수신 함수’ 전제만 제거하고, 실제 수신 후 회색 칸·대기 줄 직렬화 검증을 추가했다.
-전체 회귀 테스트·공식 커버리지 측정·동료 리뷰·main 병합은 수행하지 않았다. Issue [#58](https://github.com/tetris-swe-team10/tetris/issues/58)에서 PR과 요청 전달을 연결한다.
+2026-11-17에는 B 동료 리뷰·수정 답글을 거쳐 #59를 `d05fd53`으로 main에 병합했다. #64도 `f1ad236`으로 병합했고, 통합 main에서 대전 UI·결과 저장·공용 렌더러 선별 검증이 통과했다. 전체 회귀 테스트·공식 커버리지는 이번 A 작업에서 측정하지 않았다. Issue [#58](https://github.com/tetris-swe-team10/tetris/issues/58).
 
 ```powershell
 .\gradlew.bat :app:test --tests '*LocalVersusMatchTest' --tests '*VersusKeyBindingsTest' --tests '*VersusInterfaceTypesTest' --offline
@@ -50,10 +51,18 @@
 `VersusKeyBindingsTest`: 두 사람 매핑·충돌 거부·저장/불러오기·손상 파일 복구.
 화면·렌더러는 별도 UI 테스트로 검증한다. B/C 미완성 기능과 LAN 실측은 이 PR 완료 범위가 아니다.
 
-## 후속 연동
+## A의 남은 일
 
-- [ ] C의 확정 목업 반영 (현재는 동작 확인용 화면)
-- [ ] B 공용 렌더러 병합 후 생성 시 주입 구현 교체, 임시 렌더러 제거 검토
-- [ ] 이슈/PR 번호·동료 리뷰·원격 병합 근거 기록
+- [x] 이슈·PR·동료 리뷰·병합 근거 정리
+- [x] 아이템 명세와 기존 테스트의 추적표 작성: [명세서](../item-requirements.md)
+- [x] [A 평가 시연·점검 절차](A-evaluation.md) 작성 (절차 작성과 실제 시연 완료는 구분)
+- [ ] 실제 두 사람 플레이 후 시연표에 실행 환경·결과·화면 근거 기록
+- [ ] B의 최종 커버리지 공유 후 A 코드의 부족 영역만 확인·보강
+- [ ] A 점검에서 재현된 오류가 있으면 해당 코드·관련 테스트만 수정
 
-게시: Issue #58 / [PR #59](https://github.com/tetris-swe-team10/tetris/pull/59). 커밋·push 및 B/C 리뷰 요청 전달 완료. 동료 코멘트·수정 답글·main 병합은 대기.
+## 다른 역할의 후속 작업 (A가 구현하지 않음)
+
+- B: 공용 렌더러 교체·임시 렌더러 제거. A는 자기 화면의 결과 확인만 지원한다.
+- C: 최종 화면 디자인·P2P 진행. A는 요청받은 인터페이스 설명·오류 재현만 지원한다.
+
+게시: [PR #59](https://github.com/tetris-swe-team10/tetris/pull/59) 병합 완료. B 리뷰 및 [수정 답글](https://github.com/tetris-swe-team10/tetris/pull/59#issuecomment-6935240709) 확인. C의 리뷰 완료를 대신 주장하지 않는다.

@@ -10,6 +10,8 @@
 
 ## 현재 진행
 
+- A의 다음 작업은 [평가 절차](docs/tasks/A-evaluation.md)의 실제 플레이 결과 기록과 [아이템 테스트 추적표](docs/item-requirements.md) 확인이다. B/C 구현·디자인·공용 렌더러 연동은 각 팀원에게 맡긴다는 최신 사용자 지시를 따른다. 새 기능을 임의로 추가하지 않는다.
+
 - A의 같은 PC 대전 [PR #59](https://github.com/tetris-swe-team10/tetris/pull/59)와 B 리팩토링 [PR #64](https://github.com/tetris-swe-team10/tetris/pull/64)는 2026-11-17 사용자 지시로 리뷰·보완 후 main에 병합했다. [A 할 일](docs/tasks/A-local-versus.md).
 - 기존 ‘바로 병합하지 않음’ 조건은 #59에서 동료 리뷰·지적 처리 후 이행했다. 작성자·AI의 자체 코멘트는 동료 리뷰로 인정하지 않는다. C의 리뷰가 완료되었다고 대신 표시하지 않는다.
 - 관련 요청: [R-A-001 B 리뷰·렌더러](docs/coordination/requests/R-A-001.md), [R-A-002 C 리뷰·P2P 연동](docs/coordination/requests/R-A-002.md).
